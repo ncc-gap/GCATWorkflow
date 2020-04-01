@@ -1,0 +1,102 @@
+configfile: "config.yml"
+
+rule all:
+    input:
+        "join/all.txt"
+rule bam_tofastq:
+    input:
+        lambda wildcards: config["bam_tofastq"][wildcards.sample]
+    output:
+        "fastq/{sample}/pass.txt"
+    params:
+        script = "script/{sample}/singularity_bam_tofastq.sh",
+        yaml = "script/{sample}/conf_bam_tofastq.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule fastq:
+    input:
+        r1=lambda wildcards: config["fastq_r1"][wildcards.sample],
+        r2=lambda wildcards: config["fastq_r2"][wildcards.sample]
+    output:
+        "fastq/{sample}/pass.txt"
+    run:
+        sample = output[0].split("/")[1]
+        import os
+        link_dir = 'fastq/%s' % (sample)
+        os.makedirs(link_dir, exist_ok=True)
+        for (count, target_fastq) in enumerate(input.r1):
+            fastq_prefix, ext = os.path.splitext(target_fastq)
+            link = '%s/%d_%d%s' % (link_dir, count+1, 1, ext)
+            if not os.path.exists(link):
+                os.symlink(target_fastq, link)
+        for (count, target_fastq) in enumerate(input.r2):
+            fastq_prefix, ext = os.path.splitext(target_fastq)
+            link = '%s/%d_%d%s' % (link_dir, count+1, 2, ext)
+            if not os.path.exists(link):
+                os.symlink(target_fastq, link)
+        open(output[0], "w").close()
+
+rule bam_import:
+    input:
+        lambda wildcards: config["bam_import"][wildcards.sample]
+    output:
+        "fastq/{sample}/pass.txt",
+        "cram/{sample}/{sample}.markdup.cram"
+    run:
+        bam_postfix = ".markdup.cram"
+        bai_postfix = ".markdup.cram.crai"
+        subdir = "cram"
+        
+        import os
+        sample = output[0].split("/")[1]
+        link_dir = '%s/%s' % (subdir, sample)
+        os.makedirs(link_dir, exist_ok=True)
+        bam = str(input)
+        prefix, ext = os.path.splitext(bam)
+        if ext == ".bam":
+            bai = ".bai"
+        elif ext == ".cram":
+            bai = ".crai"
+        linked_bam = link_dir +'/'+ sample + bam_postfix
+        linked_bai = link_dir +'/'+ sample + bai_postfix
+
+        if not os.path.exists(linked_bam):
+            os.symlink(bam, linked_bam)
+        if not os.path.exists(linked_bai):
+            if (os.path.exists(bam + bai)):
+                os.symlink(bam + bai, linked_bai)
+            elif (os.path.exists(prefix + bai)):
+                os.symlink(prefix + bai, linked_bai)
+        open(output[0], "w").close()
+
+rule bwa:
+    input:
+        lambda wildcards: config["aln_samples"][wildcards.sample],
+    output:
+        "cram/{sample}/{sample}.markdup.cram"
+    params:
+        script = "script/{sample}/singularity_bwa-alignment-parabrics-compatible.sh",
+        yaml = "script/{sample}/conf_bwa-alignment-parabrics-compatible.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule haplotypecaller:
+    input:
+        lambda wildcards: config["htc_samples"][wildcards.sample],
+    output:
+        "haplotypecaller/{sample}/{sample}.gatk-hc.vcf"
+    params:
+        script = "script/{sample}/singularity_gatk-haplotypecaller-parabrics-compatible.sh",
+        yaml = "script/{sample}/conf_gatk-haplotypecaller-parabrics-compatible.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule join:
+    input:
+        ["{dataset}".format(dataset=dataset) for dataset in config["output_files"]]
+    output:
+        "join/all.txt"
+    shell:
+        "cat {input} > {output}"
+

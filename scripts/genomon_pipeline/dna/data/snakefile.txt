@@ -1,0 +1,147 @@
+configfile: "config.yml"
+
+rule all:
+    input:
+        "join/all.txt"
+
+rule bam_tofastq:
+    input:
+        lambda wildcards: config["bam_tofastq"][wildcards.sample]
+    output:
+        "fastq/{sample}/pass.txt"
+    params:
+        script = "script/{sample}/singularity_bam_tofastq.sh",
+        yaml = "script/{sample}/conf_bam_tofastq.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule fastq:
+    input:
+        r1=lambda wildcards: config["fastq_r1"][wildcards.sample],
+        r2=lambda wildcards: config["fastq_r2"][wildcards.sample]
+    output:
+        "fastq/{sample}/pass.txt"
+    run:
+        sample = output[0].split("/")[1]
+        import os
+        link_dir = 'fastq/%s' % (sample)
+        os.makedirs(link_dir, exist_ok=True)
+        for (count, target_fastq) in enumerate(input.r1):
+            fastq_prefix, ext = os.path.splitext(target_fastq)
+            link = '%s/%d_%d%s' % (link_dir, count+1, 1, ext)
+            if not os.path.exists(link):
+                os.symlink(target_fastq, link)
+        for (count, target_fastq) in enumerate(input.r2):
+            fastq_prefix, ext = os.path.splitext(target_fastq)
+            link = '%s/%d_%d%s' % (link_dir, count+1, 2, ext)
+            if not os.path.exists(link):
+                os.symlink(target_fastq, link)
+        open(output[0], "w").close()
+
+rule bam_import:
+    input:
+        lambda wildcards: config["bam_import"][wildcards.sample]
+    output:
+        "fastq/{sample}/pass.txt",
+        "bam/{sample}/{sample}.markdup.bam"
+    run:
+        bam_postfix = ".markdup.bam"
+        bai_postfix = ".markdup.bam.bai"
+        subdir = "bam"
+        
+        import os
+        sample = output[0].split("/")[1]
+        link_dir = '%s/%s' % (subdir, sample)
+        os.makedirs(link_dir, exist_ok=True)
+        bam = str(input)
+        prefix, ext = os.path.splitext(bam)
+        if ext == ".bam":
+            bai = ".bai"
+        elif ext == ".cram":
+            bai = ".crai"
+        linked_bam = link_dir +'/'+ sample + bam_postfix
+        linked_bai = link_dir +'/'+ sample + bai_postfix
+
+        if not os.path.exists(linked_bam):
+            os.symlink(bam, linked_bam)
+        if not os.path.exists(linked_bai):
+            if (os.path.exists(bam + bai)):
+                os.symlink(bam + bai, linked_bai)
+            elif (os.path.exists(prefix + bai)):
+                os.symlink(prefix + bai, linked_bai)
+        open(output[0], "w").close()
+
+rule bwa:
+    input:
+        lambda wildcards: config["aln_samples"][wildcards.sample],
+    output:
+        "bam/{sample}/{sample}.markdup.bam"
+    params:
+        script = "script/{sample}/singularity_bwa_alignment.sh",
+        yaml = "script/{sample}/conf_bwa_alignment.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule mutation:
+    input:
+        lambda wildcards: config["mutation_samples"][wildcards.sample],
+    output:
+        "mutation/{sample}/{sample}.txt"
+    params:
+        script = "script/{sample}/singularity_mutation_dummy.sh",
+        yaml = "script/{sample}/conf_mutation_dummy.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule sv:
+    input:
+        lambda wildcards: config["sv_samples"][wildcards.sample]
+    output:
+        "sv/{sample}/{sample}.txt"
+    params:
+        script = "script/{sample}/singularity_sv_dummy.sh",
+        yaml = "script/{sample}/conf_sv_dummy.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule qc_bamstats:
+    input:
+        lambda wildcards: config["qc_samples"][wildcards.sample]
+    output:
+        "qc/{sample}/{sample}.bamstats"
+    params:
+        script = "script/{sample}/singularity_qc_bamstats.sh",
+        yaml = "script/{sample}/conf_qc_bamstats.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule qc_coverage:
+    input:
+        lambda wildcards: config["qc_samples"][wildcards.sample]
+    output:
+        "qc/{sample}/{sample}.coverage"
+    params:
+        script = "script/{sample}/singularity_qc_coverage.sh",
+        yaml = "script/{sample}/conf_qc_coverage.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule qc_merge:
+    input:
+        lambda wildcards: config["qc_merge"][wildcards.sample],
+    output:
+        "qc/{sample}/{sample}.genomonQC.result.txt"
+    params:
+        script = "script/{sample}/singularity_qc_merge.sh",
+        yaml = "script/{sample}/conf_qc_merge.yml"
+    shell:
+        "genomon_runner {params.script} {params.yaml}"
+
+rule join:
+    input:
+        ["{dataset}".format(dataset=dataset) for dataset in config["output_files"]]
+    output:
+        "join/all.txt"
+    shell:
+        "cat {input} > {output}"
+
