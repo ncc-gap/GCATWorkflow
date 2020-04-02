@@ -1,5 +1,6 @@
-[![Build Status](https://travis-ci.org/ncc-ccat-gap/GCATWorkflow.svg?branch=master)](https://travis-ci.org/ncc-ccat-gap/GCATWorkflow)
+[![Build Status](https://api.travis-ci.com/ncc-ccat-gap/GCATWorkflow.svg?branch=master)](https://travis-ci.com/github/ncc-ccat-gap/GCATWorkflow)
 ![Python](https://img.shields.io/badge/python-3.6%20%7C%203.7-blue.svg)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 G-CAT Workflow
 ===============
