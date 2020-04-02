@@ -1,0 +1,19 @@
+language: python
+
+matrix:
+  include:
+    - name: "Python 3.7"
+      python: 3.7
+    - name: "Python 3.6"
+      python: 3.6
+
+script:
+  - python setup.py build install
+  - python setup.py test
+
+notifications:
+  emails:
+    - aokada@ncc.go.jp
+  on_success: change
+  on_failure: always
+
