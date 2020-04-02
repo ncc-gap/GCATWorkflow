@@ -16,8 +16,6 @@ Make DRMAA and singularity available beforehand.
 1. Install
 
 ```
-virtualenv -p python3 ~/venv/genomon_snakemake
-source ~/venv/genomon_snakemake/bin/activate
 git clone https://github.com/ncc-ccat-gap/GCATWorkflow.git
 cd GCATWorkflow
 python setup.py install
