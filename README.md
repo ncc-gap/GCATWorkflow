@@ -18,17 +18,16 @@ Make DRMAA and singularity available beforehand.
 ```
 virtualenv -p python3 ~/venv/genomon_snakemake
 source ~/venv/genomon_snakemake/bin/activate
-git clone -b snakemake https://github.com/Genomon-Project/GenomonPipeline.git GenomonPipeline_snakemake
-cd GenomonPipeline_snakemake
+git clone https://github.com/ncc-ccat-gap/GCATWorkflow.git
+cd GCATWorkflow
 python setup.py install
-pip install snakemake pyyaml drmaa
 ```
 
 2. Edit sample.csv
 
 Edit pathes of sequence files.
 ```
-vi ./test/5929_sample.csv
+vi ./tests/dna_sample.csv
 ```
 
 3. Pull container images
@@ -42,7 +41,7 @@ singularity pull docker://genomon/bwa_alignment:0.2.0
 Edit `image` options, to pulled `.simg`.
 And edit pathes of reference files.
 ```
-vi ./test/dna_genomon.cfg
+vi ./tests/dna_genomon.cfg
 ```
 
 ## How to use
@@ -50,7 +49,7 @@ vi ./test/dna_genomon.cfg
 1. Configure
 
 ```
-genomon_pipeline dna ./test/5929_sample.csv ${output_dir} ./test/dna_genomon.cfg
+genomon_pipeline dna ./tests/dna_sample.csv ${output_dir} ./tests/dna_genomon.cfg
 ```
 
 2. `snakemake`
