@@ -5,6 +5,8 @@ GenomonPipeline, a cancer genome and RNA sequencing data analysis pipeline, effi
 ## Manual
 http://genomon-project.github.io/GenomonPages/
 
+For developers, https://github.com/ncc-ccat-gap/GCATWorkflow/wiki
+
 ## Setup
 
 0. Precondition
