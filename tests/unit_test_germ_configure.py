@@ -25,11 +25,11 @@ HT_CALL = "gatk-haplotypecaller-parabrics-compatible"
 
 class ConfigureTest(unittest.TestCase):
     
-    DATA_DIR = "/tmp/temp-test/genomon_test_germ_configure"
+    DATA_DIR = "/tmp/temp-test/gcat_test_germ_configure"
     SAMPLE_DIR = DATA_DIR + "/samples"
     REMOVE = False
     SS_NAME = "/test.csv"
-    GC_NAME = "/genomon.cfg"
+    GC_NAME = "/gcat.cfg"
 
     # init class
     @classmethod
@@ -118,10 +118,10 @@ reference = {sample_dir}/reference/XXX.fa
         pass
     
     def test1_01_version(self):
-        subprocess.check_call(['python', 'genomon_pipeline', '--version'])
+        subprocess.check_call(['python', 'gcat_workflow', '--version'])
     
     def test1_02_version(self):
-        subprocess.check_call(['python', 'genomon_runner', '--version'])
+        subprocess.check_call(['python', 'gcat_runner', '--version'])
     
     def test2_01_configure(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
@@ -131,7 +131,7 @@ reference = {sample_dir}/reference/XXX.fa
             wdir,
             self.DATA_DIR + self.GC_NAME,
         ]
-        subprocess.check_call(['python', 'genomon_pipeline'] + options)
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
@@ -144,7 +144,7 @@ reference = {sample_dir}/reference/XXX.fa
             self.DATA_DIR + self.GC_NAME,
             "--disable_drmaa",
         ]
-        subprocess.check_call(['python', 'genomon_pipeline'] + options)
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
@@ -164,7 +164,7 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
             wdir,
             self.DATA_DIR + self.GC_NAME,
         ]
-        subprocess.check_call(['python', 'genomon_pipeline'] + options)
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
@@ -184,7 +184,7 @@ A_tumor,{sample_dir}/A.markdup.cram
             wdir,
             self.DATA_DIR + self.GC_NAME,
         ]
-        subprocess.check_call(['python', 'genomon_pipeline'] + options)
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
@@ -204,7 +204,7 @@ A_tumor,{sample_dir}/A.markdup.cram
             wdir,
             self.DATA_DIR + self.GC_NAME,
         ]
-        subprocess.check_call(['python', 'genomon_pipeline'] + options)
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
@@ -226,7 +226,7 @@ A_tumor
             wdir,
             self.DATA_DIR + self.GC_NAME,
         ]
-        subprocess.check_call(['python', 'genomon_pipeline'] + options)
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
@@ -248,7 +248,7 @@ A_tumor
             wdir,
             self.DATA_DIR + self.GC_NAME,
         ]
-        subprocess.check_call(['python', 'genomon_pipeline'] + options)
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
@@ -270,7 +270,7 @@ A_tumor
             wdir,
             self.DATA_DIR + self.GC_NAME,
         ]
-        subprocess.check_call(['python', 'genomon_pipeline'] + options)
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 

@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+
+from gcat_workflow import __version__
+import gcat_workflow.runner
+import argparse
+
+parser = argparse.ArgumentParser(prog = "gcat_runner")
+
+parser.add_argument("--version", action = "version", version = "gcat_runner-" + __version__)
+
+parser.add_argument('script', metavar = "/path/to/singularity_bwa.sh", type = str, help = "input singularity script")
+parser.add_argument("conf", metavar = "/path/to/sample.conf.yml", type = str, help = "input sample list flie [YAML]")
+parser.set_defaults(handler=gcat_workflow.runner.main)
+
+args = parser.parse_args()
+
+args.handler(args)

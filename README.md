@@ -7,7 +7,7 @@ G-CAT Workflow
 G-CAT Workflow, a cancer genome and RNA sequencing data analysis pipeline, efficiently detects of genomic variants and transcriptomic changes. Users can run G-CAT Workflow with ease of use in the HGC supercomputer and also can run it in other high performance computers.
 
 ## Manual
-http://genomon-project.github.io/GenomonPages/
+https://github.com/ncc-ccat-gap/GCATWorkflow
 
 For developers, https://github.com/ncc-ccat-gap/GCATWorkflow/wiki
 
@@ -43,7 +43,7 @@ singularity pull docker://genomon/bwa_alignment:0.2.0
 Edit `image` options, to pulled `.simg`.
 And edit pathes of reference files.
 ```
-vi ./tests/dna_genomon.cfg
+vi ./tests/dna_gcat.cfg
 ```
 
 ## How to use
@@ -51,7 +51,7 @@ vi ./tests/dna_genomon.cfg
 1. Configure
 
 ```
-genomon_pipeline dna ./tests/dna_sample.csv ${output_dir} ./tests/dna_genomon.cfg
+gcat_workflow dna ./tests/dna_sample.csv ${output_dir} ./tests/dna_gcat.cfg
 ```
 
 2. `snakemake`

@@ -10,7 +10,7 @@ import os
 import sys
 import shutil
 import unittest
-import genomon_pipeline.germ.sample_conf as sc
+import gcat_workflow.germ.sample_conf as sc
 
 BAM_IMP = "bam-import"
 BAM_2FQ = "bam-tofastq"
@@ -19,7 +19,7 @@ HT_CALL = "gatk-haplotypecaller-parabrics-compatible"
 
 class SubmitTest(unittest.TestCase):
     
-    SAMPLE_DIR = "/tmp/temp-test/genomon_test_germ_samplesheet"
+    SAMPLE_DIR = "/tmp/temp-test/gcat_test_germ_samplesheet"
     REMOVE = True
     
     # init class

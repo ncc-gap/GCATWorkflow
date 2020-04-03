@@ -10,11 +10,11 @@ import os
 import sys
 import shutil
 import unittest
-import genomon_pipeline.dna.sample_conf as sc
+import gcat_workflow.dna.sample_conf as sc
 
 class SubmitTest(unittest.TestCase):
     
-    SAMPLE_DIR = "/tmp/temp-test/genomon_test_dna_samplesheet"
+    SAMPLE_DIR = "/tmp/temp-test/gcat_test_dna_samplesheet"
     REMOVE = True
     
     # init class
