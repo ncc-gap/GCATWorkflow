@@ -25,25 +25,25 @@ cd GCATWorkflow
 python setup.py install
 ```
 
-2. Edit sample.csv
-
-Edit pathes of sequence files.
-```
-vi ./tests/dna_sample.csv
-```
-
-3. Pull container images
+2. Pull container images
 
 ```
 singularity pull docker://genomon/bwa_alignment:0.2.0
 ```
 
-4. Edit config file
+3. Edit config file
 
-Edit `image` options, to pulled `.simg`.
+Edit `image` options, to pulled `.simg`.  
 And edit pathes of reference files.
 ```
 vi ./tests/dna_gcat.cfg
+```
+
+4. Edit sample.csv
+
+Edit pathes of sequence files.
+```
+vi ./tests/dna_sample.csv
 ```
 
 ## How to use
@@ -75,4 +75,4 @@ case, with dot
 snakemake --forceall --dag | dot -Tpng > dag.png
 ```
 
-![](./dag.png)
+![](./doc/dag.png)
