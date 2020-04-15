@@ -6,3 +6,7 @@
 
 [gatk-collect-wgs-metrics]
 5929_tumor
+
+[gatk-collect-multiple-metrics]
+5929_tumor
+

@@ -53,18 +53,33 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.germ.resource.haplotypecaller as rs_mutation
     output_mutations = rs_mutation.configure(output_bams, gcat_conf, run_conf, sample_conf)
     
-    # summary
+    # wgs summary
     import gcat_workflow.germ.resource.collectwgsmetrics as rs_wgs_summary
-    output_mutations = rs_wgs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
+    output_wgs_metrics = rs_wgs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
+
+    # multiple summary
+    import gcat_workflow.germ.resource.collectmultiplemetrics as rs_multiple_summary
+    output_multiple_metrics = rs_multiple_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
     
     # ######################
     # dump conf.yaml
     # ######################
     y["output_files"].extend(output_mutations)
+    y["output_files"].extend(output_wgs_metrics)
+    y["output_files"].extend(output_multiple_metrics)
     
     y["htc_samples"] = {}
     for sample in sample_conf.haplotype_call:
         y["htc_samples"][sample] = rs_align.OUTPUT_FORMAT.format(sample=sample)
+        
+    y["wgs_metrics_samples"] = {}
+    for sample in sample_conf.wgs_metrics:
+        y["wgs_metrics_samples"][sample] = rs_align.OUTPUT_FORMAT.format(sample=sample)
+
+    y["multiple_metrics_samples"] = {}
+    for sample in sample_conf.multiple_metrics:
+        y["multiple_metrics_samples"][sample] = rs_align.OUTPUT_FORMAT.format(sample=sample)
+        
         
     import yaml
     open(run_conf.project_root + "/config.yml", "w").write(yaml.dump(y))

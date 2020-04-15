@@ -7,6 +7,7 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_BAM_TOFASTQ = "bam-tofastq"
     SECTION_HTCALL = "gatk-haplotypecaller-parabrics-compatible"
     SECTION_WGS_METRICS = "gatk-collect-wgs-metrics"
+    SECTION_MULTIPLE_METRICS = "gatk-collect-multiple-metrics"
     
     def __init__(self, sample_conf_file, exist_check = True):
 
@@ -18,6 +19,7 @@ class Sample_conf(abc.Sample_conf_abc):
         self.bam_import_src = {}
         self.haplotype_call = []
         self.wgs_metrics = []
+        self.multiple_metrics = []
         self.exist_check = exist_check
         
         self.parse_file(sample_conf_file)
@@ -25,7 +27,7 @@ class Sample_conf(abc.Sample_conf_abc):
     def parse_data(self, _data):
         
         input_sections = [self.SECTION_FASTQ, self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ]
-        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS]
+        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS, self.SECTION_MULTIPLE_METRICS]
         controlpanel_sections = []
         splited = self.split_section_data(_data, input_sections, analysis_sections, controlpanel_sections)
         
@@ -53,4 +55,7 @@ class Sample_conf(abc.Sample_conf_abc):
 
         if self.SECTION_WGS_METRICS in splited:
             self.wgs_metrics += self.parse_data_general(splited[self.SECTION_WGS_METRICS])
+
+        if self.SECTION_MULTIPLE_METRICS in splited:
+            self.multiple_metrics += self.parse_data_general(splited[self.SECTION_MULTIPLE_METRICS])
         

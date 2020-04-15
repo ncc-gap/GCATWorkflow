@@ -94,12 +94,23 @@ rule haplotypecaller:
 
 rule collectwgsmetrics:
     input:
-        lambda wildcards: config["htc_samples"][wildcards.sample],
+        lambda wildcards: config["wgs_metrics_samples"][wildcards.sample],
     output:
         "summary/{sample}/{sample}.collect-wgs-metrics.txt"
     params:
         script = "script/{sample}/singularity_gatk-collect-wgs-metrics.sh",
         yaml = "script/{sample}/conf_gatk-collect-wgs-metrics.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule collectmultiplemetrics:
+    input:
+        lambda wildcards: config["multiple_metrics_samples"][wildcards.sample],
+    output:
+        "summary/{sample}/{sample}.collect-multiple-metrics.gc_bias.pdf"
+    params:
+        script = "script/{sample}/singularity_gatk-collect-multiple-metrics.sh",
+        yaml = "script/{sample}/conf_gatk-collect-multiple-metrics.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
