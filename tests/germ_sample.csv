@@ -4,3 +4,5 @@
 [gatk-haplotypecaller-parabrics-compatible]
 5929_tumor
 
+[gatk-collect-wgs-metrics]
+5929_tumor

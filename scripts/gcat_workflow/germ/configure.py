@@ -53,6 +53,9 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.germ.resource.haplotypecaller as rs_mutation
     output_mutations = rs_mutation.configure(output_bams, gcat_conf, run_conf, sample_conf)
     
+    # summary
+    import gcat_workflow.germ.resource.collectwgsmetrics as rs_wgs_summary
+    output_mutations = rs_wgs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
     
     # ######################
     # dump conf.yaml
@@ -65,4 +68,4 @@ def main(gcat_conf, run_conf, sample_conf):
         
     import yaml
     open(run_conf.project_root + "/config.yml", "w").write(yaml.dump(y))
-    
+

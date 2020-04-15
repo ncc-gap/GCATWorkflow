@@ -92,6 +92,17 @@ rule haplotypecaller:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
+rule collectwgsmetrics:
+    input:
+        lambda wildcards: config["htc_samples"][wildcards.sample],
+    output:
+        "summary/{sample}/{sample}.collect-wgs-metrics.txt"
+    params:
+        script = "script/{sample}/singularity_gatk-collect-wgs-metrics.sh",
+        yaml = "script/{sample}/conf_gatk-collect-wgs-metrics.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
 rule join:
     input:
         ["{dataset}".format(dataset=dataset) for dataset in config["output_files"]]
