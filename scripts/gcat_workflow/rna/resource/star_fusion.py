@@ -20,8 +20,6 @@ set -o nounset
 set -o pipefail
 set -x
 
-mkdir -p {OUTPUT_DIR}
-
 STAR-Fusion --genome_lib_dir {REFERENCE} \
   -J {CHIMERIC_OUT_JUNCTION} \
   --output_dir {OUTPUT_DIR} \
@@ -30,6 +28,8 @@ STAR-Fusion --genome_lib_dir {REFERENCE} \
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
+    import os
+    
     STAGE_NAME = "star_fusion"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -44,6 +44,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = []
     for sample in sample_conf.star_fusion:
         output_dir = "%s/star_fusion/%s" % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok=True)    
         output_files.append("star_fusion/{sample}/{sample}.fusion_predictions.abridged.tsv".format(sample = sample))
 
         arguments = {

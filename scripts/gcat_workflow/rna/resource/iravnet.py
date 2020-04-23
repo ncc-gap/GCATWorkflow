@@ -21,11 +21,13 @@ set -o pipefail
 set -x
 
 OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
-mkdir -p {OUTPUT_DIR}
+
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
+    import os
+    
     STAGE_NAME = "iravnet"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -40,6 +42,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = []
     for sample in sample_conf.iravnet:
         output_dir = "%s/iravnet/%s" % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok=True)    
         output_files.append("iravnet/{sample}/{sample}.txt.fpkm".format(sample = sample))
         
         arguments = {

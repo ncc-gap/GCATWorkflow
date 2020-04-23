@@ -22,16 +22,15 @@ set -o nounset
 set -o pipefail
 set -x
 
-OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
-mkdir -p {OUTPUT_DIR}
-
-
+chimera_utils count {option} {input} {output}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_files, gcat_conf, run_conf, sample_conf):
+    import os
+    
     STAGE_NAME = "fusionfusion_count"
-    SECTION_NAME = "fusionfusion"
+    SECTION_NAME = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
@@ -53,12 +52,13 @@ def configure(input_files, gcat_conf, run_conf, sample_conf):
     output_files = {}
     for sample in samples:
         output_dir = "%s/fusionfusion/%s" % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok=True)
         output_files[sample] = OUTPUT_FORMAT.format(sample = sample)
         
         arguments = {
-            "SAMPLE": sample,
-            "INPUT_BAM": input_files[sample],
-            "OUTPUT_DIR": output_dir,
+            "input": input_files[sample],
+            "output": "%s/%s.Chimeric.count" % (output_dir, sample),
+            "option": gcat_conf.get(SECTION_NAME, "chimera_utils_count_option"),
         }
        
         singularity_bind = [run_conf.project_root]

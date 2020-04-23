@@ -152,16 +152,21 @@ def main(gcat_conf, run_conf, sample_conf):
 
     y["fusionfusion_merge_samples"] = {}
     for [sample, panel] in sample_conf.fusionfusion:
-        y["fusionfusion_merge_samples"][sample] = [rs_fusionfusion_count.OUTPUT_FORMAT.format(sample=sample)]
         if panel == None:
             continue
+        y["fusionfusion_merge_samples"][panel] = []
         for i in sample_conf.control_panel[panel]:
-            y["fusionfusion_merge_samples"][sample].append(rs_fusionfusion_count.OUTPUT_FORMAT.format(sample=i))
-                
+            y["fusionfusion_merge_samples"][panel].append(rs_fusionfusion_count.OUTPUT_FORMAT.format(sample=i))
+    
     y["fusionfusion_samples"] = {}
     for [sample, panel] in sample_conf.fusionfusion:
-        y["fusionfusion_samples"][sample] = rs_fusionfusion_merge.OUTPUT_FORMAT.format(sample=sample)
-            
+        y["fusionfusion_samples"][sample] = [
+            rs_fusionfusion_count.OUTPUT_FORMAT.format(sample=sample)
+        ]
+        if panel != None:
+            y["fusionfusion_samples"][sample].append(rs_fusionfusion_merge.OUTPUT_FORMAT.format(sample=panel))
+        
+    
     y["star_fusion_samples"] = {}
     for sample in sample_conf.star_fusion:
         y["star_fusion_samples"][sample] = rs_align.OUTPUT_CHIMERIC_JUNCTION_FORMAT.format(sample=sample)

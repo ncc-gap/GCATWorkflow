@@ -158,6 +158,18 @@ singularity_option =
 star_fusion_option = --runThreadN 6
 star_genome = {sample_dir}/reference
 
+[fusionfusion_count]
+qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
+image = {sample_dir}/image/YYY.simg
+singularity_option = 
+chimera_utils_count_option=
+
+[fusionfusion_merge]
+qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
+image = {sample_dir}/image/YYY.simg
+singularity_option = 
+chimera_utils_merge_option=
+
 [fusionfusion]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg

@@ -30,7 +30,6 @@ set -o pipefail
 set -x
 
 OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
-mkdir -p {OUTPUT_DIR}
 
 # cat fastq
 {cat_fastq}
@@ -61,6 +60,8 @@ rm ${{OUTPUT_PREF}}.Aligned.out.bam
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def configure(gcat_conf, run_conf, sample_conf):
+    import os
+    
     STAGE_NAME = "star_alignment"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -75,6 +76,7 @@ def configure(gcat_conf, run_conf, sample_conf):
     output_bams = {}
     for sample in sample_conf.fastq:
         output_dir = "%s/star/%s" % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok=True)
         output_bams[sample] = "%s/%s.Aligned.sortedByCoord.out.bam" % (output_dir, sample)
 
         paired = len(sample_conf.fastq[sample]) > 1

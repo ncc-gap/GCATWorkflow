@@ -23,14 +23,16 @@ set -o pipefail
 set -x
 
 OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
-mkdir -p {OUTPUT_DIR}
+
 
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_files, gcat_conf, run_conf, sample_conf):
+    import os
+    
     STAGE_NAME = "fusionfusion"
-    SECTION_NAME = "fusionfusion"
+    SECTION_NAME = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
@@ -43,11 +45,12 @@ def configure(input_files, gcat_conf, run_conf, sample_conf):
     output_files = []
     for (sample, panel) in sample_conf.fusionfusion:
         output_dir = "%s/fusionfusion/%s" % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok=True)
         output_files.append(OUTPUT_FORMAT.format(sample = sample))
         
         arguments = {
             "SAMPLE": sample,
-            "INPUT_BAM": input_files[sample],
+            #"INPUT_BAM": input_files[sample],
             "OUTPUT_DIR": output_dir,
         }
        

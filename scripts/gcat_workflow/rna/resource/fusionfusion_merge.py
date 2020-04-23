@@ -22,15 +22,20 @@ set -o nounset
 set -o pipefail
 set -x
 
-OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
-mkdir -p {OUTPUT_DIR}
+echo -n > {MERGED_LIST}
+for TMP_SAMPLE in {PANEL_SAMPLES}; do
+    echo {OUTPUT_DIR}/${{TMP_SAMPLE}}/${{TMP_SAMPLE}}.Chimeric.count >> {MERGED_LIST}
+done
 
+chimera_utils merge_control {OPTION} {MERGED_LIST} {OUTPUT}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_files, gcat_conf, run_conf, sample_conf):
-    STAGE_NAME = "fusionfusion"
-    SECTION_NAME = "fusionfusion"
+    import os
+    
+    STAGE_NAME = "fusionfusion_merge"
+    SECTION_NAME = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
@@ -42,15 +47,25 @@ def configure(input_files, gcat_conf, run_conf, sample_conf):
     
     output_files = {}
     for (sample, panel) in sample_conf.fusionfusion:
+        if panel == None:
+            continue 
+        if panel in output_files:
+            continue
+        
+        output_file = OUTPUT_FORMAT.format(sample = panel)
+        output_files[panel] = output_file
+        
         output_dir = "%s/fusionfusion/%s" % (run_conf.project_root, sample)
-        output_files[sample] = OUTPUT_FORMAT.format(sample = sample)
+        os.makedirs(output_dir, exist_ok=True)
         
         arguments = {
-            "SAMPLE": sample,
-            "INPUT_BAM": input_files[sample],
-            "OUTPUT_DIR": output_dir,
+            "MERGED_LIST": "%s/%s.Chimeric.count.list" % (output_dir, panel),
+            "OUTPUT": "%s/%s.merged.Chimeric.count" % (output_dir, panel),
+            "PANEL_SAMPLES": " ".join(sample_conf.control_panel[panel]),
+            "OUTPUT_DIR": "%s/fusionfusion" % (run_conf.project_root),
+            "OPTION": gcat_conf.get(SECTION_NAME, "chimera_utils_merge_option")
         }
-       
+        
         singularity_bind = [run_conf.project_root]
         if sample in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[sample]

@@ -60,6 +60,7 @@ touch {pass}
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def configure(gcat_conf, run_conf, sample_conf):
+    import os
     
     #STAGE_NAME = sample_conf.SECTION_BAM_TOFASTQ_PAIR
     STAGE_NAME = "bam_tofastq"
@@ -76,6 +77,7 @@ def configure(gcat_conf, run_conf, sample_conf):
     output_fastqs = {}
     for sample in sample_conf.bam_tofastq_pair:
         output_dir = "%s/fastq/%s" % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok=True)    
         f1_name = output_dir + "/1_1.fastq"
         f2_name = output_dir + "/1_2.fastq"
         output_fastqs[sample] = [[f1_name], [f2_name]]
