@@ -71,7 +71,7 @@ A_control_s,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 [bam_import],,,,
 pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
 ,,,,
-[fusion],,,,
+[fusionfusion],,,,
 A_tumor,list1,,
 A_control,None,,
 ,,,,
@@ -79,6 +79,18 @@ A_control,None,,
 A_tumor,,,,
 A_tumor_s,,,,
 ,,,,
+[star_fusion],,,,
+A_tumor,,,,
+
+[intron_retention],,,,
+A_tumor,,,,
+
+[iravnet],,,,
+A_tumor,,,,
+
+[kalisto],,,,
+A_tumor,,,,
+
 [qc],,,,
 A_tumor,,,,
 A_control,,,,
@@ -119,10 +131,14 @@ list1,pool1,pool2,pool3
         self.assertEqual(sample_conf.bam_tofastq_single_src, {'A_control_s': [self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam']})
         self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam'})
         self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam', self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bai']})
-        self.assertEqual(sample_conf.fusion, [('A_tumor', 'list1'), ('A_control', None)])
+        self.assertEqual(sample_conf.fusionfusion, [('A_tumor', 'list1'), ('A_control', None)])
         self.assertEqual(sample_conf.expression, ['A_tumor', 'A_tumor_s'])
         self.assertEqual(sample_conf.qc, ['A_tumor', 'A_control', 'pool1', 'pool2', 'pool3'])
         self.assertEqual(sample_conf.control_panel, {'list1': ['pool1', 'pool2', 'pool3']})
+        self.assertEqual(sample_conf.star_fusion, ['A_tumor'])
+        self.assertEqual(sample_conf.ir_count, ['A_tumor'])
+        self.assertEqual(sample_conf.iravnet, ['A_tumor'])
+        self.assertEqual(sample_conf.kalisto, ['A_tumor'])
 
     # --------------------------------------------------------------------
     # ok
@@ -135,7 +151,7 @@ A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 pool1,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 
-[fusion]
+[fusionfusion]
 A_tumor
 
 [controlpanel]
@@ -147,7 +163,7 @@ list1,pool1
         f.close()
         sample_conf = sc.Sample_conf(ss_path)
         
-        self.assertEqual(sample_conf.fusion, [('A_tumor', None)])
+        self.assertEqual(sample_conf.fusionfusion, [('A_tumor', None)])
 
     def test1_03_ok(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
@@ -157,7 +173,7 @@ A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 pool1,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 
-[fusion]
+[fusionfusion]
 A_tumor,list1,list2
 
 [controlpanel]
@@ -169,7 +185,7 @@ list1,pool1
         f.close()
         sample_conf = sc.Sample_conf(ss_path)
         
-        self.assertEqual(sample_conf.fusion, [('A_tumor', 'list1')])
+        self.assertEqual(sample_conf.fusionfusion, [('A_tumor', 'list1')])
 
     # --------------------------------------------------------------------
     # Not Exist
@@ -278,7 +294,7 @@ pool3,{sample_dir}/X.Aligned.sortedByCoord.out.bam,,,
         data = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
 
-[fusion]
+[fusionfusion]
 B_tumor,None
 """.format(sample_dir = self.SAMPLE_DIR)
         
@@ -300,7 +316,7 @@ B_tumor,None
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
 pool1,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
 
-[fusion]
+[fusionfusion]
 A_tumor,list2
 
 [controlpanel]
@@ -518,7 +534,7 @@ pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq,,
 [bam_tofastq_single],,,,
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 
-[fusion],,,,
+[fusionfusion],,,,
 A_tumor,list1,,
 A_tumor,None,,
 
@@ -589,7 +605,7 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
 pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq,,
 pool2,{sample_dir}/B1.fq,{sample_dir}/B2.fq,,
 
-[fusion]
+[fusionfusion]
 A_tumor,list1
 
 [controlpanel]
@@ -725,7 +741,7 @@ A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,{sample_dir}/B.Aligned.sort
         data = """[fastq],,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
 
-[fusion]
+[fusionfusion]
 A_tumor,None,list1
 
 [controlpanel]

@@ -2,10 +2,15 @@
 
 import gcat_workflow.core.stage_task_abc as stage_task
 
-OUTPUT_FORMAT = "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam"
 BAM_POSTFIX = ".Aligned.sortedByCoord.out.bam"
 BAI_POSTFIX = ".Aligned.sortedByCoord.out.bam.bai"
-    
+CHIMERIC_JUNCTION_POSTFIX = ".Chimeric.out.junction"
+CHIMERIC_SAM_POSTFIX = ".Chimeric.out.sam"
+
+OUTPUT_BAM_FORMAT = "star/{sample}/{sample}" + BAM_POSTFIX
+OUTPUT_CHIMERIC_JUNCTION_FORMAT = "star/{sample}/{sample}" + CHIMERIC_JUNCTION_POSTFIX
+OUTPUT_CHIMERIC_SAM_FORMAT = "star/{sample}/{sample}" + CHIMERIC_SAM_POSTFIX
+
 class Star_align(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)

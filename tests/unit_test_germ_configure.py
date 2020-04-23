@@ -22,6 +22,8 @@ BAM_IMP = "bam-import"
 BAM_2FQ = "bam-tofastq"
 ALN = "bwa-alignment-parabrics-compatible"
 HT_CALL = "gatk-haplotypecaller-parabrics-compatible"
+SUMMARY1 = "gatk-collect-wgs-metrics"
+SUMMARY2 = "gatk-collect-multiple-metrics"
 
 class ConfigureTest(unittest.TestCase):
     
@@ -97,7 +99,19 @@ qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
 reference = {sample_dir}/reference/XXX.fa
-""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL)
+
+[{summary1}]
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = {sample_dir}/image/YYY.simg
+singularity_option = 
+reference = {sample_dir}/reference/XXX.fa
+
+[{summary2}]
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = {sample_dir}/image/YYY.simg
+singularity_option = 
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         
         f = open(self.DATA_DIR + self.GC_NAME, "w")
         f.write(data_conf)

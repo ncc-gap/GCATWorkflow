@@ -6,10 +6,13 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_BAM_IMPORT = "bam_import"
     SECTION_BAM_TOFASTQ_PAIR = "bam_tofastq_pair"
     SECTION_BAM_TOFASTQ_SINGLE = "bam_tofastq_single"
-    SECTION_FUSION = "fusion"
+    SECTION_FUSIONFUSION = "fusionfusion"
     SECTION_EXPRESSION = "expression"
-    SECTION_IR = "intron_retention"
+    SECTION_IR_COUNT = "intron_retention"
     SECTION_QC = "qc"
+    SECTION_IRAVNET = "iravnet"
+    SECTION_STAR_FUSION = "star_fusion"
+    SECTION_KALISTO = "kalisto"
     SECTION_CONTROL_PANEL = "controlpanel"
     
     def __init__(self, sample_conf_file, exist_check = True):
@@ -22,10 +25,13 @@ class Sample_conf(abc.Sample_conf_abc):
         self.bam_import = {}
         self.bam_import_src = {}
         self.control_panel = {}
-        self.fusion = []
+        self.fusionfusion = []
         self.expression = []
-        self.intron_retention = []
+        self.ir_count = []
         self.qc = []
+        self.iravnet = []
+        self.star_fusion = []
+        self.kalisto = []
         self.exist_check = exist_check
         self.parse_file(sample_conf_file)
     
@@ -43,7 +49,11 @@ class Sample_conf(abc.Sample_conf_abc):
     def parse_data(self, _data):
         
         input_sections = [self.SECTION_FASTQ , self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ_PAIR, self.SECTION_BAM_TOFASTQ_SINGLE]
-        analysis_sections = [self.SECTION_FUSION, self.SECTION_EXPRESSION, self.SECTION_IR, self.SECTION_QC]
+        analysis_sections = [
+            self.SECTION_FUSIONFUSION, self.SECTION_STAR_FUSION,
+            self.SECTION_EXPRESSION, self.SECTION_IR_COUNT, self.SECTION_IRAVNET, self.SECTION_KALISTO,
+            self.SECTION_QC
+        ]
         controlpanel_sections = [self.SECTION_CONTROL_PANEL]
         splited = self.split_section_data(_data, input_sections, analysis_sections, controlpanel_sections)
         
@@ -70,14 +80,25 @@ class Sample_conf(abc.Sample_conf_abc):
         if self.SECTION_EXPRESSION in splited:
             self.expression += self.parse_data_general(splited[self.SECTION_EXPRESSION])
         
-        if self.SECTION_IR in splited:
-            self.intron_retention += self.parse_data_general(splited[self.SECTION_IR])
+        if self.SECTION_IR_COUNT in splited:
+            self.ir_count += self.parse_data_general(splited[self.SECTION_IR_COUNT])
+        
+        if self.SECTION_IRAVNET in splited:
+            self.iravnet += self.parse_data_general(splited[self.SECTION_IRAVNET])
+        
+        if self.SECTION_KALISTO in splited:
+            self.kalisto += self.parse_data_general(splited[self.SECTION_KALISTO])
+        
+        if self.SECTION_STAR_FUSION in splited:
+            self.star_fusion += self.parse_data_general(splited[self.SECTION_STAR_FUSION])
         
         if self.SECTION_QC in splited:
             self.qc += self.parse_data_general(splited[self.SECTION_QC])
-        
+            
         if self.SECTION_CONTROL_PANEL in splited:
             self.control_panel.update(self.parse_data_controlpanel(splited[self.SECTION_CONTROL_PANEL]))
         
-        if self.SECTION_FUSION in splited:
-            self.fusion += self.parse_data_fusion(splited[self.SECTION_FUSION], self.control_panel.keys())
+        if self.SECTION_FUSIONFUSION in splited:
+            self.fusionfusion += self.parse_data_fusion(splited[self.SECTION_FUSIONFUSION], self.control_panel.keys())
+        
+            

@@ -43,7 +43,10 @@ rule bam_import:
         lambda wildcards: config["bam_import"][wildcards.sample]
     output:
         "fastq/{sample}/pass.txt",
-        "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam"
+        "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam",
+        "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
+        "star/{sample}/{sample}.Chimeric.out.sam",
+        "star/{sample}/{sample}.Chimeric.out.junction",
     run:
         bam_postfix = ".Aligned.sortedByCoord.out.bam"
         bai_postfix = ".Aligned.sortedByCoord.out.bam.bai"
@@ -75,10 +78,57 @@ rule star:
     input:
         lambda wildcards: config["aln_samples"][wildcards.sample],
     output:
-        "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam"
+        "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam",
+        "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
+        "star/{sample}/{sample}.Chimeric.out.sam",
+        "star/{sample}/{sample}.Chimeric.out.junction",
     params:
         script = "script/{sample}/singularity_star_alignment.sh",
         yaml = "script/{sample}/conf_star_alignment.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule star_fusion:
+    input:
+        lambda wildcards: config["star_fusion_samples"][wildcards.sample],
+    output:
+        "star_fusion/{sample}/{sample}.fusion_predictions.abridged.tsv"
+    params:
+        script = "script/{sample}/singularity_star_fusion.sh",
+        yaml = "script/{sample}/conf_star_fusion.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule fusionfusion_count:
+    input:
+        lambda wildcards: config["fusionfusion_count_samples"][wildcards.sample],
+    output:
+        "fusionfusion/{sample}/{sample}.Chimeric.count"
+    params:
+        script = "script/{sample}/singularity_fusionfusion.sh",
+        yaml = "script/{sample}/conf_fusionfusion.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule fusionfusion_merge:
+    input:
+        lambda wildcards: config["fusionfusion_merge_samples"][wildcards.sample],
+    output:
+        "fusionfusion/{sample}/{sample}.merged.Chimeric.count"
+    params:
+        script = "script/{sample}/singularity_fusionfusion.sh",
+        yaml = "script/{sample}/conf_fusionfusion.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule fusionfusion:
+    input:
+        lambda wildcards: config["fusionfusion_samples"][wildcards.sample],
+    output:
+        "fusionfusion/{sample}/{sample}.genomonFusion.result.filt.txt"
+    params:
+        script = "script/{sample}/singularity_fusionfusion.sh",
+        yaml = "script/{sample}/conf_fusionfusion.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -90,6 +140,39 @@ rule expression:
     params:
         script = "script/{sample}/singularity_expression.sh",
         yaml = "script/{sample}/conf_expression.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule ir_count:
+    input:
+        lambda wildcards: config["ir_count_samples"][wildcards.sample],
+    output:
+        "ir_count/{sample}/{sample}.txt.fpkm"
+    params:
+        script = "script/{sample}/singularity_ir_count.sh",
+        yaml = "script/{sample}/conf_ir_count.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule iravnet:
+    input:
+        lambda wildcards: config["iravnet_samples"][wildcards.sample],
+    output:
+        "iravnet/{sample}/{sample}.txt.fpkm"
+    params:
+        script = "script/{sample}/singularity_iravnet.sh",
+        yaml = "script/{sample}/conf_iravnet.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule kalisto:
+    input:
+        lambda wildcards: config["kalisto_samples"][wildcards.sample],
+    output:
+        "kalisto/{sample}/{sample}.txt.fpkm"
+    params:
+        script = "script/{sample}/singularity_kalisto.sh",
+        yaml = "script/{sample}/conf_kalisto.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
