@@ -69,13 +69,19 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.germ.resource.manta as rs_manta
     output_manta = rs_manta.configure(output_bams, gcat_conf, run_conf, sample_conf)
 
+    # melt
+    import gcat_workflow.germ.resource.melt as rs_melt
+    output_melt = rs_melt.configure(output_bams, gcat_conf, run_conf, sample_conf)
+
     # ######################
     # dump conf.yaml
     # ######################
     y["output_files"].extend(output_mutations)
     y["output_files"].extend(output_wgs_metrics)
     y["output_files"].extend(output_multiple_metrics)
+    y["output_files"].extend(output_gridss)
     y["output_files"].extend(output_manta)
+    y["output_files"].extend(output_melt)
     
     y["htc_samples"] = {}
     for sample in sample_conf.haplotype_call:
@@ -96,6 +102,10 @@ def main(gcat_conf, run_conf, sample_conf):
     y["manta_samples"] = {}
     for sample in sample_conf.manta:
         y["manta_samples"][sample] = rs_align.OUTPUT_FORMAT.format(sample=sample)
+        
+    y["melt_samples"] = {}
+    for sample in sample_conf.melt:
+        y["melt_samples"][sample] = rs_align.OUTPUT_FORMAT.format(sample=sample)
         
     import yaml
     open(run_conf.project_root + "/config.yml", "w").write(yaml.dump(y))

@@ -10,6 +10,7 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_MULTIPLE_METRICS = "gatk-collect-multiple-metrics"
     SECTION_GRIDSS = "gridss"
     SECTION_MANTA = "manta"
+    SECTION_MELT = "melt"
     
     def __init__(self, sample_conf_file, exist_check = True):
 
@@ -24,6 +25,7 @@ class Sample_conf(abc.Sample_conf_abc):
         self.multiple_metrics = []
         self.gridss = []
         self.manta = []
+        self.melt = []
         self.exist_check = exist_check
         
         self.parse_file(sample_conf_file)
@@ -31,7 +33,7 @@ class Sample_conf(abc.Sample_conf_abc):
     def parse_data(self, _data):
         
         input_sections = [self.SECTION_FASTQ, self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ]
-        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS, self.SECTION_MULTIPLE_METRICS, self.SECTION_GRIDSS, self.SECTION_MANTA]
+        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS, self.SECTION_MULTIPLE_METRICS, self.SECTION_GRIDSS, self.SECTION_MANTA, self.SECTION_MELT]
         controlpanel_sections = []
         splited = self.split_section_data(_data, input_sections, analysis_sections, controlpanel_sections)
         
@@ -68,4 +70,7 @@ class Sample_conf(abc.Sample_conf_abc):
 
         if self.SECTION_MANTA in splited:
             self.manta += self.parse_data_general(splited[self.SECTION_MANTA])
+        
+        if self.SECTION_MELT in splited:
+            self.melt += self.parse_data_general(splited[self.SECTION_MELT])
         

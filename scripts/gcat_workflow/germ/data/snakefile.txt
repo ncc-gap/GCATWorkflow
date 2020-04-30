@@ -136,6 +136,17 @@ rule manta:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
+rule melt:
+    input:
+        lambda wildcards: config["melt_samples"][wildcards.sample],
+    output:
+        "melt/{sample}/ALU.final_comp.vcf"
+    params:
+        script = "script/{sample}/singularity_melt.sh",
+        yaml = "script/{sample}/conf_melt.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
 rule join:
     input:
         ["{dataset}".format(dataset=dataset) for dataset in config["output_files"]]
