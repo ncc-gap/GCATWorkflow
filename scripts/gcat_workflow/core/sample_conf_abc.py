@@ -255,7 +255,7 @@ class Sample_conf_abc(object):
             sampleID = row[0]
             
             if len(row) != 2:
-                err_msg = sampleID + ": only one bam file is allowed"
+                err_msg = sampleID + ": separate multiple files with ;"
                 raise ValueError(err_msg)
 
             bam_tofastq_src[sampleID] = []

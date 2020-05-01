@@ -57,7 +57,10 @@ class ConfigureTest(unittest.TestCase):
             "/samples/I.Chimeric.out.sam",
             "/reference/XXX.fa",
             "/image/YYY.simg",
-            "/reference/ZZZ.gtf"
+            "/reference/ZZZ.gtf",
+            "/reference/ZZZ.vcf.gz",
+            "/reference/ZZZ.bed",
+            "/reference/ZZZ.idx",
         ]
         for p in touch_files:
             open(self.DATA_DIR + p, "w").close()
@@ -70,10 +73,8 @@ sampleD,{sample_dir}/D1.fastq
 sampleE,{sample_dir}/E1.fq
 sampleF,{sample_dir}/F1.fq;{sample_dir}/F2.fq,,,,
 
-[bam_tofastq_pair],,,,
+[bam_tofastq],,,,
 sampleG,{sample_dir}/G.Aligned.sortedByCoord.out.bam,,,
-
-[bam_tofastq_single],,,,
 sampleH,{sample_dir}/H.Aligned.sortedByCoord.out.bam,,,
 
 [bam_import],,,,
@@ -122,7 +123,7 @@ sampleG,,,,
 sampleH,,,,
 sampleI,,,,
 ,,,,
-[kalisto],,,,
+[kallisto],,,,
 sampleA,,,,
 sampleD,,,,
 sampleG,,,,
@@ -174,6 +175,9 @@ chimera_utils_merge_option=
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
+fusionfusion_option = --grc
+filt_option = --filter_same_gene --grc
+reference = {sample_dir}/reference/XXX.fa
 
 [expression]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
@@ -185,17 +189,26 @@ gtf = {sample_dir}/reference/ZZZ.gtf
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
+params = --grc
 
 [iravnet]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
+reference = {sample_dir}/reference/XXX.fa
+clinvar_db = {sample_dir}/reference/ZZZ.vcf.gz
+target_file = {sample_dir}/reference/ZZZ.bed
+gnomad_exome = https://storage.googleapis.com/gnomad-public/release/2.1.1/liftover_grch38/vcf/exomes/gnomad.exomes.r2.1.1.sites.liftover_grch38.vcf.bgz
+gnomad_genome = https://storage.googleapis.com/gnomad-public/release/3.0/vcf/genomes/gnomad.genomes.r3.0.sites.vcf.bgz
 
-[kalisto]
+[kallisto]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
-
+reference_fasta = {sample_dir}/reference/XXX.fa
+reference_kallisto_index = {sample_dir}/reference/ZZZ.idx
+annotation_gtf = {sample_dir}/reference/ZZZ.gtf
+pizzly_option = 
 """.format(sample_dir = self.DATA_DIR)
         
         f = open(self.DATA_DIR + self.GC_NAME, "w")
@@ -271,28 +284,8 @@ sample,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
     def test3_02_1_star_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
-        data_sample = """[bam_tofastq_single]
+        data_sample = """[bam_tofastq]
 sample,{sample_dir}/H.Aligned.sortedByCoord.out.bam
-""".format(sample_dir = self.SAMPLE_DIR)
-        
-        f = open(ss_path, "w")
-        f.write(data_sample)
-        f.close()
-        options = [
-            "rna",
-            ss_path,
-            wdir,
-            self.DATA_DIR + self.GC_NAME,
-        ]
-        subprocess.check_call(['python', 'gcat_workflow'] + options)
-        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
-        self.assertTrue(success)
-
-    def test3_02_2_star_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
-        
-        data_sample = """[bam_tofastq_pair]
-sample,{sample_dir}/G.Aligned.sortedByCoord.out.bam
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -334,9 +327,14 @@ sample,{sample_dir}/I.Aligned.sortedByCoord.out.bam
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[fastq]
-sample,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+sampleA,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+sampleB,{sample_dir}/B1.fq,{sample_dir}/B2.fq
+pool1,{sample_dir}/C1_1.fq;{sample_dir}/C1_2.fq,{sample_dir}/C2_1.fq;{sample_dir}/C2_2.fq
 [fusionfusion]
-sample,None
+sampleA,list1
+sampleB,None
+[controlpanel]
+list1,pool1
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -355,10 +353,15 @@ sample,None
     def test4_02_fusionfusion_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
-        data_sample = """[bam_tofastq_single]
-sample,{sample_dir}/H.Aligned.sortedByCoord.out.bam
+        data_sample = """[bam_tofastq]
+sampleA,{sample_dir}/H.Aligned.sortedByCoord.out.bam
+sampleB,{sample_dir}/H.Aligned.sortedByCoord.out.bam
+pool1,{sample_dir}/I.Aligned.sortedByCoord.out.bam
 [fusionfusion]
-sample,None
+sampleA,list1
+sampleB,None
+[controlpanel]
+list1,pool1
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -422,7 +425,7 @@ sample
     def test5_02_expression_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
-        data_sample = """[bam_tofastq_single]
+        data_sample = """[bam_tofastq]
 sample,{sample_dir}/H.Aligned.sortedByCoord.out.bam
 [expression]
 sample
@@ -488,7 +491,7 @@ sample
     def test6_02_star_fusion_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
-        data_sample = """[bam_tofastq_single]
+        data_sample = """[bam_tofastq]
 sample,{sample_dir}/H.Aligned.sortedByCoord.out.bam
 [star_fusion]
 sample
@@ -554,7 +557,7 @@ sample
     def test7_02_iravnet_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
-        data_sample = """[bam_tofastq_single]
+        data_sample = """[bam_tofastq]
 sample,{sample_dir}/H.Aligned.sortedByCoord.out.bam
 [iravnet]
 sample
@@ -620,7 +623,7 @@ sample
     def test8_02_ir_count_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
-        data_sample = """[bam_tofastq_single]
+        data_sample = """[bam_tofastq]
 sample,{sample_dir}/H.Aligned.sortedByCoord.out.bam
 [intron_retention]
 sample
@@ -661,12 +664,12 @@ sample
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test9_01_kalisto_limited(self):
+    def test9_01_kallisto_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[fastq]
 sample,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
-[kalisto]
+[kallisto]
 sample
 """.format(sample_dir = self.SAMPLE_DIR)
         
@@ -683,12 +686,12 @@ sample
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test9_02_kalisto_limited(self):
+    def test9_02_kallisto_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
-        data_sample = """[bam_tofastq_single]
+        data_sample = """[bam_tofastq]
 sample,{sample_dir}/H.Aligned.sortedByCoord.out.bam
-[kalisto]
+[kallisto]
 sample
 """.format(sample_dir = self.SAMPLE_DIR)
         
@@ -705,12 +708,12 @@ sample
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test9_03_kalisto_limited(self):
+    def test9_03_kallisto_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[bam_import]
 sample,{sample_dir}/I.Aligned.sortedByCoord.out.bam
-[kalisto]
+[kallisto]
 sample
 """.format(sample_dir = self.SAMPLE_DIR)
         

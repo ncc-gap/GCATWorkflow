@@ -55,7 +55,7 @@ def configure(input_files, gcat_conf, run_conf, sample_conf):
         output_file = OUTPUT_FORMAT.format(sample = panel)
         output_files[panel] = output_file
         
-        output_dir = "%s/fusionfusion/%s" % (run_conf.project_root, sample)
+        output_dir = "%s/fusionfusion/control_panel" % (run_conf.project_root)
         os.makedirs(output_dir, exist_ok=True)
         
         arguments = {

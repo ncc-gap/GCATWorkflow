@@ -22,7 +22,7 @@ set -o nounset
 set -o pipefail
 set -x
 
-chimera_utils count {option} {input} {output}
+chimera_utils count {OPTION} {INPUT} {OUTPUT}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
@@ -56,9 +56,9 @@ def configure(input_files, gcat_conf, run_conf, sample_conf):
         output_files[sample] = OUTPUT_FORMAT.format(sample = sample)
         
         arguments = {
-            "input": input_files[sample],
-            "output": "%s/%s.Chimeric.count" % (output_dir, sample),
-            "option": gcat_conf.get(SECTION_NAME, "chimera_utils_count_option"),
+            "INPUT": input_files[sample],
+            "OUTPUT": "%s/%s.Chimeric.count" % (output_dir, sample),
+            "OPTION": gcat_conf.get(SECTION_NAME, "chimera_utils_count_option"),
         }
        
         singularity_bind = [run_conf.project_root]

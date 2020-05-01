@@ -88,7 +88,7 @@ A_tumor,,,,
 [iravnet],,,,
 A_tumor,,,,
 
-[kalisto],,,,
+[kallisto],,,,
 A_tumor,,,,
 
 [qc],,,,
@@ -138,7 +138,7 @@ list1,pool1,pool2,pool3
         self.assertEqual(sample_conf.star_fusion, ['A_tumor'])
         self.assertEqual(sample_conf.ir_count, ['A_tumor'])
         self.assertEqual(sample_conf.iravnet, ['A_tumor'])
-        self.assertEqual(sample_conf.kalisto, ['A_tumor'])
+        self.assertEqual(sample_conf.kallisto, ['A_tumor'])
 
     # --------------------------------------------------------------------
     # ok

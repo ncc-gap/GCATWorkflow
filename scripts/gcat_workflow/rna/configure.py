@@ -22,16 +22,19 @@ def main(gcat_conf, run_conf, sample_conf):
     
     # preparation
     import gcat_workflow.core.setup_common as setup
-    input_stages = (sample_conf.bam_import, sample_conf.fastq, sample_conf.bam_tofastq_single, sample_conf.bam_tofastq_pair)
+    #input_stages = (sample_conf.bam_import, sample_conf.fastq, sample_conf.bam_tofastq_single, sample_conf.bam_tofastq_pair)
+    input_stages = (sample_conf.bam_import, sample_conf.fastq, sample_conf.bam_tofastq)
     setup.create_directories(gcat_conf, run_conf, input_stages, 'rna/data/snakefile.txt')
-    bam_tofastq_stages = (sample_conf.bam_tofastq_single, sample_conf.bam_tofastq_pair)
+    #bam_tofastq_stages = (sample_conf.bam_tofastq_single, sample_conf.bam_tofastq_pair)
+    bam_tofastq_stages = (sample_conf.bam_tofastq, )
     setup.touch_bam_tofastq(run_conf, bam_tofastq_stages)
     
     # dump conf.yaml
     import gcat_workflow.rna.resource.star_align as rs_align
     y = setup.dump_yaml_input_section(
         run_conf,
-        (sample_conf.bam_tofastq_single, sample_conf.bam_tofastq_pair),
+        #(sample_conf.bam_tofastq_single, sample_conf.bam_tofastq_pair),
+        (sample_conf.bam_tofastq, ),
         sample_conf.fastq,
         sample_conf.bam_import, 
         rs_align.OUTPUT_BAM_FORMAT
@@ -66,10 +69,12 @@ def main(gcat_conf, run_conf, sample_conf):
     # create scripts
     # ######################
     # bam to fastq
-    import gcat_workflow.rna.resource.bamtofastq_single as rs_bamtofastq_single
-    output_fastqs = rs_bamtofastq_single.configure(gcat_conf, run_conf, sample_conf)
-    import gcat_workflow.rna.resource.bamtofastq_pair as rs_bamtofastq_pair
-    output_fastqs.update(rs_bamtofastq_pair.configure(gcat_conf, run_conf, sample_conf))
+    import gcat_workflow.rna.resource.bamtofastq as rs_bamtofastq
+    output_fastqs = rs_bamtofastq.configure(gcat_conf, run_conf, sample_conf)
+    #import gcat_workflow.rna.resource.bamtofastq_pair as rs_bamtofastq_pair
+    #output_fastqs = rs_bamtofastq_pair.configure(gcat_conf, run_conf, sample_conf)
+    #import gcat_workflow.rna.resource.bamtofastq_single as rs_bamtofastq_single
+    #output_fastqs.update(rs_bamtofastq_single.configure(gcat_conf, run_conf, sample_conf))
     
     # star
     for sample in output_fastqs:
@@ -95,7 +100,7 @@ def main(gcat_conf, run_conf, sample_conf):
     output_fusionfusion_merges = rs_fusionfusion_merge.configure(output_fusionfusion_counts, gcat_conf, run_conf, sample_conf)
     
     import gcat_workflow.rna.resource.fusionfusion as rs_fusionfusion
-    output_fusionfusions = rs_fusionfusion.configure(output_fusionfusion_merges, gcat_conf, run_conf, sample_conf)
+    output_fusionfusions = rs_fusionfusion.configure(output_fusionfusion_counts, output_fusionfusion_merges, gcat_conf, run_conf, sample_conf)
     
     # STAR-fusion
     output_bam_junctions = {}
@@ -117,9 +122,9 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.rna.resource.expression as rs_expression
     output_expressions = rs_expression.configure(output_bams, gcat_conf, run_conf, sample_conf)
     
-    # kalisto
-    import gcat_workflow.rna.resource.kalisto as rs_kalisto
-    output_kalistos = rs_kalisto.configure(output_bams, gcat_conf, run_conf, sample_conf)
+    # kallisto
+    import gcat_workflow.rna.resource.kallisto as rs_kallisto
+    output_kallistos = rs_kallisto.configure(gcat_conf, run_conf, sample_conf)
     
     # ######################
     # dump conf.yaml
@@ -140,7 +145,7 @@ def main(gcat_conf, run_conf, sample_conf):
     y["output_files"].extend(output_ir_counts)
     y["output_files"].extend(output_iravnets)
     y["output_files"].extend(output_expressions)
-    y["output_files"].extend(output_kalistos)
+    y["output_files"].extend(output_kallistos)
     
     y["fusionfusion_count_samples"] = {}
     for [sample, panel] in sample_conf.fusionfusion:
@@ -183,9 +188,9 @@ def main(gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.iravnet:
         y["iravnet_samples"][sample] = rs_align.OUTPUT_BAM_FORMAT.format(sample=sample)
 
-    y["kalisto_samples"] = {}
-    for sample in sample_conf.kalisto:
-        y["kalisto_samples"][sample] = rs_align.OUTPUT_BAM_FORMAT.format(sample=sample)
+    y["kallisto_samples"] = {}
+    for sample in sample_conf.kallisto:
+        y["kallisto_samples"][sample] = rs_align.OUTPUT_BAM_FORMAT.format(sample=sample)
 
     import yaml
     open(run_conf.project_root + "/config.yml", "w").write(yaml.dump(y))

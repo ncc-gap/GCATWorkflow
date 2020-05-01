@@ -20,9 +20,10 @@ set -o nounset
 set -o pipefail
 set -x
 
-OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
-mkdir -p {OUTPUT_DIR}
-
+intron_retention_utils simple_count \
+  {INPUT_BAM} \
+  {OUTPUT_DIR}/{SAMPLE}.genomonIR.result.txt \
+  {OPTION}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
@@ -43,13 +44,15 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = []
     for sample in sample_conf.ir_count:
         output_dir = "%s/ir_count/%s" % (run_conf.project_root, sample)
-        os.makedirs(output_dir, exist_ok=True)    
-        output_files.append("ir_count/{sample}/{sample}.txt.fpkm".format(sample = sample))
+        os.makedirs(output_dir, exist_ok=True)  
+        output_file = "ir_count/{sample}/{sample}.genomonIR.result.txt".format(sample = sample)
+        output_files.append(output_file)
         
         arguments = {
             "SAMPLE": sample,
             "INPUT_BAM": input_bams[sample],
             "OUTPUT_DIR": output_dir,
+            "OPTION": gcat_conf.get(SECTION_NAME, "params")
         }
        
         singularity_bind = [run_conf.project_root]

@@ -147,7 +147,7 @@ rule ir_count:
     input:
         lambda wildcards: config["ir_count_samples"][wildcards.sample],
     output:
-        "ir_count/{sample}/{sample}.txt.fpkm"
+        "ir_count/{sample}/{sample}.genomonIR.result.txt"
     params:
         script = "script/{sample}/singularity_ir_count.sh",
         yaml = "script/{sample}/conf_ir_count.yml"
@@ -158,21 +158,21 @@ rule iravnet:
     input:
         lambda wildcards: config["iravnet_samples"][wildcards.sample],
     output:
-        "iravnet/{sample}/{sample}.txt.fpkm"
+        "iravnet/{sample}/{sample}.iravnet.filt.bam"
     params:
         script = "script/{sample}/singularity_iravnet.sh",
         yaml = "script/{sample}/conf_iravnet.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
-rule kalisto:
+rule kallisto:
     input:
-        lambda wildcards: config["kalisto_samples"][wildcards.sample],
+        lambda wildcards: config["kallisto_samples"][wildcards.sample],
     output:
-        "kalisto/{sample}/{sample}.txt.fpkm"
+        "kallisto/{sample}/{sample}.pizzly.table"
     params:
-        script = "script/{sample}/singularity_kalisto.sh",
-        yaml = "script/{sample}/conf_kalisto.yml"
+        script = "script/{sample}/singularity_kallisto.sh",
+        yaml = "script/{sample}/conf_kallisto.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -181,6 +181,9 @@ rule join:
         ["{dataset}".format(dataset=dataset) for dataset in config["output_files"]]
     output:
         "join/all.txt"
+    params:
+        script = "script/singularity_join.sh",
+        yaml = "script/conf_join.yml"
     shell:
-        "cat {input} > {output}"
+        "gcat_runner {params.script} {params.yaml}"
 

@@ -54,7 +54,7 @@ singularity exec {option} --bind {bind} {image} /bin/bash {script}
         singurality_script_path = "%s/%s" % (output_dir, self.singurality_script_name)
         open(singurality_script_path, "w").write(self.singurality_script_template.format(
             option = self.singularity_option,
-            bind = ",".join(singularity_bind),
+            bind = ",".join(list(set(singularity_bind))),
             image = self.image,
             script = shell_script_path
         ))

@@ -57,7 +57,8 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         singularity_bind = [run_conf.project_root]
         if sample in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[sample]
-            
+        
+        singularity_bind.append(os.path.dirname(gcat_conf.path_get(SECTION_NAME, "star_genome")))
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
 
     return output_files

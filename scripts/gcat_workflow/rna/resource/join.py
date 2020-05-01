@@ -2,7 +2,7 @@
 
 import gcat_workflow.core.stage_task_abc as stage_task
 
-class Kalisto(stage_task.Stage_task):
+class Join(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
         self.shell_script_template = """
@@ -20,15 +20,15 @@ set -o nounset
 set -o pipefail
 set -x
 
-OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
-
+rm {RM_FILES}
+touch {JOIN_FILE}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
-def configure(input_bams, gcat_conf, run_conf, sample_conf):
+def configure(remove_files, gcat_conf, run_conf, sample_conf):
     import os
     
-    STAGE_NAME = "kalisto"
+    STAGE_NAME = "join"
     SECTION_NAME = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,
@@ -37,24 +37,18 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         "qsub_option": gcat_conf.get(SECTION_NAME, "qsub_option"),
         "singularity_option": gcat_conf.get(SECTION_NAME, "singularity_option")
     }
-    stage_class = Kalisto(params)
+    stage_class = Join(params)
     
-    output_files = []
-    for sample in sample_conf.kalisto:
-        output_dir = "%s/kalisto/%s" % (run_conf.project_root, sample)
-        os.makedirs(output_dir, exist_ok=True)    
-        output_files.append("kalisto/{sample}/{sample}.txt.fpkm".format(sample = sample))
+    output_dir = "%s/join" % (run_conf.project_root)
+    os.makedirs(output_dir, exist_ok=True)
         
-        arguments = {
-            "SAMPLE": sample,
-            "INPUT_BAM": input_bams[sample],
-            "OUTPUT_DIR": output_dir,
-        }
-       
-        singularity_bind = [run_conf.project_root]
-        if sample in sample_conf.bam_import_src:
-            singularity_bind += sample_conf.bam_import_src[sample]
-            
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+    arguments = {
+        "RM_FILES": " ".join(remove_files),
+        "JOIN_FILE": "%s/all.txt" % (output_dir)
+    }
+    
+    singularity_bind = []
+    
+    stage_class.write_script(arguments, singularity_bind, run_conf)
 
-    return output_files
+    return []
