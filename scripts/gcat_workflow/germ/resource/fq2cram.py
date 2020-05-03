@@ -28,43 +28,37 @@ set -x
 work_dir=$(dirname {OUTPUT_CRAM})
 
 /tools/bwa-0.7.15/bwa mem \\
-  -t $(nproc) \\
-  -K 10000000 \\
-  -T 0 \\
-  -R "@RG\\tID:{SAMPLE_NAME}\\tPL:na\\tLB:na\\tSM:{SAMPLE_NAME}\\tPU:{SAMPLE_NAME}" \\
+  {BWA_OPTION} \\
+  -R "@RG\\tID:{SAMPLE_NAME}\\tPL:{READ_GROUP_PL}\\tLB:{READ_GROUP_LB}\\tSM:{SAMPLE_NAME}\\tPU:{READ_GROUP_PU}" \\
   {REFERENCE} \\
   {INPUT_FASTQ_1} \\
   {INPUT_FASTQ_2} \\
 | /usr/bin/java \\
-  -XX:-UseContainerSupport \\
-  -Xmx30g \\
-  -jar /tools/gatk-4.0.4.0/gatk-package-4.0.4.0-local.jar SortSam \\
-  --MAX_RECORDS_IN_RAM=5000000 \\
+  {GATK_SORT_JAVA_OPTION} \\
+  -jar {GATK_JAR} SortSam \\
+  {GATK_SORT_OPTION} \\
   -I=/dev/stdin \\
   -O=${{work_dir}}/{SAMPLE_NAME}.bam \\
-  --SORT_ORDER=coordinate \\
-  --TMP_DIR=${{work_dir}}
+  --SORT_ORDER=coordinate
 
 /usr/bin/java \\
-  -XX:-UseContainerSupport \\
-  -Xmx30g \\
-  -jar /tools/gatk-4.0.4.0/gatk-package-4.0.4.0-local.jar MarkDuplicates \\
+  {GATK_MARKDUP_JAVA_OPTION} \\
+  -jar {GATK_JAR} MarkDuplicates \\
   -I=${{work_dir}}/{SAMPLE_NAME}.bam \\
   -O=${{work_dir}}/{SAMPLE_NAME}.markdup.bam \\
-  -M={OUTPUT_MARKDUP_METRICS} \\
-  --TMP_DIR=${{work_dir}}
+  -M={OUTPUT_MARKDUP_METRICS}
 
 rm -f ${{work_dir}}/{SAMPLE_NAME}.bam
 
 /tools/samtools-1.9/samtools view \\
-  -@ $(nproc) \\
+  {SAMTOOLS_VIEW_OPTION} \\
   -C \\
   -T {REFERENCE} \\
   -o {OUTPUT_CRAM} \\
   ${{work_dir}}/{SAMPLE_NAME}.markdup.bam
 
 /tools/samtools-1.9/samtools index \\
-  -@ $(nproc) \\
+  {SAMTOOLS_INDEX_OPTION} \\
   {OUTPUT_CRAM}
 
 rm -f ${{work_dir}}/{SAMPLE_NAME}.markdup.bam
@@ -106,6 +100,17 @@ def configure(gcat_conf, run_conf, sample_conf):
             "OUTPUT_CRAM": output_bams[sample],
             "OUTPUT_MARKDUP_METRICS": "%s/%s.markdup.metrics" % (output_dir, sample),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
+            "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option"),
+            "READ_GROUP_PL": gcat_conf.get(CONF_SECTION, "read_group_pl"),
+            "READ_GROUP_LB": gcat_conf.get(CONF_SECTION, "read_group_lb"),
+            "READ_GROUP_PU": gcat_conf.get(CONF_SECTION, "read_group_pu"),
+            "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
+            "GATK_SORT_OPTION": gcat_conf.get(CONF_SECTION, "gatk_sort_option"),
+            "GATK_SORT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gatk_sort_java_option"),
+            "GATK_MARKDUP_OPTION": gcat_conf.get(CONF_SECTION, "gatk_markdup_option"),
+            "GATK_MARKDUP_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gatk_markdup_java_option"),
+            "SAMTOOLS_VIEW_OPTION": gcat_conf.get(CONF_SECTION, "samtools_view_option"),
+            "SAMTOOLS_INDEX_OPTION": gcat_conf.get(CONF_SECTION, "samtools_index_option")
         }
         
         singularity_bind = [

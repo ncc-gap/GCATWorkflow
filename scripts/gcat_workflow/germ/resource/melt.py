@@ -29,7 +29,7 @@ cd {OUTPUT_DIR}
 ls {MELT_REFS}/*.zip > mei_list.txt
 
 java \\
-    -XX:-UseContainerSupport \\
+    {MELT_JAVA_OPTION} \\
     -jar {MELT_JAR} Single \\
     -a \\
     -h {REFERENCE} \\
@@ -37,6 +37,8 @@ java \\
     -t mei_list.txt \\
     -n {MELT_BED} \\
     -bamfile {INPUT_CRAM} \\
+    -bowtie /tools/bowtie2-2.4.1-linux-x86_64/bowtie2 \\
+    -samtools /tools/samtools-1.9/samtools \\
     {MELT_OPTION}
 
 """
@@ -67,7 +69,8 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "MELT_JAR": gcat_conf.get(CONF_SECTION, "melt_jar"),
             "MELT_BED": gcat_conf.get(CONF_SECTION, "melt_bed"),
             "MELT_REFS": gcat_conf.get(CONF_SECTION, "melt_refs"),
-            "MELT_OPTION": gcat_conf.get(CONF_SECTION, "melt_option")
+            "MELT_OPTION": gcat_conf.get(CONF_SECTION, "melt_option"),
+            "MELT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "melt_java_option")
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
