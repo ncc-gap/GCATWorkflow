@@ -23,19 +23,21 @@ set -x
 
 mkdir -p $(dirname {OUTPUT_FILE_PREFIX})
 java \\
-    -jar /gatk/gatk.jar \\
-    CollectMultipleMetrics \\
-    -I {INPUT_CRAM} \\
-    -O {OUTPUT_FILE_PREFIX} \\
-    -R {REFERENCE} \\
-    --PROGRAM CollectAlignmentSummaryMetrics \\
-    --PROGRAM CollectInsertSizeMetrics \\
-    --PROGRAM QualityScoreDistribution \\
-    --PROGRAM MeanQualityByCycle \\
-    --PROGRAM CollectBaseDistributionByCycle \\
-    --PROGRAM CollectGcBiasMetrics \\
-    --PROGRAM CollectSequencingArtifactMetrics \\
-    --PROGRAM CollectQualityYieldMetrics
+  {MULTIPLE_METRICS_JAVA_OPTION} \\
+  -jar {GATK_JAR} \\
+  CollectMultipleMetrics \\
+  -I {INPUT_CRAM} \\
+  -O {OUTPUT_FILE_PREFIX} \\
+  -R {REFERENCE} \\
+  --PROGRAM CollectAlignmentSummaryMetrics \\
+  --PROGRAM CollectInsertSizeMetrics \\
+  --PROGRAM QualityScoreDistribution \\
+  --PROGRAM MeanQualityByCycle \\
+  --PROGRAM CollectBaseDistributionByCycle \\
+  --PROGRAM CollectGcBiasMetrics \\
+  --PROGRAM CollectSequencingArtifactMetrics \\
+  --PROGRAM CollectQualityYieldMetrics \\
+  {MULTIPLE_METRICS_OPTION}
 
 """
 
@@ -62,6 +64,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_CRAM": input_bams[sample],
             "OUTPUT_FILE_PREFIX":  "%s/%s" % (run_conf.project_root, output_prefix),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
+            "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
+            "MULTIPLE_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_option"),
+            "MULTIPLE_METRICS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_java_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
