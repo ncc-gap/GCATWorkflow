@@ -76,6 +76,15 @@ A_control
 pool1
 pool2
 pool3
+
+[manta]
+A_tumor
+
+[melt]
+A_tumor
+
+[gridss]
+A_tumor
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, htcall = HT_CALL)
         
         f = open(ss_path, "w")
@@ -100,6 +109,9 @@ pool3
         self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.markdup.cram'})
         self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.markdup.cram', self.SAMPLE_DIR + '/B.markdup.crai']})
         self.assertEqual(sample_conf.haplotype_call, ['A_tumor','A_control','pool1','pool2','pool3'])
+        self.assertEqual(sample_conf.manta, ['A_tumor'])
+        self.assertEqual(sample_conf.melt, ['A_tumor'])
+        self.assertEqual(sample_conf.gridss, ['A_tumor'])
 
     # --------------------------------------------------------------------
     # Not Exist
@@ -356,6 +368,50 @@ pool3,{sample_dir}/B.markdup.cram,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 
 [{htcall}]
+A_tumor
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test4_09_duplicate(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[manta]
+A_tumor
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test4_10_duplicate(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[melt]
 A_tumor
 A_tumor
 """.format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
