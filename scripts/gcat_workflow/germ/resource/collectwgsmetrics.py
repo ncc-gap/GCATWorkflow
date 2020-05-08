@@ -23,11 +23,13 @@ set -x
 
 mkdir -p $(dirname {OUTPUT_FILE})
 java \\
-  -jar /gatk/gatk.jar \\
+  {WGS_METRICS_JAVA_OPTION} \\
+  -jar {GATK_JAR} \\
   CollectWgsMetrics \\
   -I {INPUT_CRAM} \\
   -O {OUTPUT_FILE} \\
-  -R {REFERENCE} 
+  -R {REFERENCE} \\ 
+  {WGS_METRICS_OPTION}
 
 """
 
@@ -54,6 +56,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_CRAM": input_bams[sample],
             "OUTPUT_FILE":  "%s/%s" % (run_conf.project_root, output_txt),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
+            "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
+            "WGS_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "wgs_metrics_option"),
+            "WGS_METRICS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "wgs_metrics_java_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

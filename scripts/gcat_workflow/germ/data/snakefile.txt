@@ -114,6 +114,39 @@ rule collectmultiplemetrics:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
+rule gridss:
+    input:
+        lambda wildcards: config["gridss_samples"][wildcards.sample],
+    output:
+        "gridss/{sample}/{sample}.gridss.vcf"
+    params:
+        script = "script/{sample}/singularity_gridss.sh",
+        yaml = "script/{sample}/conf_gridss.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule manta:
+    input:
+        lambda wildcards: config["manta_samples"][wildcards.sample],
+    output:
+        "manta/{sample}/results/variants/candidateSV.vcf.gz"
+    params:
+        script = "script/{sample}/singularity_manta.sh",
+        yaml = "script/{sample}/conf_manta.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule melt:
+    input:
+        lambda wildcards: config["melt_samples"][wildcards.sample],
+    output:
+        "melt/{sample}/ALU.final_comp.vcf"
+    params:
+        script = "script/{sample}/singularity_melt.sh",
+        yaml = "script/{sample}/conf_melt.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
 rule join:
     input:
         ["{dataset}".format(dataset=dataset) for dataset in config["output_files"]]

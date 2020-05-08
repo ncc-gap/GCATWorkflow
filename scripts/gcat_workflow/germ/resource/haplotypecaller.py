@@ -22,14 +22,12 @@ set -o pipefail
 set -x
 
 /usr/bin/java \\
-  -XX:-UseContainerSupport \\
-  -Xmx30g \\
-  -jar /tools/gatk-4.0.4.0/gatk-package-4.0.4.0-local.jar HaplotypeCaller \\
+  {HAPLOTYPE_JAVA_OPTION} \\
+  -jar {GATK_JAR} HaplotypeCaller \\
   -I={INPUT_CRAM} \\
   -O={OUTPUT_VCF} \\
   -R={REFERENCE} \\
-  --native-pair-hmm-threads=$(nproc) \\
-  --TMP_DIR=$(dirname {OUTPUT_VCF})
+  {HAPLOTYPE_OPTION}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
@@ -55,6 +53,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_CRAM": input_bams[sample],
             "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
+            "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
+            "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
+            "HAPLOTYPE_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_java_option")
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

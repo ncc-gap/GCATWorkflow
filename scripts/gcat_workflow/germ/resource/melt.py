@@ -3,7 +3,7 @@
 import os
 import gcat_workflow.core.stage_task_abc as stage_task
 
-class CollectMultipleMetrics(stage_task.Stage_task):
+class Melt(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
         self.shell_script_template = """
@@ -21,30 +21,32 @@ set -o nounset
 set -o pipefail
 set -x
 
-mkdir -p $(dirname {OUTPUT_FILE_PREFIX})
+export LANG=C
+
+mkdir -p {OUTPUT_DIR}
+cd {OUTPUT_DIR}
+
+ls {MELT_REFS}/*.zip > mei_list.txt
+
 java \\
-  {MULTIPLE_METRICS_JAVA_OPTION} \\
-  -jar {GATK_JAR} \\
-  CollectMultipleMetrics \\
-  -I {INPUT_CRAM} \\
-  -O {OUTPUT_FILE_PREFIX} \\
-  -R {REFERENCE} \\
-  --PROGRAM CollectAlignmentSummaryMetrics \\
-  --PROGRAM CollectInsertSizeMetrics \\
-  --PROGRAM QualityScoreDistribution \\
-  --PROGRAM MeanQualityByCycle \\
-  --PROGRAM CollectBaseDistributionByCycle \\
-  --PROGRAM CollectGcBiasMetrics \\
-  --PROGRAM CollectSequencingArtifactMetrics \\
-  --PROGRAM CollectQualityYieldMetrics \\
-  {MULTIPLE_METRICS_OPTION}
+    {MELT_JAVA_OPTION} \\
+    -jar {MELT_JAR} Single \\
+    -a \\
+    -h {REFERENCE} \\
+    -w {OUTPUT_DIR} \\
+    -t mei_list.txt \\
+    -n {MELT_BED} \\
+    -bamfile {INPUT_CRAM} \\
+    -bowtie /tools/bowtie2-2.4.1-linux-x86_64/bowtie2 \\
+    -samtools /tools/samtools-1.9/samtools \\
+    {MELT_OPTION}
 
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
-    STAGE_NAME = "gatk-collect-multiple-metrics"
+    STAGE_NAME = "melt"
     CONF_SECTION = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,
@@ -53,20 +55,22 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         "qsub_option": gcat_conf.get(CONF_SECTION, "qsub_option"),
         "singularity_option": gcat_conf.get(CONF_SECTION, "singularity_option")
     }
-    stage_class = CollectMultipleMetrics(params)
+    stage_class = Melt(params)
     
     output_files = []
-    for sample in sample_conf.multiple_metrics:
-        output_prefix = "summary/%s/%s.collect-multiple-metrics" % (sample, sample)
-        output_files.append(output_prefix + ".gc_bias.pdf")
+    for sample in sample_conf.melt:
+        output_vcf = "melt/%s/ALU.final_comp.vcf" % (sample)
+        output_files.append(output_vcf)
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],
-            "OUTPUT_FILE_PREFIX":  "%s/%s" % (run_conf.project_root, output_prefix),
+            "OUTPUT_DIR":  "%s/melt/%s" % (run_conf.project_root, sample),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
-            "MULTIPLE_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_option"),
-            "MULTIPLE_METRICS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_java_option"),
+            "MELT_JAR": gcat_conf.get(CONF_SECTION, "melt_jar"),
+            "MELT_BED": gcat_conf.get(CONF_SECTION, "melt_bed"),
+            "MELT_REFS": gcat_conf.get(CONF_SECTION, "melt_refs"),
+            "MELT_OPTION": gcat_conf.get(CONF_SECTION, "melt_option"),
+            "MELT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "melt_java_option")
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
