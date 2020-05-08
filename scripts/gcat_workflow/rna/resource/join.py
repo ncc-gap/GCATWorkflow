@@ -20,7 +20,7 @@ set -o nounset
 set -o pipefail
 set -x
 
-rm {RM_FILES}
+{RM_FASTQS}
 touch {JOIN_FILE}
 """
 
@@ -41,13 +41,21 @@ def configure(remove_files, gcat_conf, run_conf, sample_conf):
     
     output_dir = "%s/join" % (run_conf.project_root)
     os.makedirs(output_dir, exist_ok=True)
-        
+    fastqs = []
+    for sample in remove_files:
+        for li in remove_files[sample]:
+            fastqs.extend(li)
+    
+    rm_fastqs = ""
+    if bool(gcat_conf.get(SECTION_NAME, "qsub_option")) and len(fastqs) > 0:
+        rm_fastqs = "rm -f " +  " ".join(fastqs)
+
     arguments = {
-        "RM_FILES": " ".join(remove_files),
+        "RM_FASTQS": rm_fastqs,
         "JOIN_FILE": "%s/all.txt" % (output_dir)
     }
     
-    singularity_bind = []
+    singularity_bind = [run_conf.project_root]
     
     stage_class.write_script(arguments, singularity_bind, run_conf)
 

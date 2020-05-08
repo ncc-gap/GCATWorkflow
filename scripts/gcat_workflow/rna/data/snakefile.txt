@@ -100,7 +100,7 @@ rule star_fusion:
     input:
         lambda wildcards: config["star_fusion_samples"][wildcards.sample],
     output:
-        "star_fusion/{sample}/{sample}.fusion_predictions.abridged.tsv"
+        "star_fusion/{sample}/star-fusion.fusion_predictions.abridged.tsv"
     params:
         script = "script/{sample}/singularity_star_fusion.sh",
         yaml = "script/{sample}/conf_star_fusion.yml"

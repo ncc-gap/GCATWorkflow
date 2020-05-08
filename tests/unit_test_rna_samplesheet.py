@@ -62,11 +62,8 @@ A_tumor_s,{sample_dir}/A1.fastq
 pool1_s,{sample_dir}/B1.fq
 pool2_s,{sample_dir}/C1_1.fq;{sample_dir}/C1_2.fq,,,,
 
-[bam_tofastq_pair],,,,
+[bam_tofastq],,,,
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
-
-[bam_tofastq_single],,,,
-A_control_s,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 
 [bam_import],,,,
 pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
@@ -125,10 +122,8 @@ list1,pool1,pool2,pool3
             'pool2_s': [self.SAMPLE_DIR + '/C1_1.fq', self.SAMPLE_DIR + '/C1_2.fq'],
         })
 
-        self.assertEqual(sample_conf.bam_tofastq_pair, {'A_control': self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam'})
-        self.assertEqual(sample_conf.bam_tofastq_pair_src, {'A_control': [self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam']})
-        self.assertEqual(sample_conf.bam_tofastq_single, {'A_control_s': self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam'})
-        self.assertEqual(sample_conf.bam_tofastq_single_src, {'A_control_s': [self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam']})
+        self.assertEqual(sample_conf.bam_tofastq, {'A_control': self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam'})
+        self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam']})
         self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam'})
         self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam', self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bai']})
         self.assertEqual(sample_conf.fusionfusion, [('A_tumor', 'list1'), ('A_control', None)])
@@ -146,7 +141,7 @@ list1,pool1,pool2,pool3
     def test1_02_ok(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """
-[bam_tofastq_single]
+[bam_tofastq]
 A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 pool1,{sample_dir}/A.Aligned.sortedByCoord.out.bam
@@ -168,7 +163,7 @@ list1,pool1
     def test1_03_ok(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """
-[bam_tofastq_single]
+[bam_tofastq]
 A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 pool1,{sample_dir}/A.Aligned.sortedByCoord.out.bam
@@ -252,7 +247,7 @@ pool2,{sample_dir}/C1_1.fq;{sample_dir}/C1_2.fq,{sample_dir}/C2_1.fq;{sample_dir
 
     def test2_04_not_exists(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
-        data = """[bam_tofastq_single],,,,
+        data = """[bam_tofastq],,,,
 A_control,{sample_dir}/X.Aligned.sortedByCoord.out.bam,,,
 """.format(sample_dir = self.SAMPLE_DIR)
         
@@ -422,7 +417,7 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
 
     def test4_02_duplicate(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
-        data = """[bam_tofastq_single]
+        data = """[bam_tofastq]
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam
 """.format(sample_dir = self.SAMPLE_DIR)
@@ -462,7 +457,7 @@ pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
-[bam_tofastq_single],,,,
+[bam_tofastq],,,,
 A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 [bam_import],,,,
 pool1,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
@@ -484,7 +479,7 @@ pool1,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
-[bam_tofastq_single],,,,
+[bam_tofastq],,,,
 pool3,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 [bam_import],,,,
 pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
@@ -506,7 +501,7 @@ pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
 pool3,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
-[bam_tofastq_single],,,,
+[bam_tofastq],,,,
 A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 [bam_import],,,,
 pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
@@ -531,7 +526,7 @@ pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
 pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq,,
 
-[bam_tofastq_single],,,,
+[bam_tofastq],,,,
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 
 [fusionfusion],,,,
@@ -666,7 +661,7 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,{sample_dir}/A2.fastq
 
     def test5_03_unformat(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
-        data = """[bam_tofastq_single]
+        data = """[bam_tofastq]
 {sample_dir}/A.Aligned.sortedByCoord.out.bam
 """.format(sample_dir = self.SAMPLE_DIR)
         
@@ -684,7 +679,7 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,{sample_dir}/A2.fastq
 
     def test5_04_unformat(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
-        data = """[bam_tofastq_single]
+        data = """[bam_tofastq]
 A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,{sample_dir}/B.Aligned.sortedByCoord.out.bam
 """.format(sample_dir = self.SAMPLE_DIR)
         

@@ -20,7 +20,7 @@ set -o nounset
 set -o pipefail
 set -x
 
-STAR-Fusion --genome_lib_dir {REFERENCE} \
+/usr/local/src/STAR-Fusion/STAR-Fusion --genome_lib_dir {REFERENCE} \
   -J {CHIMERIC_OUT_JUNCTION} \
   --output_dir {OUTPUT_DIR} \
   {STAR_FUSION_OPTIONS}
@@ -45,7 +45,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.star_fusion:
         output_dir = "%s/star_fusion/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)    
-        output_files.append("star_fusion/{sample}/{sample}.fusion_predictions.abridged.tsv".format(sample = sample))
+        output_files.append("star_fusion/{sample}/star-fusion.fusion_predictions.abridged.tsv".format(sample = sample))
 
         arguments = {
             "CHIMERIC_OUT_JUNCTION": input_bams[sample],

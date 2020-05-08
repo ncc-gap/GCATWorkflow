@@ -150,13 +150,12 @@ image = {sample_dir}/image/YYY.simg
 singularity_option = 
 star_option = --runThreadN 6
 star_genome = {sample_dir}/reference
-remove_fastq = True
 
 [star_fusion]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
-star_fusion_option = --runThreadN 6
+star_fusion_option = 
 star_genome = {sample_dir}/reference
 
 [fusionfusion_count]
@@ -209,6 +208,12 @@ reference_fasta = {sample_dir}/reference/XXX.fa
 reference_kallisto_index = {sample_dir}/reference/ZZZ.idx
 annotation_gtf = {sample_dir}/reference/ZZZ.gtf
 pizzly_option = 
+
+[join]
+qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
+image = {sample_dir}/image/YYY.simg
+singularity_option = 
+remove_fastq = True
 """.format(sample_dir = self.DATA_DIR)
         
         f = open(self.DATA_DIR + self.GC_NAME, "w")

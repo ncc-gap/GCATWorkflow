@@ -124,6 +124,10 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.rna.resource.kallisto as rs_kallisto
     output_kallistos = rs_kallisto.configure(gcat_conf, run_conf, sample_conf)
     
+    # join
+    import gcat_workflow.rna.resource.join as rs_join
+    rs_join.configure(output_fastqs, gcat_conf, run_conf, sample_conf)
+
     # ######################
     # dump conf.yaml
     # ######################
