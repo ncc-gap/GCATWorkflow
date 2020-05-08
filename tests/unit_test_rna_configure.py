@@ -29,7 +29,8 @@ class ConfigureTest(unittest.TestCase):
     # init class
     @classmethod
     def setUpClass(self):
-        shutil.rmtree(self.DATA_DIR)
+        if os.path.exists(self.DATA_DIR):
+            shutil.rmtree(self.DATA_DIR)
         os.makedirs(self.SAMPLE_DIR, exist_ok = True)
         os.makedirs(self.DATA_DIR + "/reference", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/image", exist_ok = True)
