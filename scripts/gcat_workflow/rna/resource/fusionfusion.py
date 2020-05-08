@@ -58,11 +58,11 @@ def configure(input_counts, input_merges, gcat_conf, run_conf, sample_conf):
         merged_count = ""
         if panel != None:
             #merged_count = "%s/fusionfusion/control_panel/%s.merged.Chimeric.count" % (run_conf.project_root, panel)
-            merged_count = input_merges[panel]
+            merged_count = "%s/%s" % (run_conf.project_root, input_merges[panel])
             
         arguments = {
             "SAMPLE": sample,
-            "INPUT": input_counts[sample],
+            "INPUT": "%s/%s" % (run_conf.project_root, input_counts[sample]),
             "OUTPUT_DIR": output_dir,
             "OPTION": gcat_conf.get(SECTION_NAME, "fusionfusion_option"),
             "FILT_OPTION": gcat_conf.get(SECTION_NAME, "filt_option"),

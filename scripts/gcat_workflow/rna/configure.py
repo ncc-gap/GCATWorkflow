@@ -3,11 +3,8 @@
 import os
 
 # link files attached bam
-def link_import_attached_files(run_conf, bam_import_stage, analysis_stage, bam_postfix, junction_postfix, subdir = "star"):
+def link_import_attached_files(run_conf, bam_import_stage, bam_postfix, junction_postfix, subdir = "star"):
     for sample in bam_import_stage:
-        if not sample in analysis_stage:
-            continue
-
         source_file = bam_import_stage[sample].replace(bam_postfix, junction_postfix)
         if not os.path.exists(source_file):
             raise ValueError("Not exist junction file: %s" % (source_file))
@@ -16,7 +13,8 @@ def link_import_attached_files(run_conf, bam_import_stage, analysis_stage, bam_p
         os.makedirs(link_dir, exist_ok=True)
         
         link_file = link_dir +'/'+ sample + junction_postfix
-        os.symlink(source_file, link_file)
+        if not os.path.exists(link_file):
+            os.symlink(source_file, link_file)
 
 def main(gcat_conf, run_conf, sample_conf):
     
@@ -53,13 +51,13 @@ def main(gcat_conf, run_conf, sample_conf):
     
     # link files attached bam
     link_import_attached_files(
-        run_conf, sample_conf.bam_import, sample_conf.star_fusion,
+        run_conf, sample_conf.bam_import,
         rs_align.BAM_POSTFIX, 
         rs_align.CHIMERIC_JUNCTION_POSTFIX, 
         rs_align.OUTPUT_BAM_FORMAT.split("/")[0]
     )
     link_import_attached_files(
-        run_conf, sample_conf.bam_import, sample_conf.fusionfusion,
+        run_conf, sample_conf.bam_import,
         rs_align.BAM_POSTFIX, 
         rs_align.CHIMERIC_SAM_POSTFIX, 
         rs_align.OUTPUT_BAM_FORMAT.split("/")[0]

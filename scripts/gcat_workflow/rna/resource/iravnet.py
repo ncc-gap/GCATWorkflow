@@ -33,7 +33,6 @@ iravnet filt_bam {OUTPUT_DIR}/{SAMPLE}.iravnet.filt.vcf {INPUT_BAM} {OUTPUT_DIR}
 
 samtools index {OUTPUT_DIR}/{SAMPLE}.iravnet.filt.bam
 
-rm -rf {INPUT_BAM}
 rm -rf {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.tmp1
 rm -rf {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.tmp2
 rm -rf {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.gz

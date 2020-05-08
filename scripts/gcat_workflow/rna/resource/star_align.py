@@ -87,11 +87,11 @@ def configure(gcat_conf, run_conf, sample_conf):
             fastq1 = sample_conf.fastq[sample][0][0]
             if paired:
                 fastq2 = sample_conf.fastq[sample][1][0]
-
-            if gcat_conf.getboolean(SECTION_NAME, "remove_fastq"):
-                remove_fastq += "rm %s\n" % (fastq1)
-                if paired:
-                    remove_fastq += "rm %s\n" % (fastq2)
+            
+#            if gcat_conf.getboolean(SECTION_NAME, "remove_fastq"):
+#                remove_fastq += "rm %s\n" % (fastq1)
+#                if paired:
+#                    remove_fastq += "rm %s\n" % (fastq2)
 
         else:
             cat_fastq += "cat {FASTQ1s} > {OUTPUT_DIR}/1_1_temp.fastq\n".format(
@@ -105,13 +105,13 @@ def configure(gcat_conf, run_conf, sample_conf):
                     OUTPUT_DIR = output_dir
                 )
                 fastq2 = "{OUTPUT_DIR}/2_1_temp.fastq".format(OUTPUT_DIR = output_dir)
-
-            if gcat_conf.getboolean(SECTION_NAME, "remove_fastq"):
-                remove_fastq += "rm %s\n" % (" ".join(sample_conf.fastq[sample][0]))
-                remove_fastq += "rm %s\n" % (fastq1)
-                if paired:
-                    remove_fastq += "rm %s\n" % (" ".join(sample_conf.fastq[sample][1]))
-                    remove_fastq += "rm %s\n" % (fastq2)
+#
+#            if gcat_conf.getboolean(SECTION_NAME, "remove_fastq"):
+#                remove_fastq += "rm %s\n" % (" ".join(sample_conf.fastq[sample][0]))
+#                remove_fastq += "rm %s\n" % (fastq1)
+#                if paired:
+#                    remove_fastq += "rm %s\n" % (" ".join(sample_conf.fastq[sample][1]))
+#                    remove_fastq += "rm %s\n" % (fastq2)
 
         arguments = {
             "SAMPLE": sample,
