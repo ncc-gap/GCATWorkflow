@@ -36,7 +36,21 @@ date                    # print date
 set -xv
 set -o pipefail
 
-singularity exec {option} --bind {bind} {image} /bin/bash {script}
+singularity exec {option} {bind} {image} /bin/bash {script}
+"""
+        self.bash_script_template = """#!/bin/bash
+#
+# Set SGE
+#
+#$ -S /bin/bash         # set shell in UGE
+#$ -cwd                 # execute at the submitted dir
+pwd                     # print current working directory
+hostname                # print hostname
+date                    # print date
+set -xv
+set -o pipefail
+
+/bin/bash {script}
 """
         
     def write_script(self, arguments, singularity_bind, run_conf, sample = "", max_task = 0):
@@ -52,13 +66,22 @@ singularity exec {option} --bind {bind} {image} /bin/bash {script}
         open(shell_script_path, 'w').write(self.shell_script_template.format(**arguments))
         
         singurality_script_path = "%s/%s" % (output_dir, self.singurality_script_name)
-        open(singurality_script_path, "w").write(self.singurality_script_template.format(
-            option = self.singularity_option,
-            bind = ",".join(list(set(singularity_bind))),
-            image = self.image,
-            script = shell_script_path
-        ))
-        
+        if self.image != "":
+            bind = ""
+            if len(singularity_bind) > 0:
+                bind = "--bind " + ",".join(list(set(singularity_bind)))
+                
+            open(singurality_script_path, "w").write(self.singurality_script_template.format(
+                option = self.singularity_option,
+                bind = bind,
+                image = self.image,
+                script = shell_script_path
+            ))
+        else:
+            open(singurality_script_path, "w").write(self.bash_script_template.format(
+                script = shell_script_path
+            ))
+            
         conf_path = "%s/%s" % (output_dir, self.snakemake_conf_name)
         open(conf_path, "w").write(yaml.dump({
             "qsub_option": self.qsub_option,

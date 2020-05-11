@@ -115,9 +115,8 @@ def dump_yaml_input_section(run_conf, bam_tofastq_stages, fastq_stage, bam_impor
     for stage in bam_tofastq_stages:
         for sample in stage:
             bam_tofastq[sample] = stage[sample].split(";")
-            pass_txt = "fastq/%s/pass.txt" % (sample)
-            outputs.append(pass_txt)
-            input_aln[sample] = pass_txt
+            input_aln[sample] = "fastq/%s/pass.txt" % (sample)
+            outputs.append(bam_template.format(sample = sample))
 
     fastq_r1 = {}
     fastq_r2 = {}
@@ -128,16 +127,12 @@ def dump_yaml_input_section(run_conf, bam_tofastq_stages, fastq_stage, bam_impor
         if len(fastq_stage[sample]) > 1:
             fastq_r2[sample].extend(fastq_stage[sample][1])
         
-        pass_txt = "fastq/%s/pass.txt" % (sample)
-        input_aln[sample] = pass_txt
-        outputs.append(pass_txt)
+        input_aln[sample] = "fastq/%s/pass.txt" % (sample)
         outputs.append(bam_template.format(sample = sample))
     
     bam_import = {}
     for sample in bam_import_stage:
         bam_import[sample] = bam_import_stage[sample]
-        pass_txt = "fastq/%s/pass.txt" % (sample)
-        outputs.append(pass_txt)
         outputs.append(bam_template.format(sample = sample))
 
     dumped = {

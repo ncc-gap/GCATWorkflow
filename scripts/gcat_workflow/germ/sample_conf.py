@@ -5,7 +5,7 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_FASTQ = "fastq"
     SECTION_BAM_IMPORT = "bam-import"
     SECTION_BAM_TOFASTQ = "bam-tofastq"
-    SECTION_HTCALL = "gatk-haplotypecaller-parabrics-compatible"
+    SECTION_HTCALL = "gatk-haplotypecaller-parabricks"
     SECTION_WGS_METRICS = "gatk-collect-wgs-metrics"
     SECTION_MULTIPLE_METRICS = "gatk-collect-multiple-metrics"
     SECTION_GRIDSS = "gridss"

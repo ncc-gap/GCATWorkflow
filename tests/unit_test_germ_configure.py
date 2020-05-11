@@ -20,8 +20,8 @@ def func_path (root, name):
 
 BAM_IMP = "bam-import"
 BAM_2FQ = "bam-tofastq"
-ALN = "bwa-alignment-parabrics-compatible"
-HT_CALL = "gatk-haplotypecaller-parabrics-compatible"
+ALN = "bwa-alignment-parabricks"
+HT_CALL = "gatk-haplotypecaller-parabricks"
 SUMMARY1 = "gatk-collect-wgs-metrics"
 SUMMARY2 = "gatk-collect-multiple-metrics"
 
@@ -32,13 +32,17 @@ class ConfigureTest(unittest.TestCase):
     REMOVE = False
     SS_NAME = "/test.csv"
     GC_NAME = "/gcat.cfg"
+    GC_NAME_P = "/gcat_parabricks.cfg"
 
     # init class
     @classmethod
     def setUpClass(self):
+        if os.path.exists(self.DATA_DIR):
+            shutil.rmtree(self.DATA_DIR)
         os.makedirs(self.SAMPLE_DIR, exist_ok = True)
         os.makedirs(self.DATA_DIR + "/reference", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/image", exist_ok = True)
+        os.makedirs(self.DATA_DIR + "/parabricks", exist_ok = True)
         touch_files = [
             "/samples/A1.fastq",
             "/samples/A2.fastq",
@@ -53,7 +57,8 @@ class ConfigureTest(unittest.TestCase):
             "/samples/B.markdup.cram",
             "/samples/B.markdup.crai",
             "/reference/XXX.fa",
-            "/image/YYY.simg"
+            "/image/YYY.simg",
+            "/parabricks/pbrun"
         ]
         for p in touch_files:
             open(self.DATA_DIR + p, "w").close()
@@ -90,13 +95,13 @@ A_tumor
         f.write(data_sample)
         f.close()
 
-        data_conf = """[{bam2fq}]
+        conf_template = """[{bam2fq}]
 qsub_option = -l s_vmem=2G,mem_req=2G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
 params = collate=1 exclude=QCFAIL,SECONDARY,SUPPLEMENTARY tryoq=0
 
-[{aln}]
+[{aln}-compatible]
 qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
@@ -113,13 +118,41 @@ samtools_view_option = -@ 8
 samtools_index_option = -@ 8
 reference = {sample_dir}/reference/XXX.fa
 
-[{ht_call}]
+[{aln}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+bwa_option = -t 8 -K 10000000 -T 0
+read_group_pl = na
+read_group_lb = ILLUMINA 
+read_group_pu = na
+reference = {sample_dir}/reference/XXX.fa
+
+[post-{aln}]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+singularity_option = 
+gatk_jar = /tools/gatk-4.0.4.0/gatk-package-4.0.4.0-local.jar
+gatk_markdup_option =
+gatk_markdup_java_option = -XX:-UseContainerSupport -Xmx32g 
+samtools_view_option = -@ 8
+samtools_index_option = -@ 8
+reference = {sample_dir}/reference/XXX.fa
+
+[{ht_call}-compatible]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
 gatk_jar = /tools/gatk-4.0.4.0/gatk-package-4.0.4.0-local.jar
 haplotype_option = --native-pair-hmm-threads=8
 haplotype_java_option = -XX:-UseContainerSupport -Xmx32g
+reference = {sample_dir}/reference/XXX.fa
+
+[{ht_call}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
+haplotype_option = --native-pair-hmm-threads=8
 reference = {sample_dir}/reference/XXX.fa
 
 [{summary1}]
@@ -168,12 +201,29 @@ melt_bed = /MELTv2.2.0/add_bed_files/Hg38/Hg38.genes.bed
 melt_refs = /MELTv2.2.0/me_refs/Hg38
 melt_option =
 melt_java_option = -XX:-UseContainerSupport -Xmx32g
-""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
+"""
+        # Not parabricks
+        data_conf = conf_template.format(
+            sample_dir = self.DATA_DIR, 
+            bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2,
+            gpu_support = "False"
+        )
         
         f = open(self.DATA_DIR + self.GC_NAME, "w")
         f.write(data_conf)
         f.close()
-
+        
+        # parabricks
+        data_conf2 = conf_template.format(
+            sample_dir = self.DATA_DIR, 
+            bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2,
+            gpu_support = "True"
+        )
+        
+        f = open(self.DATA_DIR + self.GC_NAME_P, "w")
+        f.write(data_conf2)
+        f.close()
+        
     # terminated class
     @classmethod
     def tearDownClass(self):
@@ -194,7 +244,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test1_02_version(self):
         subprocess.check_call(['python', 'gcat_runner', '--version'])
     
-    def test2_01_configure(self):
+    def test2_01_configure_drmaa_nogpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germ",
@@ -206,7 +256,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test2_02_configure(self):
+    def test2_02_configure_nodramaa_nogpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germ",
@@ -218,6 +268,32 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
+    
+    def test2_03_configure_drmaa_gpu(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        options = [
+            "germ",
+            self.DATA_DIR + self.SS_NAME,
+            wdir,
+            self.DATA_DIR + self.GC_NAME_P,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test2_04_configure_nodrmaa_gpu(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        options = [
+            "germ",
+            self.DATA_DIR + self.SS_NAME,
+            wdir,
+            self.DATA_DIR + self.GC_NAME_P,
+            "--disable_drmaa",
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
 
     def test3_01_bwa_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)

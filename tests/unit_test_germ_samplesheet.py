@@ -14,8 +14,8 @@ import gcat_workflow.germ.sample_conf as sc
 
 BAM_IMP = "bam-import"
 BAM_2FQ = "bam-tofastq"
-ALN = "bwa-alignment-parabrics-compatible"
-HT_CALL = "gatk-haplotypecaller-parabrics-compatible"
+ALN = "bwa-alignment-parabricks"
+HT_CALL = "gatk-haplotypecaller-parabricks"
 
 class SubmitTest(unittest.TestCase):
     

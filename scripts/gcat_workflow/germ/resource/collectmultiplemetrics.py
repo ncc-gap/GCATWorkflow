@@ -36,9 +36,7 @@ java \\
   --PROGRAM CollectBaseDistributionByCycle \\
   --PROGRAM CollectGcBiasMetrics \\
   --PROGRAM CollectSequencingArtifactMetrics \\
-  --PROGRAM CollectQualityYieldMetrics \\
-  {MULTIPLE_METRICS_OPTION}
-
+  --PROGRAM CollectQualityYieldMetrics {MULTIPLE_METRICS_OPTION}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam

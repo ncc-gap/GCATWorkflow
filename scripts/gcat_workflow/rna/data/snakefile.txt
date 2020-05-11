@@ -42,7 +42,6 @@ rule bam_import:
     input:
         lambda wildcards: config["bam_import"][wildcards.sample]
     output:
-        "fastq/{sample}/pass.txt",
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam",
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
         "star/{sample}/{sample}.Chimeric.out.sam",

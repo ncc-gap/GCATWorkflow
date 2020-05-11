@@ -41,7 +41,6 @@ rule bam_import:
     input:
         lambda wildcards: config["bam_import"][wildcards.sample]
     output:
-        "fastq/{sample}/pass.txt",
         "cram/{sample}/{sample}.markdup.cram"
     run:
         bam_postfix = ".markdup.cram"
@@ -74,10 +73,21 @@ rule bwa:
     input:
         lambda wildcards: config["aln_samples"][wildcards.sample],
     output:
+        "cram/{sample}/{sample}.bam"
+    params:
+        script = "script/{sample}/singularity_bwa-alignment-parabricks.sh",
+        yaml = "script/{sample}/conf_bwa-alignment-parabricks.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule post_bwa:
+    input:
+        lambda wildcards: config["post_aln_samples"][wildcards.sample],
+    output:
         "cram/{sample}/{sample}.markdup.cram"
     params:
-        script = "script/{sample}/singularity_bwa-alignment-parabrics-compatible.sh",
-        yaml = "script/{sample}/conf_bwa-alignment-parabrics-compatible.yml"
+        script = "script/{sample}/singularity_post-bwa-alignment-parabricks.sh",
+        yaml = "script/{sample}/conf_post-bwa-alignment-parabricks.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -87,8 +97,8 @@ rule haplotypecaller:
     output:
         "haplotypecaller/{sample}/{sample}.gatk-hc.vcf"
     params:
-        script = "script/{sample}/singularity_gatk-haplotypecaller-parabrics-compatible.sh",
-        yaml = "script/{sample}/conf_gatk-haplotypecaller-parabrics-compatible.yml"
+        script = "script/{sample}/singularity_gatk-haplotypecaller-parabricks.sh",
+        yaml = "script/{sample}/conf_gatk-haplotypecaller-parabricks.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 

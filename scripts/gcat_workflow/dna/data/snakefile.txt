@@ -42,7 +42,6 @@ rule bam_import:
     input:
         lambda wildcards: config["bam_import"][wildcards.sample]
     output:
-        "fastq/{sample}/pass.txt",
         "bam/{sample}/{sample}.markdup.bam"
     run:
         bam_postfix = ".markdup.bam"

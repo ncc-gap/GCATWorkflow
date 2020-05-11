@@ -28,9 +28,7 @@ java \\
   CollectWgsMetrics \\
   -I {INPUT_CRAM} \\
   -O {OUTPUT_FILE} \\
-  -R {REFERENCE} \\ 
-  {WGS_METRICS_OPTION}
-
+  -R {REFERENCE} {WGS_METRICS_OPTION}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
