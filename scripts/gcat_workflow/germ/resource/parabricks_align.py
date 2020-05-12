@@ -3,7 +3,7 @@
 import os
 import gcat_workflow.core.stage_task_abc as stage_task
 
-OUTPUT_FORMAT = "cram/{sample}/{sample}.bam"
+OUTPUT_FORMAT = "cram/{sample}/{sample}.markdup.bam"
 
 class Compatible(stage_task.Stage_task):
     def __init__(self, params):
@@ -36,6 +36,15 @@ set -x
   -I=/dev/stdin \\
   -O={WORK_DIR}/{SAMPLE_NAME}.bam \\
   --SORT_ORDER=coordinate
+
+/usr/bin/java \\
+  {GATK_MARKDUP_JAVA_OPTION} \\
+  -jar {GATK_JAR} MarkDuplicates \\
+  -I={WORK_DIR}/{SAMPLE_NAME}.bam\\
+  -O={OUTPUT_BAM} \\
+  -M={OUTPUT_MARKDUP_METRICS} {GATK_MARKDUP_OPTION}
+
+rm -f {WORK_DIR}/{SAMPLE_NAME}.bam
 """
 
 class Parabricks(stage_task.Stage_task):
@@ -61,15 +70,15 @@ set -x
   "@RG\\tID:{SAMPLE_NAME}\\tPL:{READ_GROUP_PL}\\tLB:{READ_GROUP_LB}\\tSM:{SAMPLE_NAME}\\tPU:{READ_GROUP_PU}" \\
   --ref {REFERENCE} \\
   --in-fq {INPUT_FASTQ_1} {INPUT_FASTQ_2} \\
-  --out-bam {WORK_DIR}/{SAMPLE_NAME}.bam
+  --out-bam {OUTPUT_BAM}
 #  --tmp-dir /scratch/tmp
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def _compatible(gcat_conf, run_conf, sample_conf):
 
-    STAGE_NAME = "bwa-alignment-parabricks-compatible"
-    CONF_SECTION = STAGE_NAME
+    STAGE_NAME = "bwa-alignment-parabricks"
+    CONF_SECTION = "bwa-alignment-parabricks-compatible"
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
@@ -82,7 +91,7 @@ def _compatible(gcat_conf, run_conf, sample_conf):
     output_bams = {}
     for sample in sample_conf.fastq:
         output_dir = "%s/cram/%s" % (run_conf.project_root, sample)
-        output_bams[sample] = "%s/%s.bam" % (output_dir, sample)
+        output_bams[sample] = "%s/%s.markdup.bam" % (output_dir, sample)
         
         if len(sample_conf.fastq[sample][0]) == 1:
             fastq1 = sample_conf.fastq[sample][0][0]
@@ -98,6 +107,8 @@ def _compatible(gcat_conf, run_conf, sample_conf):
             "SAMPLE_NAME": sample,
             "INPUT_FASTQ_1": fastq1,
             "INPUT_FASTQ_2": fastq2,
+            "OUTPUT_BAM": output_bams[sample],
+            "OUTPUT_MARKDUP_METRICS": "%s/%s.markdup.metrics" % (output_dir, sample),
             "WORK_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option"),
@@ -107,6 +118,8 @@ def _compatible(gcat_conf, run_conf, sample_conf):
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
             "GATK_SORT_OPTION": gcat_conf.get(CONF_SECTION, "gatk_sort_option"),
             "GATK_SORT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gatk_sort_java_option"),
+            "GATK_MARKDUP_OPTION": gcat_conf.get(CONF_SECTION, "gatk_markdup_option"),
+            "GATK_MARKDUP_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gatk_markdup_java_option"),
         }
         
         singularity_bind = [
@@ -133,7 +146,7 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
     output_bams = {}
     for sample in sample_conf.fastq:
         output_dir = "%s/cram/%s" % (run_conf.project_root, sample)
-        output_bams[sample] = "%s/%s.bram" % (output_dir, sample)
+        output_bams[sample] = "%s/%s.markdup.bam" % (output_dir, sample)
         
         if len(sample_conf.fastq[sample][0]) == 1:
             fastq1 = sample_conf.fastq[sample][0][0]
@@ -149,7 +162,7 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
             "SAMPLE_NAME": sample,
             "INPUT_FASTQ_1": fastq1,
             "INPUT_FASTQ_2": fastq2,
-            "WORK_DIR": output_dir,
+            "OUTPUT_BAM": output_bams[sample],
             "PBRUN": gcat_conf.path_get(CONF_SECTION, "pbrun"),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option"),

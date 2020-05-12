@@ -58,8 +58,8 @@ set -x
 # merge sorted bams into one and mark duplicate reads with biobambam
 def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     
-    STAGE_NAME = "gatk-haplotypecaller-parabricks-compatible"
-    CONF_SECTION = STAGE_NAME
+    STAGE_NAME = "gatk-haplotypecaller-parabricks"
+    CONF_SECTION = "gatk-haplotypecaller-parabricks-compatible"
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,

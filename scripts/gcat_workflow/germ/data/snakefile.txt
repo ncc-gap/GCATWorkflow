@@ -73,7 +73,7 @@ rule bwa:
     input:
         lambda wildcards: config["aln_samples"][wildcards.sample],
     output:
-        "cram/{sample}/{sample}.bam"
+        "cram/{sample}/{sample}.markdup.bam"
     params:
         script = "script/{sample}/singularity_bwa-alignment-parabricks.sh",
         yaml = "script/{sample}/conf_bwa-alignment-parabricks.yml"

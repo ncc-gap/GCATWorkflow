@@ -33,9 +33,9 @@ def configure(remove_files, gcat_conf, run_conf, sample_conf):
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
-        "image": gcat_conf.path_get(SECTION_NAME, "image"),
+        "image": "",
         "qsub_option": gcat_conf.get(SECTION_NAME, "qsub_option"),
-        "singularity_option": gcat_conf.get(SECTION_NAME, "singularity_option")
+        "singularity_option": ""
     }
     stage_class = Join(params)
     
@@ -55,7 +55,7 @@ def configure(remove_files, gcat_conf, run_conf, sample_conf):
         "JOIN_FILE": "%s/all.txt" % (output_dir)
     }
     
-    singularity_bind = [run_conf.project_root]
+    singularity_bind = []
     
     stage_class.write_script(arguments, singularity_bind, run_conf)
 

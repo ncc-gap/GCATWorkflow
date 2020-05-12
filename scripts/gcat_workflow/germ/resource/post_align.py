@@ -25,26 +25,18 @@ set -o nounset
 set -o pipefail
 set -x
 
-/usr/bin/java \\
-  {GATK_MARKDUP_JAVA_OPTION} \\
-  -jar {GATK_JAR} MarkDuplicates \\
-  -I={INPUT_BAM} \\
-  -O={OUTPUT_BAM} \\
-  -M={OUTPUT_MARKDUP_METRICS} {GATK_MARKDUP_OPTION}
-
 /tools/samtools-1.9/samtools view \\
   {SAMTOOLS_VIEW_OPTION} \\
   -C \\
   -T {REFERENCE} \\
   -o {OUTPUT_CRAM} \\
-  {OUTPUT_BAM}
+  {INPUT_BAM}
 
 /tools/samtools-1.9/samtools index \\
   {SAMTOOLS_INDEX_OPTION} \\
   {OUTPUT_CRAM}
   
 rm -f {INPUT_BAM}
-rm -f {OUTPUT_BAM}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
@@ -68,13 +60,8 @@ def configure(aligned_bams, gcat_conf, run_conf, sample_conf):
         
         arguments = {
             "INPUT_BAM": aligned_bams[sample],
-            "OUTPUT_BAM": output_crams[sample].rstrip(".cram") + ".bam",
             "OUTPUT_CRAM": output_crams[sample],
-            "OUTPUT_MARKDUP_METRICS": "%s/%s.markdup.metrics" % (output_dir, sample),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
-            "GATK_MARKDUP_OPTION": gcat_conf.get(CONF_SECTION, "gatk_markdup_option"),
-            "GATK_MARKDUP_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gatk_markdup_java_option"),
             "SAMTOOLS_VIEW_OPTION": gcat_conf.get(CONF_SECTION, "samtools_view_option"),
             "SAMTOOLS_INDEX_OPTION": gcat_conf.get(CONF_SECTION, "samtools_index_option")
         }
