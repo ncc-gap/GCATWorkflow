@@ -22,7 +22,7 @@ set -o pipefail
 set -x
 
 mkdir -p $(dirname {OUTPUT_FILE})
-java \\
+/usr/bin/java \\
   {WGS_METRICS_JAVA_OPTION} \\
   -jar {GATK_JAR} \\
   CollectWgsMetrics \\

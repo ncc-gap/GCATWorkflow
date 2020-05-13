@@ -22,7 +22,7 @@ set -o pipefail
 set -x
 
 mkdir -p $(dirname {OUTPUT_FILE_PREFIX})
-java \\
+/usr/bin/java \\
   {MULTIPLE_METRICS_JAVA_OPTION} \\
   -jar {GATK_JAR} \\
   CollectMultipleMetrics \\

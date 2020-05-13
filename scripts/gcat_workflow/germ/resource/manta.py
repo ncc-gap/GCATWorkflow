@@ -24,11 +24,9 @@ set -x
 python /manta/bin/configManta.py \\
     --bam {INPUT_CRAM} \\
     --referenceFasta {REFERENCE} \\
-    --runDir {OUTPUT_DIR} \\
-    {MANTA_CONFIG_OPTION}
+    --runDir {OUTPUT_DIR} {MANTA_CONFIG_OPTION}
 
-python {OUTPUT_DIR}/runWorkflow.py \\
-    {MANTA_WORKFLOW_OPTION}
+python {OUTPUT_DIR}/runWorkflow.py {MANTA_WORKFLOW_OPTION}
 
 """
 
