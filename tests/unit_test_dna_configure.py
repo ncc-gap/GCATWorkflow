@@ -47,7 +47,6 @@ class ConfigureTest(unittest.TestCase):
             "/samples/B.markdup.bai",
             "/reference/XXX.fa",
             "/reference/gap.txt",
-            "/reference/human.hg19.genome",
             "/reference/refGene.coding.exon.151207.bed",
             "/image/YYY.simg",
         ]
@@ -137,7 +136,7 @@ wgs_i_bed_lines = 10000
 wgs_i_bed_width = 100
 samtools_params = -F 3332 -f 2
 grc_flag = True
-genome_size = {sample_dir}/reference/human.hg19.genome
+genome_size = /tools/bedtools-2.24.0/genomes/human.hg19.genome
 gaptxt = {sample_dir}/reference/gap.txt
 bait_file = {sample_dir}/reference/refGene.coding.exon.151207.bed
 

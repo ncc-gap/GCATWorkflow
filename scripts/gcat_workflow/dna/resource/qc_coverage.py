@@ -66,7 +66,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "i_bed_lines": gcat_conf.get("qc_coverage", "wgs_i_bed_lines"),
             "i_bed_width": gcat_conf.get("qc_coverage", "wgs_i_bed_width"),
             "incl_bed_width": gcat_conf.get("qc_coverage", "wgs_incl_bed_width"),
-            "genome_size_file": gcat_conf.path_get("qc_coverage", "genome_size"),
+            "genome_size_file": gcat_conf.get("qc_coverage", "genome_size"),
             "gaptxt": gcat_conf.path_get("qc_coverage", "gaptxt"),
             "bait_file": gcat_conf.path_get("qc_coverage", "bait_file"),
             "samtools_params": gcat_conf.get("qc_coverage", "samtools_params"),
@@ -77,10 +77,14 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
 
         singularity_bind = [
             run_conf.project_root,
-            gcat_conf.path_get("qc_coverage", "genome_size"),
             gcat_conf.path_get("qc_coverage", "gaptxt"),
             gcat_conf.path_get("qc_coverage", "bait_file")
         ]
+        import os
+        genome_size = gcat_conf.get("qc_coverage", "genome_size")
+        if os.path.exists(genome_size):
+            singularity_bind.append(genome_size)
+    
         if sample in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[sample]
 
