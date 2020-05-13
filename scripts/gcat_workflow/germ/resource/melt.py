@@ -38,8 +38,7 @@ java \\
     -n {MELT_BED} \\
     -bamfile {INPUT_CRAM} \\
     -bowtie /tools/bowtie2-2.4.1-linux-x86_64/bowtie2 \\
-    -samtools /tools/samtools-1.9/samtools \\
-    {MELT_OPTION}
+    -samtools /tools/samtools-1.9/samtools {MELT_OPTION}
 
 """
 
