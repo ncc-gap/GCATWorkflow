@@ -47,10 +47,14 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
     STAGE_NAME = "melt"
     CONF_SECTION = STAGE_NAME
+    image = gcat_conf.safe_get(CONF_SECTION, "image", "")
+    if image != "":
+        image = gcat_conf.path_get(CONF_SECTION, "image")
+
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
-        "image": gcat_conf.get(CONF_SECTION, "image"),
+        "image": image,
         "qsub_option": gcat_conf.get(CONF_SECTION, "qsub_option"),
         "singularity_option": gcat_conf.get(CONF_SECTION, "singularity_option")
     }

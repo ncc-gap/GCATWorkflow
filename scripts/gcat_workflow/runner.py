@@ -10,8 +10,10 @@ class Runner(object):
         self.qsub_option = qsub_option
         self.retry_count = retry_count
         self.singularity_script = os.path.abspath(singularity_script)
+        #self.singularity_script = singularity_script
         self.jobname = os.path.basename(self.singularity_script).replace(".sh", "").replace("singularity_", "")
-        self.log_dir = os.path.abspath(log_dir)
+        #self.log_dir = os.path.abspath(log_dir)
+        self.log_dir = log_dir
         self.max_task = max_task
         
     def task_exec(self):
@@ -102,13 +104,36 @@ class Qsub_runner(Runner):
         if returncode != 0: 
             raise RuntimeError("The batch job failed.")
 
+class Slurm_runner(Runner):
+    def task_exec(self):
+        qsub_commands = ['sbatch', '--wait']
+        #if self.max_task != 0:
+        #    qsub_commands.extend(['-t', '1-'+str(self.max_task)+':1'])
+
+        qsub_options = []
+        if type(self.qsub_option) == type(""):
+            qsub_options += self.qsub_option.split(' ')
+            qsub_options.remove('')
+        if len(qsub_options) > 0:
+            qsub_commands += qsub_options
+
+        log_o_path = "%s/%s.o.log" % (self.log_dir, self.jobname)
+        log_e_path = "%s/%s.e.log" % (self.log_dir, self.jobname)
+
+        #print(qsub_commands + ["-o", log_o_path, "-e", log_e_path, self.singularity_script])
+        returncode = subprocess.call(qsub_commands + ["-o", log_o_path, "-e", log_e_path, self.singularity_script])
+
+        if returncode != 0: 
+            raise RuntimeError("The batch job failed.")
+
 def main(args):
     import yaml
     conf = yaml.safe_load(open(args.conf))
     
-    if conf["drmaa"]:
-        runner = Drmaa_runner(args.script, conf["qsub_option"], conf["log_dir"], conf["max_task"], conf["retry_count"])
-    else:
+    if conf["runner"] == "qsub":
         runner = Qsub_runner(args.script, conf["qsub_option"], conf["log_dir"], conf["max_task"], conf["retry_count"])
-        
+    elif conf["runner"] == "slurm":
+        runner = Slurm_runner(args.script, conf["qsub_option"], conf["log_dir"], conf["max_task"], conf["retry_count"])
+    else: 
+        runner = Drmaa_runner(args.script, conf["qsub_option"], conf["log_dir"], conf["max_task"], conf["retry_count"])
     runner.task_exec()

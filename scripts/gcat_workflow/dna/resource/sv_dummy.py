@@ -28,7 +28,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": "sv_dummy",
-        "image": gcat_conf.get("sv_dummy", "image"),
+        "image": gcat_conf.path_get("sv_dummy", "image"),
         "qsub_option": gcat_conf.get("sv_dummy", "qsub_option"),
         "singularity_option": gcat_conf.get("sv_dummy", "singularity_option")
     }

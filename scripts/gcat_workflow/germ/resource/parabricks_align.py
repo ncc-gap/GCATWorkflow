@@ -8,8 +8,7 @@ OUTPUT_FORMAT = "cram/{sample}/{sample}.markdup.bam"
 class Compatible(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
-        self.shell_script_template = """
-#!/bin/bash
+        self.shell_script_template = """#!/bin/bash
 #
 # Set SGE
 #
@@ -50,8 +49,7 @@ rm -f {WORK_DIR}/{SAMPLE_NAME}.bam
 class Parabricks(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
-        self.shell_script_template = """
-#!/bin/bash
+        self.shell_script_template = """#!/bin/bash
 #
 # Set SGE
 #
@@ -66,10 +64,10 @@ set -o pipefail
 set -x
 
 {PBRUN} fq2bam \\
-  --bwa-options "{BWA_OPTION}" \\
-  "@RG\\tID:{SAMPLE_NAME}\\tPL:{READ_GROUP_PL}\\tLB:{READ_GROUP_LB}\\tSM:{SAMPLE_NAME}\\tPU:{READ_GROUP_PU}" \\
   --ref {REFERENCE} \\
   --in-fq {INPUT_FASTQ_1} {INPUT_FASTQ_2} \\
+  "@RG\\tID:{SAMPLE_NAME}\\tPL:{READ_GROUP_PL}\\tLB:{READ_GROUP_LB}\\tSM:{SAMPLE_NAME}\\tPU:{READ_GROUP_PU}" \\
+  --bwa-options "{BWA_OPTION}" \\
   --out-bam {OUTPUT_BAM}
 #  --tmp-dir /scratch/tmp
 """
@@ -91,6 +89,7 @@ def _compatible(gcat_conf, run_conf, sample_conf):
     output_bams = {}
     for sample in sample_conf.fastq:
         output_dir = "%s/cram/%s" % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok = True)
         output_bams[sample] = "%s/%s.markdup.bam" % (output_dir, sample)
         
         if len(sample_conf.fastq[sample][0]) == 1:
@@ -146,6 +145,8 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
     output_bams = {}
     for sample in sample_conf.fastq:
         output_dir = "%s/cram/%s" % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok = True)
+        #print(output_dir)
         output_bams[sample] = "%s/%s.markdup.bam" % (output_dir, sample)
         
         if len(sample_conf.fastq[sample][0]) == 1:

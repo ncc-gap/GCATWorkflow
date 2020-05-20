@@ -6,8 +6,7 @@ import gcat_workflow.core.stage_task_abc as stage_task
 class Compatible(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
-        self.shell_script_template = """
-#!/bin/bash
+        self.shell_script_template = """#!/bin/bash
 #
 # Set SGE
 #
@@ -32,8 +31,7 @@ set -x
 class Parabricks(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
-        self.shell_script_template = """
-#!/bin/bash
+        self.shell_script_template = """#!/bin/bash
 #
 # Set SGE
 #
@@ -47,11 +45,10 @@ set -o nounset
 set -o pipefail
 set -x
 
-{PBRUN} mutectcaller \
-  --ref {REFERENCE} {HAPLOTYPE_OPTION}
-  --in-tumor-bam {INPUT_CRAM} \
-  --tumor-name {SAMPLE} \
-  --out-vcf {OUTPUT_VCF}
+{PBRUN} haplotypecaller \
+  --ref {REFERENCE} \
+  --in-bam {INPUT_CRAM} \
+  --out-variants {OUTPUT_VCF} {HAPLOTYPE_OPTION}
   #--tmp-dir /scratch/tmp
 """
 
@@ -63,7 +60,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
-        "image": gcat_conf.get(CONF_SECTION, "image"),
+        "image": gcat_conf.path_get(CONF_SECTION, "image"),
         "qsub_option": gcat_conf.get(CONF_SECTION, "qsub_option"),
         "singularity_option": gcat_conf.get(CONF_SECTION, "singularity_option")
     }
@@ -108,6 +105,8 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = []
     for sample in sample_conf.haplotype_call:
+        output_dir = "%s/haplotypecaller/%s" % (run_conf.project_root, sample) 
+        os.makedirs(output_dir, exist_ok = True)
         output_vcf = "haplotypecaller/%s/%s.gatk-hc.vcf" % (sample, sample)
         output_files.append(output_vcf)
         arguments = {

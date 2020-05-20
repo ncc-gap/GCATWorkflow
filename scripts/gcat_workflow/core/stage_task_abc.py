@@ -13,7 +13,8 @@ class Stage_task(object):
     }
     
     def __init__(self, params):
-        self.script_dir = "%s/script" % (os.path.abspath(params["work_dir"]))
+        #self.script_dir = "%s/script" % (os.path.abspath(params["work_dir"]))
+        self.script_dir = "%s/script" % (params["work_dir"])
         self.shell_script_name = "shell_%s.sh" % (params["stage_name"])
         self.singurality_script_name = "singularity_%s.sh" % (params["stage_name"])
         self.snakemake_conf_name = "conf_%s.yml" % (params["stage_name"])
@@ -86,7 +87,7 @@ set -o pipefail
         open(conf_path, "w").write(yaml.dump({
             "qsub_option": self.qsub_option,
             "log_dir": log_dir,
-            "drmaa": run_conf.drmaa,
+            "runner": run_conf.runner,
             "retry_count": run_conf.retry_count,
             "max_task": max_task
         }))
