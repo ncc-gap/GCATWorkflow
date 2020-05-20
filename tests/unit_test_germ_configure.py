@@ -256,44 +256,69 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test2_02_configure_nodramaa_nogpu(self):
+    def test2_02_configure_drmaa_gpu(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        options = [
+            "germ",
+            self.DATA_DIR + self.SS_NAME,
+            wdir,
+            self.DATA_DIR + self.GC_NAME_P,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test2_03_configure_qsub_nogpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germ",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME,
-            "--disable_drmaa",
+            "--runner", "drmaa",
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
     
-    def test2_03_configure_drmaa_gpu(self):
+    def test2_04_configure_qsub_gpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germ",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME_P,
+            "--runner", "drmaa",
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test2_04_configure_nodrmaa_gpu(self):
+    def test2_05_configure_slurm_nogpu(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        options = [
+            "germ",
+            self.DATA_DIR + self.SS_NAME,
+            wdir,
+            self.DATA_DIR + self.GC_NAME,
+            "--runner", "slurm",
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+    
+    def test2_06_configure_slurm_gpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germ",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME_P,
-            "--disable_drmaa",
+            "--runner", "slurm",
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
-
 
     def test3_01_bwa_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)

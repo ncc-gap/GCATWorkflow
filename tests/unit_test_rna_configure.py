@@ -261,7 +261,21 @@ remove_fastq = True
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME,
-            "--disable_drmaa",
+            "--runner", "drmaa",
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test2_03_configure(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+
+        options = [
+            "rna",
+            self.DATA_DIR + self.SS_NAME,
+            wdir,
+            self.DATA_DIR + self.GC_NAME,
+            "--runner", "slurm",
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
