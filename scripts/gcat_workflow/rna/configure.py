@@ -98,7 +98,7 @@ def main(gcat_conf, run_conf, sample_conf):
     output_fusionfusion_merges = rs_fusionfusion_merge.configure(output_fusionfusion_counts, gcat_conf, run_conf, sample_conf)
     
     import gcat_workflow.rna.resource.fusionfusion as rs_fusionfusion
-    output_fusionfusions = rs_fusionfusion.configure(output_fusionfusion_counts, output_fusionfusion_merges, gcat_conf, run_conf, sample_conf)
+    output_fusionfusions = rs_fusionfusion.configure(output_bam_sams, output_fusionfusion_merges, gcat_conf, run_conf, sample_conf)
     
     # STAR-fusion
     output_bam_junctions = {}
@@ -140,8 +140,8 @@ def main(gcat_conf, run_conf, sample_conf):
                 values.append(dic[key])
         return values
 
-    y["output_files"].extend(__dic_values(output_fusionfusion_counts))
-    y["output_files"].extend(__dic_values(output_fusionfusion_merges))
+    #y["output_files"].extend(__dic_values(output_fusionfusion_counts))
+    #y["output_files"].extend(__dic_values(output_fusionfusion_merges))
     y["output_files"].extend(output_fusionfusions)
     y["output_files"].extend(output_star_fusions)
     y["output_files"].extend(output_ir_counts)
@@ -168,7 +168,7 @@ def main(gcat_conf, run_conf, sample_conf):
     y["fusionfusion_samples"] = {}
     for [sample, panel] in sample_conf.fusionfusion:
         y["fusionfusion_samples"][sample] = [
-            rs_fusionfusion_count.OUTPUT_FORMAT.format(sample=sample)
+            rs_align.OUTPUT_CHIMERIC_SAM_FORMAT.format(sample=sample)
         ]
         if panel != None:
             y["fusionfusion_samples"][sample].append(rs_fusionfusion_merge.OUTPUT_FORMAT.format(sample=panel))

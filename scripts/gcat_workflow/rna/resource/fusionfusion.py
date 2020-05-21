@@ -62,7 +62,7 @@ def configure(input_counts, input_merges, gcat_conf, run_conf, sample_conf):
             
         arguments = {
             "SAMPLE": sample,
-            "INPUT": "%s/%s" % (run_conf.project_root, input_counts[sample]),
+            "INPUT": "%s" % (input_counts[sample]),
             "OUTPUT_DIR": output_dir,
             "OPTION": gcat_conf.get(SECTION_NAME, "fusionfusion_option"),
             "FILT_OPTION": gcat_conf.get(SECTION_NAME, "filt_option"),

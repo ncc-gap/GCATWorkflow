@@ -128,13 +128,13 @@ def configure(gcat_conf, run_conf, sample_conf):
             "OUTPUT_DIR": output_dir
         }
        
-        singularity_bind = [run_conf.project_root]
-        if sample in sample_conf.bam_import_src:
-            singularity_bind += sample_conf.bam_import_src[sample]
+        singularity_bind = [
+            run_conf.project_root,
+            os.path.dirname(gcat_conf.path_get(SECTION_NAME, "reference_fasta")),
+            os.path.dirname(gcat_conf.path_get(SECTION_NAME, "reference_kallisto_index")),
+            os.path.dirname(gcat_conf.path_get(SECTION_NAME, "annotation_gtf"))
+        ] + sample_conf.fastq_src[sample]
         
-        singularity_bind.append(os.path.dirname(gcat_conf.path_get(SECTION_NAME, "reference_fasta")))
-        singularity_bind.append(os.path.dirname(gcat_conf.path_get(SECTION_NAME, "reference_kallisto_index")))
-        singularity_bind.append(os.path.dirname(gcat_conf.path_get(SECTION_NAME, "annotation_gtf")))
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
 
     return output_files

@@ -115,7 +115,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
-            "PBRUN": gcat_conf.path_get(CONF_SECTION, "pbrun"),
+            "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

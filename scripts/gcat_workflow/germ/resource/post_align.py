@@ -37,6 +37,7 @@ set -x
   {OUTPUT_CRAM}
   
 rm -f {INPUT_BAM}
+rm -f {INPUT_BAI}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
@@ -60,6 +61,7 @@ def configure(aligned_bams, gcat_conf, run_conf, sample_conf):
         
         arguments = {
             "INPUT_BAM": aligned_bams[sample],
+            "INPUT_BAI": aligned_bams[sample] + ".bai",
             "OUTPUT_CRAM": output_crams[sample],
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "SAMTOOLS_VIEW_OPTION": gcat_conf.get(CONF_SECTION, "samtools_view_option"),

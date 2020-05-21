@@ -63,13 +63,15 @@ set -o nounset
 set -o pipefail
 set -x
 
+{CAT}
 {PBRUN} fq2bam \\
   --ref {REFERENCE} \\
-  --in-fq {INPUT_FASTQ_1} {INPUT_FASTQ_2} \\
+  --in-fq {INPUT_FASTQ} \\
   "@RG\\tID:{SAMPLE_NAME}\\tPL:{READ_GROUP_PL}\\tLB:{READ_GROUP_LB}\\tSM:{SAMPLE_NAME}\\tPU:{READ_GROUP_PU}" \\
   --bwa-options "{BWA_OPTION}" \\
   --out-bam {OUTPUT_BAM}
 #  --tmp-dir /scratch/tmp
+{RM}
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam
@@ -141,35 +143,52 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
         "singularity_option": ""
     }
     stage_class = Parabricks(params)
-     
     output_bams = {}
     for sample in sample_conf.fastq:
         output_dir = "%s/cram/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok = True)
-        #print(output_dir)
         output_bams[sample] = "%s/%s.markdup.bam" % (output_dir, sample)
         
+        fastq1 = ""
+        fastq2 = ""
+        cat_command = ""
+        remove_command = ""
         if len(sample_conf.fastq[sample][0]) == 1:
-            fastq1 = sample_conf.fastq[sample][0][0]
+            if not os.path.islink(sample_conf.fastq[sample][0][0]):
+                fastq1 = sample_conf.fastq[sample][0][0]
         else:
-            fastq1 = "'<cat %s'" % (" ".join(sample_conf.fastq[sample][0]))
+            fastq1 =  "%s/1_1.fq" % (output_dir)
+            cat_command = "cat %s > %s\n" % (" ".join(sample_conf.fastq[sample][0]), fastq1)
+            remove_command = "rm %s\n" % (fastq1)
 
         if len(sample_conf.fastq[sample][1]) == 1:
-            fastq2 = sample_conf.fastq[sample][1][0]
+            if not os.path.islink(sample_conf.fastq[sample][1][0]):
+                fastq2 = sample_conf.fastq[sample][1][0]
         else:
-            fastq2 = "'<cat %s'" % (" ".join(sample_conf.fastq[sample][0]))
+            fastq2 =  "%s/2_1.fq" % (output_dir)
+            cat_command += "cat %s > %s\n" % (" ".join(sample_conf.fastq[sample][1]), fastq2)
+            remove_command += "rm %s\n" % (fastq2)
+
+        for path in sample_conf.fastq_src[sample]:
+            if os.path.islink(path):
+                continue
+            if fastq1 == "":
+                fastq1 = path
+            elif fastq2 == "":
+                fastq2 = path
 
         arguments = {
             "SAMPLE_NAME": sample,
-            "INPUT_FASTQ_1": fastq1,
-            "INPUT_FASTQ_2": fastq2,
+            "INPUT_FASTQ": fastq1 + " " + fastq2,
             "OUTPUT_BAM": output_bams[sample],
-            "PBRUN": gcat_conf.path_get(CONF_SECTION, "pbrun"),
+            "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option"),
             "READ_GROUP_PL": gcat_conf.get(CONF_SECTION, "read_group_pl"),
             "READ_GROUP_LB": gcat_conf.get(CONF_SECTION, "read_group_lb"),
             "READ_GROUP_PU": gcat_conf.get(CONF_SECTION, "read_group_pu"),
+            "CAT": cat_command,
+            "RM": remove_command,
         }
         
         singularity_bind = []
