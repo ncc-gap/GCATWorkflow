@@ -11,8 +11,7 @@ class Bwa_align(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
 
-        self.shell_script_template = """
-#!/bin/bash
+        self.shell_script_template = """#!/bin/bash
 #
 # Set SGE
 #
@@ -71,7 +70,6 @@ def configure(gcat_conf, run_conf, sample_conf):
         "singularity_option": gcat_conf.get(CONF_SECTION, "singularity_option")
     }
     stage_class = Bwa_align(params)
-    
     output_bams = {}
     for sample in sample_conf.fastq:
         output_dir = "%s/bam/%s" % (run_conf.project_root, sample)
@@ -118,11 +116,10 @@ def configure(gcat_conf, run_conf, sample_conf):
             "BAMSORT_OPTION": gcat_conf.get(CONF_SECTION, "bamsort_option"),
             "BAMMARKDUP_OPTION": gcat_conf.get(CONF_SECTION, "bammarkduplicates_option")
         }
-        
         singularity_bind = [
             run_conf.project_root,
             os.path.dirname(gcat_conf.path_get(CONF_SECTION, "bwa_reference")),
-        ] + sample_conf.fastq_src[sample]
+        ] + sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1]
         
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
     return output_bams

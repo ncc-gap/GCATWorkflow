@@ -14,8 +14,7 @@ OUTPUT_CHIMERIC_SAM_FORMAT = "star/{sample}/{sample}" + CHIMERIC_SAM_POSTFIX
 class Star_align(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
-        self.shell_script_template = """
-#!/bin/bash
+        self.shell_script_template = """#!/bin/bash
 #
 # Set SGE
 #
@@ -127,7 +126,7 @@ def configure(gcat_conf, run_conf, sample_conf):
         singularity_bind = [
             run_conf.project_root,
             gcat_conf.get(SECTION_NAME, "star_genome"),
-        ] + sample_conf.fastq_src[sample]
+        ] + sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1]
         
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
     return output_bams

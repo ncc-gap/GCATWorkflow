@@ -40,12 +40,12 @@ def main(gcat_conf, run_conf, sample_conf):
     # bwa
     for sample in output_fastqs:
         sample_conf.fastq[sample] = output_fastqs[sample]
-        sample_conf.fastq_src[sample] = []
+        sample_conf.fastq_src[sample] = [[], []]
 
     for sample in linked_fastqs:
         sample_conf.fastq[sample] = linked_fastqs[sample]["fastq"]
         sample_conf.fastq_src[sample] = linked_fastqs[sample]["src"]
-
+    
     align_bams = rs_align.configure(gcat_conf, run_conf, sample_conf)
     output_bams.update(align_bams)
 

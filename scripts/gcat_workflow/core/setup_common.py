@@ -49,12 +49,13 @@ def link_input_fastq(run_conf, fastq_stage, fastq_stage_src):
             open(pass_txt, "w").close()
         pair = len(fastq_stage[sample]) > 1
             
-        new_fastq_src = []
-        new_fastq_src += fastq_stage_src[sample]
-        new_fastq_src += fastq_stage[sample][0]
+        new_fastq_src = [[], []]
+        new_fastq_src[0] += fastq_stage_src[sample][0]
+        new_fastq_src[0] += fastq_stage[sample][0]
 
         if pair:
-            new_fastq_src += fastq_stage[sample][1]
+            new_fastq_src[1] += fastq_stage_src[sample][1]
+            new_fastq_src[1] += fastq_stage[sample][1]
 
             linked_fastq[sample] = {"fastq": [[], []], "src": new_fastq_src}
             for (count, target_fastq) in enumerate(fastq_stage[sample][0]):

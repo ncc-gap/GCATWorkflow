@@ -183,7 +183,7 @@ class Sample_conf_abc(object):
             sequence1 = row[1].split(';')
             sequence2 = row[2].split(';')
             
-            fastq_src[sampleID] = []
+            fastq_src[sampleID] = [[], []]
             for s in range(len(sequence1)):
                 if not self._exists(sequence1[s]):
                     err_msg = sampleID + ": " + sequence1[s] +  " does not exists" 
@@ -195,10 +195,10 @@ class Sample_conf_abc(object):
                     err_msg = sampleID + ": read1 and read2 are same path" 
                     raise ValueError(err_msg)
                 
-                fastq_src[sampleID].append(sequence1[s])
-                fastq_src[sampleID].append(sequence2[s])
-                fastq_src[sampleID].extend(self._link_sources(sequence1[s]))
-                fastq_src[sampleID].extend(self._link_sources(sequence2[s]))
+                fastq_src[sampleID][0].append(sequence1[s])
+                fastq_src[sampleID][1].append(sequence2[s])
+                fastq_src[sampleID][0].extend(self._link_sources(sequence1[s]))
+                fastq_src[sampleID][1].extend(self._link_sources(sequence2[s]))
 
             fastq[sampleID] = [sequence1, sequence2]
     
@@ -224,20 +224,20 @@ class Sample_conf_abc(object):
             if pair:
                 sequence2 = row[2].split(';')
                 
-            fastq_src[sampleID] = []
+            fastq_src[sampleID] = [[],[]]
             for s in range(len(sequence1)):
                 if not self._exists(sequence1[s]):
                     err_msg = sampleID + ": " + sequence1[s] +  " does not exists" 
                     raise ValueError(err_msg)
-                fastq_src[sampleID].append(sequence1[s])
-                fastq_src[sampleID].extend(self._link_sources(sequence1[s]))
+                fastq_src[sampleID][0].append(sequence1[s])
+                fastq_src[sampleID][0].extend(self._link_sources(sequence1[s]))
                                 
                 if pair:
                     if not self._exists(sequence2[s]):
                         err_msg = sampleID + ": " + sequence2[s] +  " does not exists" 
                         raise ValueError(err_msg)
-                    fastq_src[sampleID].append(sequence2[s])
-                    fastq_src[sampleID].extend(self._link_sources(sequence2[s]))
+                    fastq_src[sampleID][1].append(sequence2[s])
+                    fastq_src[sampleID][1].extend(self._link_sources(sequence2[s]))
             
             if pair:
                 fastq[sampleID] = [sequence1, sequence2]

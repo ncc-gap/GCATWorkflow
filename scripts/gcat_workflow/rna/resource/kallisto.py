@@ -127,13 +127,15 @@ def configure(gcat_conf, run_conf, sample_conf):
             "PIZZLY_OPTION": gcat_conf.get(SECTION_NAME, "pizzly_option"),
             "OUTPUT_DIR": output_dir
         }
-       
+        
         singularity_bind = [
             run_conf.project_root,
             os.path.dirname(gcat_conf.path_get(SECTION_NAME, "reference_fasta")),
             os.path.dirname(gcat_conf.path_get(SECTION_NAME, "reference_kallisto_index")),
             os.path.dirname(gcat_conf.path_get(SECTION_NAME, "annotation_gtf"))
-        ] + sample_conf.fastq_src[sample]
+        ]
+        if sample in sample_conf.fastq_src:
+            singularity_bind += sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1]
         
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
 

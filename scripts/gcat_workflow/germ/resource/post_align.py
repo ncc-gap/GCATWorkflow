@@ -10,8 +10,7 @@ BAI_POSTFIX = ".markdup.cram.crai"
 class PostBwa(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
-        self.shell_script_template = """
-#!/bin/bash
+        self.shell_script_template = """#!/bin/bash
 #
 # Set SGE
 #

@@ -126,7 +126,7 @@ def _compatible(gcat_conf, run_conf, sample_conf):
         singularity_bind = [
             run_conf.project_root,
             os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference")),
-        ] + sample_conf.fastq_src[sample]
+        ] + sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1]
         
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
     return output_bams
@@ -156,6 +156,10 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
         if len(sample_conf.fastq[sample][0]) == 1:
             if not os.path.islink(sample_conf.fastq[sample][0][0]):
                 fastq1 = sample_conf.fastq[sample][0][0]
+            else:
+                for path in sample_conf.fastq_src[sample][0]:
+                    if not os.path.islink(path):
+                        fastq1 = path
         else:
             fastq1 =  "%s/1_1.fq" % (output_dir)
             cat_command = "cat %s > %s\n" % (" ".join(sample_conf.fastq[sample][0]), fastq1)
@@ -164,18 +168,14 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
         if len(sample_conf.fastq[sample][1]) == 1:
             if not os.path.islink(sample_conf.fastq[sample][1][0]):
                 fastq2 = sample_conf.fastq[sample][1][0]
+            else:
+                for path in sample_conf.fastq_src[sample][1]:
+                    if not os.path.islink(path):
+                        fastq2 = path
         else:
             fastq2 =  "%s/2_1.fq" % (output_dir)
             cat_command += "cat %s > %s\n" % (" ".join(sample_conf.fastq[sample][1]), fastq2)
             remove_command += "rm %s\n" % (fastq2)
-
-        for path in sample_conf.fastq_src[sample]:
-            if os.path.islink(path):
-                continue
-            if fastq1 == "":
-                fastq1 = path
-            elif fastq2 == "":
-                fastq2 = path
 
         arguments = {
             "SAMPLE_NAME": sample,

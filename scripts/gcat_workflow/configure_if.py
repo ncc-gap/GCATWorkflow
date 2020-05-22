@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-import os
 import gcat_workflow.core.gcat_conf as gc
 import gcat_workflow.core.run_conf as rc
 

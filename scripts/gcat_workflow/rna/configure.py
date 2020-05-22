@@ -77,7 +77,7 @@ def main(gcat_conf, run_conf, sample_conf):
     # star
     for sample in output_fastqs:
         sample_conf.fastq[sample] = output_fastqs[sample]
-        sample_conf.fastq_src[sample] = []
+        sample_conf.fastq_src[sample] = [[], []]
 
     for sample in linked_fastqs:
         sample_conf.fastq[sample] = linked_fastqs[sample]["fastq"]

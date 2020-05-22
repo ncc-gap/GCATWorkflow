@@ -109,19 +109,25 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
         os.makedirs(output_dir, exist_ok = True)
         output_vcf = "haplotypecaller/%s/%s.gatk-hc.vcf" % (sample, sample)
         output_files.append(output_vcf)
+
+        input_real_path = ""
+        if not os.path.islink(input_bams[sample]):
+            input_real_path = input_bams[sample]
+        else:
+            for path in sample_conf.bam_import_src[sample]:
+                if not os.path.islink(path):
+                    input_real_path = path
+
         arguments = {
             "SAMPLE": sample,
-            "INPUT_CRAM": input_bams[sample],
+            "INPUT_CRAM": input_real_path,
             "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        
-        singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
-        if sample in sample_conf.bam_import_src:
-            singularity_bind += sample_conf.bam_import_src[sample]
-            
+        singularity_bind = []
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
     
     return output_files

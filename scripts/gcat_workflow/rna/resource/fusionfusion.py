@@ -7,8 +7,7 @@ OUTPUT_FORMAT = "fusionfusion/{sample}/{sample}.genomonFusion.result.filt.txt"
 class Fusionfusion(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
-        self.shell_script_template = """
-#!/bin/bash
+        self.shell_script_template = """#!/bin/bash
 #
 # Set SGE
 #

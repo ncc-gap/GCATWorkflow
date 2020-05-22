@@ -6,8 +6,7 @@ import gcat_workflow.core.stage_task_abc as stage_task
 class Gridss(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
-        self.shell_script_template = """
-#!/bin/bash
+        self.shell_script_template = """#!/bin/bash
 #
 # Set SGE
 #
