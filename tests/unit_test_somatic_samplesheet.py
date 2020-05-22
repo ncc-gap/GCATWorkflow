@@ -113,7 +113,7 @@ A_tumor
         self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.markdup.cram']})
         self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.markdup.cram'})
         self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.markdup.cram', self.SAMPLE_DIR + '/B.markdup.crai']})
-        self.assertEqual(sample_conf.haplotype_call, ['A_tumor','A_control','pool1','pool2','pool3'])
+        self.assertEqual(sample_conf.mutect_call, ['A_tumor','A_control','pool1','pool2','pool3'])
         self.assertEqual(sample_conf.manta, ['A_tumor'])
         self.assertEqual(sample_conf.gridss, ['A_tumor'])
         self.assertEqual(sample_conf.wgs_metrics, ['A_tumor'])
