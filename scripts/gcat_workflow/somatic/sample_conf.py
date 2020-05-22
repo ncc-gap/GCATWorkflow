@@ -5,12 +5,11 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_FASTQ = "fastq"
     SECTION_BAM_IMPORT = "bam-import"
     SECTION_BAM_TOFASTQ = "bam-tofastq"
-    SECTION_HTCALL = "haplotypecaller-parabricks"
+    SECTION_HTCALL = "mutectcaller-parabricks"
     SECTION_WGS_METRICS = "collect-wgs-metrics"
     SECTION_MULTIPLE_METRICS = "collect-multiple-metrics"
     SECTION_GRIDSS = "gridss"
     SECTION_MANTA = "manta"
-    SECTION_MELT = "melt"
     
     def __init__(self, sample_conf_file, exist_check = True):
 
@@ -20,12 +19,11 @@ class Sample_conf(abc.Sample_conf_abc):
         self.bam_tofastq_src = {}
         self.bam_import = {}
         self.bam_import_src = {}
-        self.haplotype_call = []
+        self.mutect_call = []
         self.wgs_metrics = []
         self.multiple_metrics = []
         self.gridss = []
         self.manta = []
-        self.melt = []
         self.exist_check = exist_check
         
         self.parse_file(sample_conf_file)
@@ -33,7 +31,7 @@ class Sample_conf(abc.Sample_conf_abc):
     def parse_data(self, _data):
         
         input_sections = [self.SECTION_FASTQ, self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ]
-        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS, self.SECTION_MULTIPLE_METRICS, self.SECTION_GRIDSS, self.SECTION_MANTA, self.SECTION_MELT]
+        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS, self.SECTION_MULTIPLE_METRICS, self.SECTION_GRIDSS, self.SECTION_MANTA]
         controlpanel_sections = []
         splited = self.split_section_data(_data, input_sections, analysis_sections, controlpanel_sections)
         
@@ -57,7 +55,7 @@ class Sample_conf(abc.Sample_conf_abc):
             sample_ids += parsed_bam_import["bam_import"].keys()
             
         if self.SECTION_HTCALL in splited:
-            self.haplotype_call += self.parse_data_general(splited[self.SECTION_HTCALL])
+            self.mutect_call += self.parse_data_general(splited[self.SECTION_HTCALL])
 
         if self.SECTION_WGS_METRICS in splited:
             self.wgs_metrics += self.parse_data_general(splited[self.SECTION_WGS_METRICS])
@@ -71,6 +69,4 @@ class Sample_conf(abc.Sample_conf_abc):
         if self.SECTION_MANTA in splited:
             self.manta += self.parse_data_general(splited[self.SECTION_MANTA])
         
-        if self.SECTION_MELT in splited:
-            self.melt += self.parse_data_general(splited[self.SECTION_MELT])
         

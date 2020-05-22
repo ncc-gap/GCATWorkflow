@@ -37,6 +37,11 @@ def main(args):
     elif args.analysis_type == "germ":
         import gcat_workflow.germ.sample_conf as sc
         import gcat_workflow.germ.configure as configure
+    
+    elif args.analysis_type == "somatic":
+        import gcat_workflow.somatic.sample_conf as sc
+        import gcat_workflow.somatic.configure as configure
+
         
     sample_conf = sc.Sample_conf(run_conf.sample_conf_file)
     configure.main(gcat_conf = gcat_conf, run_conf = run_conf, sample_conf = sample_conf)

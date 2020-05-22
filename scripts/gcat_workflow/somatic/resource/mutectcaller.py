@@ -21,11 +21,11 @@ set -o pipefail
 set -x
 
 /usr/bin/java \\
-  {HAPLOTYPE_JAVA_OPTION} \\
-  -jar {GATK_JAR} HaplotypeCaller \\
+  {MUTECT_JAVA_OPTION} \\
+  -jar {GATK_JAR} MutectCaller \\
   -I={INPUT_CRAM} \\
   -O={OUTPUT_VCF} \\
-  -R={REFERENCE} {HAPLOTYPE_OPTION}
+  -R={REFERENCE} {MUTECT_OPTION}
 """
 
 class Parabricks(stage_task.Stage_task):
@@ -45,14 +45,15 @@ set -o nounset
 set -o pipefail
 set -x
 
-{PBRUN} haplotypecaller \
-  --ref {REFERENCE} \
-  --in-bam {INPUT_CRAM} \
-  --out-variants {OUTPUT_VCF} {HAPLOTYPE_OPTION}
+{PBRUN} mutectcaller \
+  --ref {REFERENCE} {MUTECT_OPTION}
+  --in-tumor-bam {INPUT_CRAM} \
+  --tumor-name {SAMPLE} \
+  --out-vcf {OUTPUT_VCF}
   #--tmp-dir /scratch/tmp
 """
 
-STAGE_NAME = "haplotypecaller-parabricks"
+STAGE_NAME = "mutectcaller-parabricks"
 
 # merge sorted bams into one and mark duplicate reads with biobambam
 def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
@@ -68,8 +69,8 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     stage_class = Compatible(params)
     
     output_files = []
-    for sample in sample_conf.haplotype_call:
-        output_vcf = "haplotypecaller/%s/%s.gatk-hc.vcf" % (sample, sample)
+    for sample in sample_conf.mutect_call:
+        output_vcf = "mutectcaller/%s/%s.gatk-hc.vcf" % (sample, sample)
         output_files.append(output_vcf)
         arguments = {
             "SAMPLE": sample,
@@ -77,8 +78,8 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
-            "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
-            "HAPLOTYPE_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_java_option")
+            "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option"),
+            "MUTECT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "mutect_java_option")
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
@@ -104,10 +105,10 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     stage_class = Parabricks(params)
     
     output_files = []
-    for sample in sample_conf.haplotype_call:
-        output_dir = "%s/haplotypecaller/%s" % (run_conf.project_root, sample) 
+    for sample in sample_conf.mutect_call:
+        output_dir = "%s/mutectcaller/%s" % (run_conf.project_root, sample) 
         os.makedirs(output_dir, exist_ok = True)
-        output_vcf = "haplotypecaller/%s/%s.gatk-hc.vcf" % (sample, sample)
+        output_vcf = "mutectcaller/%s/%s.gatk-hc.vcf" % (sample, sample)
         output_files.append(output_vcf)
 
         input_real_path = ""
@@ -123,7 +124,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_CRAM": input_real_path,
             "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
+            "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        

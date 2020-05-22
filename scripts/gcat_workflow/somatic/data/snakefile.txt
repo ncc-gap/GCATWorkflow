@@ -91,14 +91,14 @@ rule post_bwa:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
-rule haplotypecaller:
+rule mutectcaller:
     input:
-        lambda wildcards: config["htc_samples"][wildcards.sample],
+        lambda wildcards: config["mtc_samples"][wildcards.sample],
     output:
-        "haplotypecaller/{sample}/{sample}.gatk-hc.vcf"
+        "mutectcaller/{sample}/{sample}.gatk-hc.vcf"
     params:
-        script = "script/{sample}/singularity_haplotypecaller-parabricks.sh",
-        yaml = "script/{sample}/conf_haplotypecaller-parabricks.yml"
+        script = "script/{sample}/singularity_mutectcaller-parabricks.sh",
+        yaml = "script/{sample}/conf_mutectcaller-parabricks.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -108,8 +108,8 @@ rule collectwgsmetrics:
     output:
         "summary/{sample}/{sample}.collect-wgs-metrics.txt"
     params:
-        script = "script/{sample}/singularity_collect-wgs-metrics.sh",
-        yaml = "script/{sample}/conf_collect-wgs-metrics.yml"
+        script = "script/{sample}/singularity_gatk-collect-wgs-metrics.sh",
+        yaml = "script/{sample}/conf_gatk-collect-wgs-metrics.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -119,8 +119,8 @@ rule collectmultiplemetrics:
     output:
         "summary/{sample}/{sample}.collect-multiple-metrics.gc_bias.pdf"
     params:
-        script = "script/{sample}/singularity_collect-multiple-metrics.sh",
-        yaml = "script/{sample}/conf_collect-multiple-metrics.yml"
+        script = "script/{sample}/singularity_gatk-collect-multiple-metrics.sh",
+        yaml = "script/{sample}/conf_gatk-collect-multiple-metrics.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -143,17 +143,6 @@ rule manta:
     params:
         script = "script/{sample}/singularity_manta.sh",
         yaml = "script/{sample}/conf_manta.yml"
-    shell:
-        "gcat_runner {params.script} {params.yaml}"
-
-rule melt:
-    input:
-        lambda wildcards: config["melt_samples"][wildcards.sample],
-    output:
-        "melt/{sample}/ALU.final_comp.vcf"
-    params:
-        script = "script/{sample}/singularity_melt.sh",
-        yaml = "script/{sample}/conf_melt.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 

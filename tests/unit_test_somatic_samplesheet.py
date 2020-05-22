@@ -10,18 +10,18 @@ import os
 import sys
 import shutil
 import unittest
-import gcat_workflow.germ.sample_conf as sc
+import gcat_workflow.somatic.sample_conf as sc
 
 BAM_IMP = "bam-import"
 BAM_2FQ = "bam-tofastq"
 ALN = "bwa-alignment-parabricks"
-HT_CALL = "haplotypecaller-parabricks"
+HT_CALL = "mutectcaller-parabricks"
 SUMMARY1 = "collect-wgs-metrics"
 SUMMARY2 = "collect-multiple-metrics"
 
 class SubmitTest(unittest.TestCase):
     
-    SAMPLE_DIR = "/tmp/temp-test/gcat_test_germ_samplesheet"
+    SAMPLE_DIR = "/tmp/temp-test/gcat_test_somatic_samplesheet"
     REMOVE = True
     
     # init class
@@ -88,9 +88,6 @@ A_tumor
 [manta]
 A_tumor
 
-[melt]
-A_tumor
-
 [gridss]
 A_tumor
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, htcall = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
@@ -118,7 +115,6 @@ A_tumor
         self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.markdup.cram', self.SAMPLE_DIR + '/B.markdup.crai']})
         self.assertEqual(sample_conf.haplotype_call, ['A_tumor','A_control','pool1','pool2','pool3'])
         self.assertEqual(sample_conf.manta, ['A_tumor'])
-        self.assertEqual(sample_conf.melt, ['A_tumor'])
         self.assertEqual(sample_conf.gridss, ['A_tumor'])
         self.assertEqual(sample_conf.wgs_metrics, ['A_tumor'])
         self.assertEqual(sample_conf.multiple_metrics, ['A_tumor'])
@@ -400,28 +396,6 @@ A_tumor
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 
 [manta]
-A_tumor
-A_tumor
-""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
-        
-        f = open(ss_path, "w")
-        f.write(data)
-        f.close()
-        try:
-            fail = False
-            sc.Sample_conf(ss_path)
-        except Exception as e:
-            print(e)
-            fail = True
-
-        self.assertTrue(fail)
-
-    def test4_10_duplicate(self):
-        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
-        data = """[fastq]
-A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
-
-[melt]
 A_tumor
 A_tumor
 """.format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)

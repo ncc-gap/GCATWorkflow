@@ -21,13 +21,13 @@ def func_path (root, name):
 BAM_IMP = "bam-import"
 BAM_2FQ = "bam-tofastq"
 ALN = "bwa-alignment-parabricks"
-HT_CALL = "haplotypecaller-parabricks"
+HT_CALL = "mutectcaller-parabricks"
 SUMMARY1 = "collect-wgs-metrics"
 SUMMARY2 = "collect-multiple-metrics"
 
 class ConfigureTest(unittest.TestCase):
     
-    DATA_DIR = "/tmp/temp-test/gcat_test_germ_configure"
+    DATA_DIR = "/tmp/temp-test/gcat_test_somatic_configure"
     SAMPLE_DIR = DATA_DIR + "/samples"
     REMOVE = False
     SS_NAME = "/test.csv"
@@ -90,9 +90,6 @@ A_tumor
 [manta]
 A_tumor
 
-[melt]
-A_tumor
-
 [gridss]
 A_tumor
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
@@ -150,15 +147,15 @@ qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 singularity_option = 
 gatk_jar = /tools/gatk-4.0.4.0/gatk-package-4.0.4.0-local.jar
-haplotype_option = --native-pair-hmm-threads=8
-haplotype_java_option = -XX:-UseContainerSupport -Xmx32g
+mutect_option = --native-pair-hmm-threads=8
+mutect_java_option = -XX:-UseContainerSupport -Xmx32g
 reference = {sample_dir}/reference/XXX.fa
 
 [{ht_call}]
 gpu_support = {gpu_support}
 pbrun = {sample_dir}/parabricks/pbrun
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
-haplotype_option = --native-pair-hmm-threads=8
+mutect_option = --native-pair-hmm-threads=8
 reference = {sample_dir}/reference/XXX.fa
 
 [gatk-{summary1}-compatible]
@@ -195,18 +192,6 @@ singularity_option =
 reference = {sample_dir}/reference/XXX.fa
 manta_config_option = 
 manta_workflow_option = -m local -j 8
-
-[melt]
-qsub_option = -l s_vmem=32G,mem_req=32G
-image = {sample_dir}/image/YYY.simg
-singularity_option =
-
-reference = {sample_dir}/reference/XXX.fa
-melt_jar = /MELTv2.2.0/MELT.jar
-melt_bed = /MELTv2.2.0/add_bed_files/Hg38/Hg38.genes.bed 
-melt_refs = /MELTv2.2.0/me_refs/Hg38
-melt_option =
-melt_java_option = -XX:-UseContainerSupport -Xmx32g
 """
         # Not parabricks
         data_conf = conf_template.format(
@@ -253,7 +238,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_01_configure_drmaa_nogpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "somatic",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -265,7 +250,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_02_configure_drmaa_gpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "somatic",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME_P,
@@ -277,7 +262,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_03_configure_qsub_nogpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "somatic",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -290,7 +275,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_04_configure_qsub_gpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "somatic",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME_P,
@@ -303,7 +288,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_05_configure_slurm_nogpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "somatic",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -316,7 +301,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_06_configure_slurm_gpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "somatic",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME_P,
@@ -337,7 +322,7 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "somatic",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -357,7 +342,7 @@ A_tumor,{sample_dir}/A.markdup.cram
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "somatic",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -377,7 +362,7 @@ A_tumor,{sample_dir}/A.markdup.cram
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "somatic",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -399,7 +384,7 @@ A_tumor
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "somatic",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -421,7 +406,7 @@ A_tumor
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "somatic",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -443,7 +428,7 @@ A_tumor
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "somatic",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
