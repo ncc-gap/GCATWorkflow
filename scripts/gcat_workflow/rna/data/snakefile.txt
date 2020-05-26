@@ -79,7 +79,6 @@ rule bam_import:
             os.symlink(bam.replace(bam_postfix, sam_postfix), linked_sam)
         if not os.path.exists(linked_junction):
             os.symlink(bam.replace(bam_postfix, junction_postfix), linked_junction)
-        open(output[0], "w").close()
 
 rule star:
     input:

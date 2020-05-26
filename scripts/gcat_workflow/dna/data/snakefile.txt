@@ -68,7 +68,6 @@ rule bam_import:
                 os.symlink(bam + bai, linked_bai)
             elif (os.path.exists(prefix + bai)):
                 os.symlink(prefix + bai, linked_bai)
-        open(output[0], "w").close()
 
 rule bwa:
     input:
