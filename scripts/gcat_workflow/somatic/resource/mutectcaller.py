@@ -140,7 +140,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
                 for path in sample_conf.bam_import_src[normal]:
                     if not os.path.islink(path):
                         input_real_path_normal = path
-            input_normal_cram = "--in-normal-bam %s -normal-name %s" % (input_real_path_normal, normal)
+            input_normal_cram = "--in-normal-bam %s --normal-name %s" % (input_real_path_normal, normal)
 
         arguments = {
             "SAMPLE": tumor,
