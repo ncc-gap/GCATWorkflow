@@ -129,7 +129,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "SAMPLE": sample,
             "INPUT_CRAM": input_real_path,
             "OUTPUT_VCF": "%s/%s" % (run_conf.project_root, output_vcf),
-            "OUTPUT_DIR": run_conf.project_root,
+            "OUTPUT_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),

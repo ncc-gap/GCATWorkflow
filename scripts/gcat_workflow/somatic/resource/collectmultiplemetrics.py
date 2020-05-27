@@ -58,7 +58,7 @@ set -x
 {PBRUN} collectmultiplemetrics \\
     --ref {REFERENCE} \\
     --bam {INPUT_CRAM} \\
-    --out-all-metrics {OUTPUT_FILE_PREFIX} \\
+    --out-all-metrics {OUTPUT_FILE_PREFIX} {MULTIPLE_METRICS_OPTION}
 """
 
 STAGE_NAME = "collect-multiple-metrics"

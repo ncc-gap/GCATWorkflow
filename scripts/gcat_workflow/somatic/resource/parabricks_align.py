@@ -70,7 +70,7 @@ set -x
   "@RG\\tID:{SAMPLE_NAME}\\tPL:{READ_GROUP_PL}\\tLB:{READ_GROUP_LB}\\tSM:{SAMPLE_NAME}\\tPU:{READ_GROUP_PU}" \\
   --bwa-options "{BWA_OPTION}" \\
   --out-bam {OUTPUT_BAM} \\
-  --tmp-dir {OUTPUT_BAM}/tmp
+  --tmp-dir {OUTPUT_DIR}/tmp
 {RM}
 """
 
@@ -188,7 +188,7 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
             "SAMPLE_NAME": sample,
             "INPUT_FASTQ": fastq1 + " " + fastq2,
             "OUTPUT_BAM": output_bams[sample],
-            "OUTPUT_DIR":  run_conf.project_root,
+            "OUTPUT_DIR":  output_dir,
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option"),

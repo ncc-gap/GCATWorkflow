@@ -23,7 +23,7 @@ set -x
 /usr/bin/java \\
   {MUTECT_JAVA_OPTION} \\
   -jar {GATK_JAR} Mutect2 \\
-  -I={INPUT_TUMOR_CRAM} {INPUT_NORMAL_CRAM} \\
+  -I={INPUT_TUMOR_CRAM} -tumor {SAMPLE} {INPUT_NORMAL_CRAM} \\
   -O={OUTPUT_VCF} \\
   -R={REFERENCE} {MUTECT_OPTION}
 """
@@ -147,7 +147,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_TUMOR_CRAM": input_real_path,
             "INPUT_NORMAL_CRAM": input_normal_cram,
             "OUTPUT_VCF": "%s/%s" % (run_conf.project_root, output_vcf),
-            "OUTPUT_DIR": run_conf.project_root,
+            "OUTPUT_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),

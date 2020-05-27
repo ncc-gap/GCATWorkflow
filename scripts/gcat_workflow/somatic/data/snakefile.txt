@@ -107,8 +107,8 @@ rule collectwgsmetrics:
     output:
         "summary/{sample}/{sample}.collect-wgs-metrics.txt"
     params:
-        script = "script/{sample}/singularity_gatk-collect-wgs-metrics.sh",
-        yaml = "script/{sample}/conf_gatk-collect-wgs-metrics.yml"
+        script = "script/{sample}/singularity_collect-wgs-metrics.sh",
+        yaml = "script/{sample}/conf_collect-wgs-metrics.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -118,8 +118,8 @@ rule collectmultiplemetrics:
     output:
         "summary/{sample}/{sample}.collect-multiple-metrics.gc_bias.pdf"
     params:
-        script = "script/{sample}/singularity_gatk-collect-multiple-metrics.sh",
-        yaml = "script/{sample}/conf_gatk-collect-multiple-metrics.yml"
+        script = "script/{sample}/singularity_collect-multiple-metrics.sh",
+        yaml = "script/{sample}/conf_collect-multiple-metrics.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
