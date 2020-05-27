@@ -35,6 +35,8 @@ output_pref=${{output_dir}}/{SAMPLE}
 /tools/samtools-1.9/samtools index \\
     ${{output_pref}}.temp.bam
 
+export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
+
 /opt/gridss/gridss.sh \\
     -o {OUTPUT_VCF}  \\
     -a ${{output_pref}}.gridss-assembly.bam \\
@@ -74,6 +76,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GRIDSS_OPTION": gcat_conf.get(CONF_SECTION, "gridss_option"),
             "GRIDSS_JAR": gcat_conf.get(CONF_SECTION, "gridss_jar"),
+            "GRIDSS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gridss_java_option"),
             "SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "samtools_option")
         }
        
