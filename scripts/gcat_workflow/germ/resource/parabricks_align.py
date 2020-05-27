@@ -69,8 +69,8 @@ set -x
   --in-fq {INPUT_FASTQ} \\
   "@RG\\tID:{SAMPLE_NAME}\\tPL:{READ_GROUP_PL}\\tLB:{READ_GROUP_LB}\\tSM:{SAMPLE_NAME}\\tPU:{READ_GROUP_PU}" \\
   --bwa-options "{BWA_OPTION}" \\
-  --out-bam {OUTPUT_BAM}
-#  --tmp-dir /scratch/tmp
+  --out-bam {OUTPUT_BAM} \\
+  --tmp-dir {OUTPUT_BAM}/tmp
 {RM}
 """
 
@@ -135,12 +135,19 @@ def _compatible(gcat_conf, run_conf, sample_conf):
 def _parabricks(gcat_conf, run_conf, sample_conf):
 
     CONF_SECTION = STAGE_NAME
+
+    image = gcat_conf.safe_get(CONF_SECTION, "image", "")
+    singularity_option = gcat_conf.safe_get(CONF_SECTION, "singularity_option", "")
+    if image != "":
+        image = gcat_conf.path_get(CONF_SECTION, "image")
+        singularity_option = gcat_conf.get(CONF_SECTION, "singularity_option")
+
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
-        "image": "",
+        "image": image,
         "qsub_option": gcat_conf.get(CONF_SECTION, "qsub_option"),
-        "singularity_option": ""
+        "singularity_option": singularity_option
     }
     stage_class = Parabricks(params)
     output_bams = {}
@@ -181,6 +188,7 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
             "SAMPLE_NAME": sample,
             "INPUT_FASTQ": fastq1 + " " + fastq2,
             "OUTPUT_BAM": output_bams[sample],
+            "OUTPUT_DIR":  run_conf.project_root,
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option"),
@@ -191,7 +199,11 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
             "RM": remove_command,
         }
         
-        singularity_bind = []
+        singularity_bind = [
+            run_conf.project_root,
+            os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference")),
+        ] + sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1]
+        
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
     return output_bams
 

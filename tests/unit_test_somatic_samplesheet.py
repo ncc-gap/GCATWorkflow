@@ -90,6 +90,9 @@ A_tumor
 
 [gridss]
 A_tumor
+
+[genomon-sv]
+A_tumor,pool1,None
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, htcall = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         
         f = open(ss_path, "w")
@@ -113,11 +116,12 @@ A_tumor
         self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.markdup.cram']})
         self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.markdup.cram'})
         self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.markdup.cram', self.SAMPLE_DIR + '/B.markdup.crai']})
-        self.assertEqual(sample_conf.mutect_call, ['A_tumor','A_control','pool1','pool2','pool3'])
+        self.assertEqual(sample_conf.mutect_call, [('A_tumor', None), ('A_control', None), ('pool1', None), ('pool2', None), ('pool3', None)])
         self.assertEqual(sample_conf.manta, ['A_tumor'])
         self.assertEqual(sample_conf.gridss, ['A_tumor'])
         self.assertEqual(sample_conf.wgs_metrics, ['A_tumor'])
         self.assertEqual(sample_conf.multiple_metrics, ['A_tumor'])
+        self.assertEqual(sample_conf.genomon_sv, [('A_tumor', 'pool1', None)])
 
     # --------------------------------------------------------------------
     # Not Exist

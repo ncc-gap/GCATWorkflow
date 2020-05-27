@@ -23,6 +23,8 @@ set -x
   -J {CHIMERIC_OUT_JUNCTION} \
   --output_dir {OUTPUT_DIR} \
   {STAR_FUSION_OPTIONS}
+
+rm -rf {OUTPUT_DIR}/_starF_checkpoints
 """
 
 # merge sorted bams into one and mark duplicate reads with biobambam

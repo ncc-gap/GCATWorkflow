@@ -94,7 +94,7 @@ rule mutectcaller:
     input:
         lambda wildcards: config["mtc_samples"][wildcards.sample],
     output:
-        "mutectcaller/{sample}/{sample}.gatk-hc.vcf"
+        "mutectcaller/{sample}/{sample}.mutectcaller.vcf"
     params:
         script = "script/{sample}/singularity_mutectcaller-parabricks.sh",
         yaml = "script/{sample}/conf_mutectcaller-parabricks.yml"

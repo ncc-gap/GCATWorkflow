@@ -22,8 +22,8 @@ set -x
 
 /usr/bin/java \\
   {MUTECT_JAVA_OPTION} \\
-  -jar {GATK_JAR} MutectCaller \\
-  -I={INPUT_CRAM} \\
+  -jar {GATK_JAR} Mutect2 \\
+  -I={INPUT_TUMOR_CRAM} {INPUT_NORMAL_CRAM} \\
   -O={OUTPUT_VCF} \\
   -R={REFERENCE} {MUTECT_OPTION}
 """
@@ -46,11 +46,11 @@ set -o pipefail
 set -x
 
 {PBRUN} mutectcaller \
-  --ref {REFERENCE} {MUTECT_OPTION}
-  --in-tumor-bam {INPUT_CRAM} \
-  --tumor-name {SAMPLE} \
-  --out-vcf {OUTPUT_VCF}
-  #--tmp-dir /scratch/tmp
+  --ref {REFERENCE} {MUTECT_OPTION} \\
+  --in-tumor-bam {INPUT_TUMOR_CRAM} {INPUT_NORMAL_CRAM} \\
+  --tumor-name {SAMPLE} \\
+  --out-vcf {OUTPUT_VCF} \\
+  --tmp-dir {OUTPUT_DIR}/tmp
 """
 
 STAGE_NAME = "mutectcaller-parabricks"
@@ -69,12 +69,17 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     stage_class = Compatible(params)
     
     output_files = []
-    for sample in sample_conf.mutect_call:
-        output_vcf = "mutectcaller/%s/%s.gatk-hc.vcf" % (sample, sample)
+    for (tumor, normal) in sample_conf.mutect_call:
+        output_vcf = "mutectcaller/%s/%s.mutectcaller.vcf" % (tumor, tumor)
         output_files.append(output_vcf)
+        input_normal_cram = ""
+        if normal != None:
+            input_normal_cram = "-I %s -normal %s" % (input_bams[normal], normal)
+
         arguments = {
-            "SAMPLE": sample,
-            "INPUT_CRAM": input_bams[sample],
+            "SAMPLE": tumor,
+            "INPUT_TUMOR_CRAM": input_bams[tumor],
+            "INPUT_NORMAL_CRAM": input_normal_cram,
             "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
@@ -83,10 +88,10 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
-        if sample in sample_conf.bam_import_src:
-            singularity_bind += sample_conf.bam_import_src[sample]
+        if tumor in sample_conf.bam_import_src:
+            singularity_bind += sample_conf.bam_import_src[tumor]
             
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, sample = tumor)
     
     return output_files
 
@@ -95,41 +100,64 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
 def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     
     CONF_SECTION = STAGE_NAME
+
+    image = gcat_conf.safe_get(CONF_SECTION, "image", "")
+    singularity_option = gcat_conf.safe_get(CONF_SECTION, "singularity_option", "")
+    if image != "":
+        image = gcat_conf.path_get(CONF_SECTION, "image")
+        singularity_option = gcat_conf.get(CONF_SECTION, "singularity_option")
+
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
-        "image": "",
+        "image": image,
         "qsub_option": gcat_conf.get(CONF_SECTION, "qsub_option"),
-        "singularity_option": ""
+        "singularity_option": singularity_option
     }
     stage_class = Parabricks(params)
     
     output_files = []
-    for sample in sample_conf.mutect_call:
-        output_dir = "%s/mutectcaller/%s" % (run_conf.project_root, sample) 
+    for (tumor, normal) in sample_conf.mutect_call:
+        output_dir = "%s/mutectcaller/%s" % (run_conf.project_root, tumor) 
         os.makedirs(output_dir, exist_ok = True)
-        output_vcf = "mutectcaller/%s/%s.gatk-hc.vcf" % (sample, sample)
+        output_vcf = "mutectcaller/%s/%s.mutectcaller.vcf" % (tumor, tumor)
         output_files.append(output_vcf)
 
         input_real_path = ""
-        if not os.path.islink(input_bams[sample]):
-            input_real_path = input_bams[sample]
+        if not os.path.islink(input_bams[tumor]):
+            input_real_path = input_bams[tumor]
         else:
-            for path in sample_conf.bam_import_src[sample]:
+            for path in sample_conf.bam_import_src[tumor]:
                 if not os.path.islink(path):
                     input_real_path = path
 
+        input_normal_cram = ""
+        if normal != None:
+            input_real_path_normal = ""
+            if not os.path.islink(input_bams[normal]):
+                input_real_path_normal = input_bams[normal]
+            else:
+                for path in sample_conf.bam_import_src[normal]:
+                    if not os.path.islink(path):
+                        input_real_path_normal = path
+            input_normal_cram = "--in-normal-bam %s -normal-name %s" % (input_real_path_normal, normal)
+
         arguments = {
-            "SAMPLE": sample,
-            "INPUT_CRAM": input_real_path,
-            "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
+            "SAMPLE": tumor,
+            "INPUT_TUMOR_CRAM": input_real_path,
+            "INPUT_NORMAL_CRAM": input_normal_cram,
+            "OUTPUT_VCF": "%s/%s" % (run_conf.project_root, output_vcf),
+            "OUTPUT_DIR": run_conf.project_root,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        
-        singularity_bind = []
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
+        if tumor in sample_conf.bam_import_src:
+            singularity_bind += sample_conf.bam_import_src[tumor]
+            
+        stage_class.write_script(arguments, singularity_bind, run_conf, sample = tumor)
     
     return output_files
 

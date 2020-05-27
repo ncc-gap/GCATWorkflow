@@ -94,7 +94,7 @@ rule haplotypecaller:
     input:
         lambda wildcards: config["htc_samples"][wildcards.sample],
     output:
-        "haplotypecaller/{sample}/{sample}.gatk-hc.vcf"
+        "haplotypecaller/{sample}/{sample}.haplotypecaller.vcf"
     params:
         script = "script/{sample}/singularity_haplotypecaller-parabricks.sh",
         yaml = "script/{sample}/conf_haplotypecaller-parabricks.yml"

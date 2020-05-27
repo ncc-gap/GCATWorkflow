@@ -45,11 +45,11 @@ set -o nounset
 set -o pipefail
 set -x
 
-{PBRUN} haplotypecaller \
-  --ref {REFERENCE} \
-  --in-bam {INPUT_CRAM} \
-  --out-variants {OUTPUT_VCF} {HAPLOTYPE_OPTION}
-  #--tmp-dir /scratch/tmp
+{PBRUN} haplotypecaller \\
+  --ref {REFERENCE} \\
+  --in-bam {INPUT_CRAM} \\
+  --out-variants {OUTPUT_VCF} {HAPLOTYPE_OPTION} \\
+  --tmp-dir {OUTPUT_DIR}/tmp
 """
 
 STAGE_NAME = "haplotypecaller-parabricks"
@@ -69,7 +69,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = []
     for sample in sample_conf.haplotype_call:
-        output_vcf = "haplotypecaller/%s/%s.gatk-hc.vcf" % (sample, sample)
+        output_vcf = "haplotypecaller/%s/%s.haplotypecaller.vcf" % (sample, sample)
         output_files.append(output_vcf)
         arguments = {
             "SAMPLE": sample,
@@ -94,12 +94,19 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
 def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     
     CONF_SECTION = STAGE_NAME
+
+    image = gcat_conf.safe_get(CONF_SECTION, "image", "")
+    singularity_option = gcat_conf.safe_get(CONF_SECTION, "singularity_option", "")
+    if image != "":
+        image = gcat_conf.path_get(CONF_SECTION, "image")
+        singularity_option = gcat_conf.get(CONF_SECTION, "singularity_option")
+
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
-        "image": "",
+        "image": image,
         "qsub_option": gcat_conf.get(CONF_SECTION, "qsub_option"),
-        "singularity_option": ""
+        "singularity_option": singularity_option
     }
     stage_class = Parabricks(params)
     
@@ -107,7 +114,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.haplotype_call:
         output_dir = "%s/haplotypecaller/%s" % (run_conf.project_root, sample) 
         os.makedirs(output_dir, exist_ok = True)
-        output_vcf = "haplotypecaller/%s/%s.gatk-hc.vcf" % (sample, sample)
+        output_vcf = "haplotypecaller/%s/%s.haplotypecaller.vcf" % (sample, sample)
         output_files.append(output_vcf)
 
         input_real_path = ""
@@ -121,13 +128,17 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_real_path,
-            "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
+            "OUTPUT_VCF": "%s/%s" % (run_conf.project_root, output_vcf),
+            "OUTPUT_DIR": run_conf.project_root,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        
-        singularity_bind = []
+        singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
+        if sample in sample_conf.bam_import_src:
+            singularity_bind += sample_conf.bam_import_src[sample]
+            
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
     
     return output_files

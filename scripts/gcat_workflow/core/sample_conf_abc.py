@@ -319,19 +319,60 @@ class Sample_conf_abc(object):
             sample_list.append(row[0])
         return sample_list
 
-    def parse_data_controlpanel(self, _data):
+    def parse_data_controlpanel(self, _data, section_name):
         
         control_panel = {}
         for row in _data:
             if len(row) <= 1:
-                err_msg = "[controlpanel] section, list item is none for the row: " + ','.join(row)
+                err_msg = "[%s] section, list item is none for the row: %s" % (section_name, ','.join(row))
                 raise ValueError(err_msg)
 
             controlpanelID = row[0]
             control_panel[controlpanelID] = row[1:]
         return control_panel
+
+    def parse_data_tumor_controlpanel(self, _data, controlpanel_list, section_name):
+        # analysis section type fusion (tumor, controlpanel)
+
+        analysis = []
+        for row in _data:
+            controlpanelID = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
+            if controlpanelID != None and not controlpanelID in controlpanel_list:
+                err_msg = "[%s] section, %s is not defined" % (section_name, controlpanelID)
+                raise ValueError(err_msg)
+            analysis.append((row[0], controlpanelID))
+        return analysis
+
+    def parse_data_tumor_normal(self, _data, sample_list, section_name):
+        # analysis section type mutect (tumor, normal)
+        
+        analysis = []
+        for row in _data:
+            normalID = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
+            if normalID != None and not normalID in sample_list:
+                err_msg = "[%s] section, %s is not defined" % (section_name, normalID)
+                raise ValueError(err_msg)
+            analysis.append((row[0], normalID))
+        return analysis
     
-    
+    def parse_data_tumor_normal_controlpanel(self, _data, sample_list, controlpanel_list, section_name):
+        # analysis section type genomon_mutation (tumor, normal, controlpanel)
+        
+        analysis = []
+        for row in _data:
+            normalID = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
+            if normalID != None and not normalID in sample_list:
+                err_msg = "[%s] section, %s is not defined" % (section_name, normalID)
+                raise ValueError(err_msg)
+
+            controlpanelID = row[2] if len(row) >= 3 and row[2] not in ['', 'None'] else None
+            if controlpanelID != None and not controlpanelID in controlpanel_list:
+                err_msg = "[%s] section, %s is not defined" % (section_name, controlpanelID)
+                raise ValueError(err_msg)
+
+            analysis.append((row[0], normalID, controlpanelID))
+        return analysis
+
     def parse_data(self, _data ):
         pass
 

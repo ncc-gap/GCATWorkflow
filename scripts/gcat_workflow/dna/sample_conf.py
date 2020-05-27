@@ -80,7 +80,7 @@ class Sample_conf(abc.Sample_conf_abc):
             self.qc += self.parse_data_general(splited[self.SECTION_QC])
         
         if self.SECTION_CONTROL_PANEL in splited:
-            self.control_panel.update(self.parse_data_controlpanel(splited[self.SECTION_CONTROL_PANEL]))
+            self.control_panel.update(self.parse_data_controlpanel(splited[self.SECTION_CONTROL_PANEL], self.SECTION_CONTROL_PANEL))
         
         if self.SECTION_MUTATION in splited:
             self.mutation_call += self.parse_data_analysis(splited[self.SECTION_MUTATION], self.SECTION_MUTATION, sample_ids, self.control_panel.keys())

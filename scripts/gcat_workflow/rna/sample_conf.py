@@ -5,8 +5,6 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_FASTQ = "fastq"
     SECTION_BAM_IMPORT = "bam_import"
     SECTION_BAM_TOFASTQ = "bam_tofastq"
-    #SECTION_BAM_TOFASTQ_PAIR = "bam_tofastq_pair"
-    #SECTION_BAM_TOFASTQ_SINGLE = "bam_tofastq_single"
     SECTION_FUSIONFUSION = "fusionfusion"
     SECTION_EXPRESSION = "expression"
     SECTION_IR_COUNT = "intron_retention"
@@ -21,10 +19,6 @@ class Sample_conf(abc.Sample_conf_abc):
         self.fastq_src = {}
         self.bam_tofastq = {}
         self.bam_tofastq_src = {}
-#        self.bam_tofastq_pair = {}
-#        self.bam_tofastq_pair_src = {}
-#        self.bam_tofastq_single = {}
-#        self.bam_tofastq_single_src = {}
         self.bam_import = {}
         self.bam_import_src = {}
         self.control_panel = {}
@@ -38,20 +32,8 @@ class Sample_conf(abc.Sample_conf_abc):
         self.exist_check = exist_check
         self.parse_file(sample_conf_file)
     
-    def parse_data_fusion(self, _data, controlpanel_list):
-        
-        analysis = []
-        for row in _data:
-            controlpanelID = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
-            if controlpanelID != None and not controlpanelID in controlpanel_list:
-                err_msg = "[fusion] section, %s is not defined" % (controlpanelID)
-                raise ValueError(err_msg)
-            analysis.append((row[0], controlpanelID))
-        return analysis
-    
     def parse_data(self, _data):
         
-        #input_sections = [self.SECTION_FASTQ , self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ_PAIR, self.SECTION_BAM_TOFASTQ_SINGLE]
         input_sections = [self.SECTION_FASTQ , self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ]
         analysis_sections = [
             self.SECTION_FUSIONFUSION, self.SECTION_STAR_FUSION,
@@ -70,16 +52,6 @@ class Sample_conf(abc.Sample_conf_abc):
             parsed_bam_tofastq = self.parse_data_bam_tofastq(splited[self.SECTION_BAM_TOFASTQ])
             self.bam_tofastq.update(parsed_bam_tofastq["bam_tofastq"])
             self.bam_tofastq_src.update(parsed_bam_tofastq["bam_tofastq_src"])
-#            
-#        if self.SECTION_BAM_TOFASTQ_PAIR in splited:
-#            parsed_bam_tofastq_pair = self.parse_data_bam_tofastq(splited[self.SECTION_BAM_TOFASTQ_PAIR])
-#            self.bam_tofastq_pair.update(parsed_bam_tofastq_pair["bam_tofastq"])
-#            self.bam_tofastq_pair_src.update(parsed_bam_tofastq_pair["bam_tofastq_src"])
-#        
-#        if self.SECTION_BAM_TOFASTQ_SINGLE in splited:
-#            parsed_bam_tofastq_single = self.parse_data_bam_tofastq(splited[self.SECTION_BAM_TOFASTQ_SINGLE])
-#            self.bam_tofastq_single.update(parsed_bam_tofastq_single["bam_tofastq"])
-#            self.bam_tofastq_single_src.update(parsed_bam_tofastq_single["bam_tofastq_src"])
         
         if self.SECTION_BAM_IMPORT in splited:
             parsed_bam_import = self.parse_data_bam_import(splited[self.SECTION_BAM_IMPORT])
@@ -105,9 +77,15 @@ class Sample_conf(abc.Sample_conf_abc):
             self.qc += self.parse_data_general(splited[self.SECTION_QC])
             
         if self.SECTION_CONTROL_PANEL in splited:
-            self.control_panel.update(self.parse_data_controlpanel(splited[self.SECTION_CONTROL_PANEL]))
+            self.control_panel.update(self.parse_data_controlpanel(
+                splited[self.SECTION_CONTROL_PANEL], self.SECTION_CONTROL_PANEL
+            ))
         
         if self.SECTION_FUSIONFUSION in splited:
-            self.fusionfusion += self.parse_data_fusion(splited[self.SECTION_FUSIONFUSION], self.control_panel.keys())
+            self.fusionfusion += self.parse_data_tumor_controlpanel(
+                splited[self.SECTION_FUSIONFUSION], 
+                self.control_panel.keys(), 
+                self.SECTION_FUSIONFUSION
+            )
         
             

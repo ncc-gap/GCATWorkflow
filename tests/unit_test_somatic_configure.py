@@ -75,11 +75,8 @@ A_control,{sample_dir}/A.markdup.cram
 pool3,{sample_dir}/B.markdup.cram
 
 [{ht_call}]
-A_tumor
+A_tumor, A_control
 A_control
-pool1
-pool2
-pool3
 
 [{summary1}]
 A_tumor
@@ -92,6 +89,13 @@ A_tumor
 
 [gridss]
 A_tumor
+
+[genomon-sv]
+A_tumor,A_control,list1
+A_control,None,list1
+
+[controlpanel]
+list1,pool1,pool2,pool3
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         
         f = open(self.DATA_DIR + self.SS_NAME, "w")
@@ -167,6 +171,15 @@ wgs_metrics_option =
 wgs_metrics_java_option = -XX:-UseContainerSupport -Xmx24g
 reference = {sample_dir}/reference/XXX.fa
 
+[{summary1}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = 
+singularity_option = 
+wgs_metrics_option =
+reference = {sample_dir}/reference/XXX.fa
+
 [gatk-{summary2}-compatible]
 qsub_option = -l s_vmem=32G,mem_req=32G
 image = {sample_dir}/image/YYY.simg
@@ -174,6 +187,15 @@ singularity_option =
 gatk_jar = /gatk/gatk.jar
 multiple_metrics_option =
 multiple_metrics_java_option = -XX:-UseContainerSupport -Xmx24g
+reference = {sample_dir}/reference/XXX.fa
+
+[{summary2}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = 
+singularity_option = 
+multiple_metrics_option =
 reference = {sample_dir}/reference/XXX.fa
 
 [gridss]

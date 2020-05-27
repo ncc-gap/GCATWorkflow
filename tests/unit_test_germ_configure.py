@@ -170,6 +170,15 @@ wgs_metrics_option =
 wgs_metrics_java_option = -XX:-UseContainerSupport -Xmx24g
 reference = {sample_dir}/reference/XXX.fa
 
+[{summary1}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = 
+singularity_option = 
+wgs_metrics_option =
+reference = {sample_dir}/reference/XXX.fa
+
 [gatk-{summary2}-compatible]
 qsub_option = -l s_vmem=32G,mem_req=32G
 image = {sample_dir}/image/YYY.simg
@@ -177,6 +186,15 @@ singularity_option =
 gatk_jar = /gatk/gatk.jar
 multiple_metrics_option =
 multiple_metrics_java_option = -XX:-UseContainerSupport -Xmx24g
+reference = {sample_dir}/reference/XXX.fa
+
+[{summary2}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = 
+singularity_option = 
+multiple_metrics_option =
 reference = {sample_dir}/reference/XXX.fa
 
 [gridss]

@@ -85,8 +85,10 @@ def main(gcat_conf, run_conf, sample_conf):
         y["post_aln_samples"][sample] = rs_align.OUTPUT_FORMAT.format(sample=sample)
     
     y["mtc_samples"] = {}
-    for sample in sample_conf.mutect_call:
-        y["mtc_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
+    for (tumor, normal) in sample_conf.mutect_call:
+        y["mtc_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
+        if normal != None:
+            y["mtc_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
         
     y["wgs_metrics_samples"] = {}
     for sample in sample_conf.wgs_metrics:
