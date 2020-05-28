@@ -50,7 +50,7 @@ set -x
   --in-tumor-bam {INPUT_TUMOR_CRAM} {INPUT_NORMAL_CRAM} \\
   --tumor-name {SAMPLE} \\
   --out-vcf {OUTPUT_VCF} \\
-  --tmp-dir {OUTPUT_DIR}/tmp
+  --tmp-dir /tmp/
 """
 
 STAGE_NAME = "mutectcaller-parabricks"
@@ -145,8 +145,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "SAMPLE": tumor,
             "INPUT_TUMOR_CRAM": input_real_path,
             "INPUT_NORMAL_CRAM": input_normal_cram,
-            "OUTPUT_VCF": "%s/%s" % (run_conf.project_root, output_vcf),
-            "OUTPUT_DIR": output_dir,
+            "OUTPUT_VCF": output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),

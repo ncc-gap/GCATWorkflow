@@ -20,7 +20,7 @@ set -o nounset
 set -o pipefail
 set -x
 
-genomonsv parse {input_bam} {output_prefix} {param}
+GenomonSV parse {input_bam} {output_prefix} {param}
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):

@@ -49,7 +49,7 @@ set -x
   --ref {REFERENCE} \\
   --in-bam {INPUT_CRAM} \\
   --out-variants {OUTPUT_VCF} {HAPLOTYPE_OPTION} \\
-  --tmp-dir {OUTPUT_DIR}/tmp
+  --tmp-dir /tmp/
 """
 
 STAGE_NAME = "haplotypecaller-parabricks"
@@ -128,7 +128,6 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "SAMPLE": sample,
             "INPUT_CRAM": input_real_path,
             "OUTPUT_VCF": output_vcf,
-            "OUTPUT_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),

@@ -65,6 +65,6 @@ def configure(gcat_conf, run_conf, sample_conf):
         if sample in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[sample]
             
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, sample = panel)
     
     return output_files
