@@ -33,15 +33,15 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Mutation_dummy(params)
     
-    output_files = []
+    output_files = {}
     for (sample, control, control_panel) in sample_conf.mutation_call:
-        output_file = "mutation/%s/%s.txt" % (sample, sample)
-        output_files.append(output_file)
+        output_file = "%s/mutation/%s/%s.txt" % (run_conf.project_root, sample, sample)
+        output_files[sample] = output_file
         
         arguments = {
             "SAMPLE": sample,
             "INPUT_BAM": input_bams[sample],
-            "OUTPUT_FILE": "%s/%s" % (run_conf.project_root, output_file),
+            "OUTPUT_FILE": output_file,
         }
        
         singularity_bind = [run_conf.project_root]

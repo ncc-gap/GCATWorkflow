@@ -49,7 +49,6 @@ rm ${{output_pref}}.temp.bam.bai
 
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
     STAGE_NAME = "gridss"
@@ -63,14 +62,14 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Gridss(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.gridss:
-        output_vcf = "gridss/%s/%s.gridss.vcf" % (sample, sample)
-        output_files.append(output_vcf)
+        output_vcf = "%s/gridss/%s/%s.gridss.vcf" % (run_conf.project_root, sample, sample)
+        output_files[sample] = output_vcf
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],
-            "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
+            "OUTPUT_VCF":  output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GRIDSS_OPTION": gcat_conf.get(CONF_SECTION, "gridss_option"),
             "GRIDSS_JAR": gcat_conf.get(CONF_SECTION, "gridss_jar"),

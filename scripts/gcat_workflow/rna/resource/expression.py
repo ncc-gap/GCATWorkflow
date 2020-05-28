@@ -25,7 +25,6 @@ featureCounts -T 4 -p -a {GTF} -O -B -C -o ${{OUTPUT_PREF}}.txt {INPUT_BAM}
 python /tools/simple_exp/proc_fc.py ${{OUTPUT_PREF}}.txt ${{OUTPUT_PREF}}.txt.summary {GTF} > ${{OUTPUT_PREF}}.txt.fpkm
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     import os
     
@@ -40,11 +39,11 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Expression(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.expression:
         output_dir = "%s/expression/%s" % (run_conf.project_root, sample)
-        os.makedirs(output_dir, exist_ok=True)    
-        output_files.append("expression/{sample}/{sample}.txt.fpkm".format(sample = sample))
+        os.makedirs(output_dir, exist_ok=True) 
+        output_files[sample] = "%s/%s.txt.fpkm" % (output_dir, sample)
         
         arguments = {
             "SAMPLE": sample,

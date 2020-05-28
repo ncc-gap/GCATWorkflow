@@ -63,7 +63,6 @@ set -x
 
 STAGE_NAME = "collect-multiple-metrics"
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     
     CONF_SECTION = "gatk-%s-compatible" % (STAGE_NAME)
@@ -76,13 +75,13 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Compatible(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.multiple_metrics:
-        output_prefix = "summary/%s/%s.collect-multiple-metrics" % (sample, sample)
-        output_files.append(output_prefix + ".gc_bias.pdf")
+        output_prefix = "%s/summary/%s/%s.collect-multiple-metrics" % (run_conf.project_root, sample, sample)
+        output_files[sample] = output_prefix + ".gc_bias.pdf"
         arguments = {
             "INPUT_CRAM": input_bams[sample],
-            "OUTPUT_FILE_PREFIX":  "%s/%s" % (run_conf.project_root, output_prefix),
+            "OUTPUT_FILE_PREFIX": output_prefix,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
             "MULTIPLE_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_option"),
@@ -116,10 +115,10 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Parabricks(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.multiple_metrics:
-        output_prefix = "summary/%s/%s.collect-multiple-metrics" % (sample, sample)
-        output_files.append(output_prefix + ".gc_bias.pdf")
+        output_prefix = "%s/summary/%s/%s.collect-multiple-metrics" % (run_conf.project_root, sample, sample)
+        output_files[sample] = output_prefix + ".gc_bias.pdf"
 
         input_real_path = ""
         if not os.path.islink(input_bams[sample]):
@@ -131,7 +130,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
 
         arguments = {
             "INPUT_CRAM": input_real_path,
-            "OUTPUT_FILE_PREFIX":  "%s/%s" % (run_conf.project_root, output_prefix),
+            "OUTPUT_FILE_PREFIX": output_prefix,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MULTIPLE_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),

@@ -41,7 +41,6 @@ java \\
 
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
     STAGE_NAME = "melt"
@@ -59,14 +58,15 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Melt(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.melt:
-        output_vcf = "melt/%s/ALU.final_comp.vcf" % (sample)
-        output_files.append(output_vcf)
+        output_dir = "%s/melt/%s" % (run_conf.project_root, sample)
+        output_vcf = "%s/ALU.final_comp.vcf" % (output_dir)
+        output_files[sample] = output_vcf
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],
-            "OUTPUT_DIR":  "%s/melt/%s" % (run_conf.project_root, sample),
+            "OUTPUT_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MELT_JAR": gcat_conf.get(CONF_SECTION, "melt_jar"),
             "MELT_BED": gcat_conf.get(CONF_SECTION, "melt_bed"),

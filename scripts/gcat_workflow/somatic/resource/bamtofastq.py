@@ -57,7 +57,6 @@ fi
 touch {pass}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(gcat_conf, run_conf, sample_conf):
     
     STAGE_NAME = sample_conf.SECTION_BAM_TOFASTQ

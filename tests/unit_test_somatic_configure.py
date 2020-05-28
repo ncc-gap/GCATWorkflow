@@ -214,6 +214,26 @@ singularity_option =
 reference = {sample_dir}/reference/XXX.fa
 manta_config_option = 
 manta_workflow_option = -m local -j 8
+
+[genomonsv-parse]
+qsub_option = -l s_vmem=3G,mem_req=3G
+image = {sample_dir}/image/YYY.simg
+singularity_option =
+params = 
+
+[genomonsv-merge]
+qsub_option = -l s_vmem=3G,mem_req=3G
+image = {sample_dir}/image/YYY.simg
+singularity_option =
+params = 
+
+[genomonsv-filt]
+qsub_option = -l s_vmem=3G,mem_req=3G
+image = {sample_dir}/image/YYY.simg
+singularity_option =
+reference = {sample_dir}/reference/XXX.fa
+params = 
+sv_utils_params = 
 """
         # Not parabricks
         data_conf = conf_template.format(

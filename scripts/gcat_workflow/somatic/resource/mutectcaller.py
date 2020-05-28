@@ -55,7 +55,6 @@ set -x
 
 STAGE_NAME = "mutectcaller-parabricks"
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     
     CONF_SECTION = "gatk-%s-compatible" % (STAGE_NAME)
@@ -68,10 +67,10 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Compatible(params)
     
-    output_files = []
+    output_files = {}
     for (tumor, normal) in sample_conf.mutect_call:
-        output_vcf = "mutectcaller/%s/%s.mutectcaller.vcf" % (tumor, tumor)
-        output_files.append(output_vcf)
+        output_vcf = "%s/mutectcaller/%s/%s.mutectcaller.vcf" % (run_conf.project_root, tumor, tumor)
+        output_files[tumor] = output_vcf
         input_normal_cram = ""
         if normal != None:
             input_normal_cram = "-I %s -normal %s" % (input_bams[normal], normal)
@@ -80,7 +79,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
             "SAMPLE": tumor,
             "INPUT_TUMOR_CRAM": input_bams[tumor],
             "INPUT_NORMAL_CRAM": input_normal_cram,
-            "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
+            "OUTPUT_VCF":  output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
             "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option"),
@@ -116,13 +115,13 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Parabricks(params)
     
-    output_files = []
+    output_files = {}
     for (tumor, normal) in sample_conf.mutect_call:
         output_dir = "%s/mutectcaller/%s" % (run_conf.project_root, tumor) 
         os.makedirs(output_dir, exist_ok = True)
-        output_vcf = "mutectcaller/%s/%s.mutectcaller.vcf" % (tumor, tumor)
-        output_files.append(output_vcf)
-
+        output_vcf = "%s/%s.mutectcaller.vcf" % (output_dir, tumor)
+        output_files[tumor] = output_vcf
+        
         input_real_path = ""
         if not os.path.islink(input_bams[tumor]):
             input_real_path = input_bams[tumor]

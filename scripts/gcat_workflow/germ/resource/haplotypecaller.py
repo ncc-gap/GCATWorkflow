@@ -54,7 +54,6 @@ set -x
 
 STAGE_NAME = "haplotypecaller-parabricks"
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     
     CONF_SECTION = "gatk-%s-compatible" % (STAGE_NAME)
@@ -67,14 +66,14 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Compatible(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.haplotype_call:
-        output_vcf = "haplotypecaller/%s/%s.haplotypecaller.vcf" % (sample, sample)
-        output_files.append(output_vcf)
+        output_vcf = "%s/haplotypecaller/%s/%s.haplotypecaller.vcf" % (run_conf.project_root, sample, sample)
+        output_files[sample] = output_vcf
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],
-            "OUTPUT_VCF":  "%s/%s" % (run_conf.project_root, output_vcf),
+            "OUTPUT_VCF": output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
             "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
@@ -110,12 +109,12 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Parabricks(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.haplotype_call:
         output_dir = "%s/haplotypecaller/%s" % (run_conf.project_root, sample) 
         os.makedirs(output_dir, exist_ok = True)
-        output_vcf = "haplotypecaller/%s/%s.haplotypecaller.vcf" % (sample, sample)
-        output_files.append(output_vcf)
+        output_vcf = "%s/%s.haplotypecaller.vcf" % (output_dir, sample)
+        output_files[sample] = output_vcf
 
         input_real_path = ""
         if not os.path.islink(input_bams[sample]):
@@ -128,7 +127,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_real_path,
-            "OUTPUT_VCF": "%s/%s" % (run_conf.project_root, output_vcf),
+            "OUTPUT_VCF": output_vcf,
             "OUTPUT_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),

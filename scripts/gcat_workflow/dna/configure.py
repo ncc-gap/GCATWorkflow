@@ -68,11 +68,24 @@ def main(gcat_conf, run_conf, sample_conf):
     # ######################
     # dump conf.yaml
     # ######################
-    y["output_files"].extend(output_mutations)
-    y["output_files"].extend(output_svs)
-    y["output_files"].extend(output_bamstats)
-    y["output_files"].extend(output_coverage)
-    y["output_files"].extend(output_qc)
+    def __to_relpath(fullpath):
+        return fullpath.replace(run_conf.project_root + "/", "", 1)
+        
+    def __dic_values(dic):
+        values = []
+        for key in dic:
+            if type(dic[key]) == list:
+                for path in dic[key]:
+                    values.append(__to_relpath(path))
+            else:
+                values.append(__to_relpath(dic[key]))
+        return values
+    
+    y["output_files"].extend(__dic_values(output_mutations))
+    y["output_files"].extend(__dic_values(output_svs))
+    y["output_files"].extend(__dic_values(output_bamstats))
+    y["output_files"].extend(__dic_values(output_coverage))
+    y["output_files"].extend(__dic_values(output_qc))
     
     y["mutation_samples"] = {}
     for (sample, control, control_panel) in sample_conf.mutation_call:
@@ -86,7 +99,7 @@ def main(gcat_conf, run_conf, sample_conf):
     y["qc_merge"] = {}
     for sample in sample_conf.qc:
         y["qc_samples"][sample] = rs_align.OUTPUT_FORMAT.format(sample=sample)
-        y["qc_merge"][sample] = ["qc/%s/%s.coverage" % (sample, sample), "qc/%s/%s.bamstats" % (sample, sample)]
+        y["qc_merge"][sample] = [__to_relpath(output_coverage[sample]), __to_relpath(output_bamstats[sample])]
 
     import yaml
     open(run_conf.project_root + "/config.yml", "w").write(yaml.dump(y))

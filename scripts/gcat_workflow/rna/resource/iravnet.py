@@ -37,7 +37,6 @@ rm -rf {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.tmp2
 rm -rf {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.gz
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     import os
     import urllib
@@ -53,7 +52,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Iravnet(params)
     
-    output_files = []
+    output_files = {}
     dbs = [
         (SECTION_NAME, "target_file"),
         (SECTION_NAME, "reference"),
@@ -70,7 +69,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.iravnet:
         output_dir = "%s/iravnet/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)    
-        output_files.append("iravnet/{sample}/{sample}.iravnet.filt.bam".format(sample = sample))
+        output_files[sample] = "%s/%s.iravnet.filt.bam" % (output_dir, sample)
         
         arguments = {
             "SAMPLE": sample,

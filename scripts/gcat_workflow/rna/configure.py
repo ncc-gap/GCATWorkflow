@@ -85,10 +85,10 @@ def main(gcat_conf, run_conf, sample_conf):
         output_bam_sams[sample] = output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.CHIMERIC_SAM_POSTFIX)
 
     import gcat_workflow.rna.resource.fusionfusion_count as rs_fusionfusion_count
-    output_fusionfusion_counts = rs_fusionfusion_count.configure(output_bam_sams, gcat_conf, run_conf, sample_conf)
+    rs_fusionfusion_count.configure(output_bam_sams, gcat_conf, run_conf, sample_conf)
     
     import gcat_workflow.rna.resource.fusionfusion_merge as rs_fusionfusion_merge
-    output_fusionfusion_merges = rs_fusionfusion_merge.configure(output_fusionfusion_counts, gcat_conf, run_conf, sample_conf)
+    output_fusionfusion_merges = rs_fusionfusion_merge.configure(gcat_conf, run_conf, sample_conf)
     
     import gcat_workflow.rna.resource.fusionfusion as rs_fusionfusion
     output_fusionfusions = rs_fusionfusion.configure(output_bam_sams, output_fusionfusion_merges, gcat_conf, run_conf, sample_conf)
@@ -124,23 +124,25 @@ def main(gcat_conf, run_conf, sample_conf):
     # ######################
     # dump conf.yaml
     # ######################
+    def __to_relpath(fullpath):
+        return fullpath.replace(run_conf.project_root + "/", "", 1)
+        
     def __dic_values(dic):
         values = []
         for key in dic:
             if type(dic[key]) == list:
-                values.extend(dic[key])
+                for path in dic[key]:
+                    values.append(__to_relpath(path))
             else:
-                values.append(dic[key])
+                values.append(__to_relpath(dic[key]))
         return values
 
-    #y["output_files"].extend(__dic_values(output_fusionfusion_counts))
-    #y["output_files"].extend(__dic_values(output_fusionfusion_merges))
-    y["output_files"].extend(output_fusionfusions)
-    y["output_files"].extend(output_star_fusions)
-    y["output_files"].extend(output_ir_counts)
-    y["output_files"].extend(output_iravnets)
-    y["output_files"].extend(output_expressions)
-    y["output_files"].extend(output_kallistos)
+    y["output_files"].extend(__dic_values(output_fusionfusions))
+    y["output_files"].extend(__dic_values(output_star_fusions))
+    y["output_files"].extend(__dic_values(output_ir_counts))
+    y["output_files"].extend(__dic_values(output_iravnets))
+    y["output_files"].extend(__dic_values(output_expressions))
+    y["output_files"].extend(__dic_values(output_kallistos))
     
     y["fusionfusion_count_samples"] = {}
     for [sample, panel] in sample_conf.fusionfusion:

@@ -9,8 +9,8 @@ rule bam_tofastq:
     output:
         "fastq/{sample}/pass.txt"
     params:
-        script = "script/{sample}/singularity_bam_tofastq.sh",
-        yaml = "script/{sample}/conf_bam_tofastq.yml"
+        script = "script/{sample}/singularity_bam-tofastq.sh",
+        yaml = "script/{sample}/conf_bam-tofastq.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -92,7 +92,7 @@ rule post_bwa:
 
 rule mutectcaller:
     input:
-        lambda wildcards: config["mtc_samples"][wildcards.sample],
+        lambda wildcards: config["mutectcaller_samples"][wildcards.sample],
     output:
         "mutectcaller/{sample}/{sample}.mutectcaller.vcf"
     params:
@@ -101,9 +101,9 @@ rule mutectcaller:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
-rule collectwgsmetrics:
+rule collect_wgs_metrics:
     input:
-        lambda wildcards: config["wgs_metrics_samples"][wildcards.sample],
+        lambda wildcards: config["collect_wgs_metrics_samples"][wildcards.sample],
     output:
         "summary/{sample}/{sample}.collect-wgs-metrics.txt"
     params:
@@ -112,9 +112,9 @@ rule collectwgsmetrics:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
-rule collectmultiplemetrics:
+rule collect_multiple_metrics:
     input:
-        lambda wildcards: config["multiple_metrics_samples"][wildcards.sample],
+        lambda wildcards: config["collect_multiple_metrics_samples"][wildcards.sample],
     output:
         "summary/{sample}/{sample}.collect-multiple-metrics.gc_bias.pdf"
     params:
@@ -142,6 +142,39 @@ rule manta:
     params:
         script = "script/{sample}/singularity_manta.sh",
         yaml = "script/{sample}/conf_manta.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule genomonsv_parse:
+    input:
+        lambda wildcards: config["genomonsv_parse_samples"][wildcards.sample],
+    output:
+        "genomonsv/{sample}/{sample}.junction.clustered.bedpe.gz.tbi"
+    params:
+        script = "script/{sample}/singularity_genomonsv-parse.sh",
+        yaml = "script/{sample}/conf_genomonsv-parse.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule genomonsv_merge:
+    input:
+        lambda wildcards: config["genomonsv_merge_samples"][wildcards.sample],
+    output:
+        "genomonsv/non_matched_control_panel/{sample}.merged.junction.control.bedpe.gz.tbi"
+    params:
+        script = "script/{sample}/singularity_genomonsv-merge.sh",
+        yaml = "script/{sample}/conf_genomonsv-merge.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule genomonsv_filt:
+    input:
+        lambda wildcards: config["genomonsv_filt_samples"][wildcards.sample],
+    output:
+        "genomonsv/{sample}/{sample}.genomonSV.result.filt.txt"
+    params:
+        script = "script/{sample}/singularity_genomonsv-filt.sh",
+        yaml = "script/{sample}/conf_genomonsv-filt.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 

@@ -3,7 +3,7 @@
 import os
 import gcat_workflow.core.stage_task_abc as stage_task
 
-class Manta(stage_task.Stage_task):
+class genomonsv_parse(stage_task.Stage_task):
     def __init__(self, params):
         super().__init__(params)
         self.shell_script_template = """#!/bin/bash
@@ -20,18 +20,12 @@ set -o nounset
 set -o pipefail
 set -x
 
-python /manta/bin/configManta.py \\
-    --bam {INPUT_CRAM} \\
-    --referenceFasta {REFERENCE} \\
-    --runDir {OUTPUT_DIR} {MANTA_CONFIG_OPTION}
-
-python {OUTPUT_DIR}/runWorkflow.py {MANTA_WORKFLOW_OPTION}
-
+genomonsv parse {input_bam} {output_prefix} {param}
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
-    STAGE_NAME = "manta"
+    STAGE_NAME = "genomonsv-parse"
     CONF_SECTION = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,
@@ -40,22 +34,30 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         "qsub_option": gcat_conf.get(CONF_SECTION, "qsub_option"),
         "singularity_option": gcat_conf.get(CONF_SECTION, "singularity_option")
     }
-    stage_class = Manta(params)
-    
+    stage_class = genomonsv_parse(params)
+
+    samples = []
+    for (tumor, normal, panel) in sample_conf.genomon_sv:
+        samples.append(tumor)
+        if normal != None:
+            samples.append(normal)
+        if panel != None:
+            samples.extend(sample_conf.control_panel[panel])
+    samples = list(set(samples))
+
     output_files = {}
-    for sample in sample_conf.manta:
-        output_vcf = "%s/manta/%s/results/variants/candidateSV.vcf.gz" % (run_conf.project_root, sample)
-        output_files[sample] = output_vcf
+    for sample in samples:
+        output_dir = '%s/genomonsv/%s' % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok=True)
+        output_files[sample] = "%s/%s.junction.clustered.bedpe.gz.tbi"% (output_dir, sample)
+
         arguments = {
-            "SAMPLE": sample,
-            "INPUT_CRAM": input_bams[sample],
-            "OUTPUT_DIR": output_vcf,
-            "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "MANTA_CONFIG_OPTION": gcat_conf.get(CONF_SECTION, "manta_config_option"),
-            "MANTA_WORKFLOW_OPTION": gcat_conf.get(CONF_SECTION, "manta_workflow_option"),
+            "input_bam": input_bams[sample],
+            "output_prefix": "%s/%s"% (output_dir, sample),
+            "param": gcat_conf.get(CONF_SECTION, "params"),
         }
-       
-        singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
+        
+        singularity_bind = [run_conf.project_root]
         if sample in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[sample]
             

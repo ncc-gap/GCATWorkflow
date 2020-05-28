@@ -9,8 +9,8 @@ rule bam_tofastq:
     output:
         "fastq/{sample}/pass.txt"
     params:
-        script = "script/{sample}/singularity_bam_tofastq.sh",
-        yaml = "script/{sample}/conf_bam_tofastq.yml"
+        script = "script/{sample}/singularity_bam-tofastq.sh",
+        yaml = "script/{sample}/conf_bam-tofastq.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -92,7 +92,7 @@ rule post_bwa:
 
 rule haplotypecaller:
     input:
-        lambda wildcards: config["htc_samples"][wildcards.sample],
+        lambda wildcards: config["haplotypecaller_samples"][wildcards.sample],
     output:
         "haplotypecaller/{sample}/{sample}.haplotypecaller.vcf"
     params:
@@ -101,9 +101,9 @@ rule haplotypecaller:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
-rule collectwgsmetrics:
+rule collect_wgs_metrics:
     input:
-        lambda wildcards: config["wgs_metrics_samples"][wildcards.sample],
+        lambda wildcards: config["collect_wgs_metrics_samples"][wildcards.sample],
     output:
         "summary/{sample}/{sample}.collect-wgs-metrics.txt"
     params:
@@ -112,9 +112,9 @@ rule collectwgsmetrics:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
-rule collectmultiplemetrics:
+rule collect_multiple_metrics:
     input:
-        lambda wildcards: config["multiple_metrics_samples"][wildcards.sample],
+        lambda wildcards: config["collect_multiple_metrics_samples"][wildcards.sample],
     output:
         "summary/{sample}/{sample}.collect-multiple-metrics.gc_bias.pdf"
     params:

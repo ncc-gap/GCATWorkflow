@@ -57,7 +57,6 @@ rm ${{OUTPUT_PREF}}.sorted.bam.bai
 {remove_fastq}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(gcat_conf, run_conf, sample_conf):
 
     STAGE_NAME = "bwa_alignment"

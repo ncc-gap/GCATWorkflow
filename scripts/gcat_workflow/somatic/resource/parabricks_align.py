@@ -76,7 +76,6 @@ set -x
 
 STAGE_NAME = "bwa-alignment-parabricks"
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def _compatible(gcat_conf, run_conf, sample_conf):
 
     CONF_SECTION = "gatk-%s-compatible" % (STAGE_NAME)

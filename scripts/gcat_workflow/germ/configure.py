@@ -78,28 +78,41 @@ def main(gcat_conf, run_conf, sample_conf):
     # ######################
     # dump conf.yaml
     # ######################
-    y["output_files"].extend(output_mutations)
-    y["output_files"].extend(output_wgs_metrics)
-    y["output_files"].extend(output_multiple_metrics)
-    y["output_files"].extend(output_gridss)
-    y["output_files"].extend(output_manta)
-    y["output_files"].extend(output_melt)
+    def __to_relpath(fullpath):
+        return fullpath.replace(run_conf.project_root + "/", "", 1)
+        
+    def __dic_values(dic):
+        values = []
+        for key in dic:
+            if type(dic[key]) == list:
+                for path in dic[key]:
+                    values.append(__to_relpath(path))
+            else:
+                values.append(__to_relpath(dic[key]))
+        return values
+
+    y["output_files"].extend(__dic_values(output_mutations))
+    y["output_files"].extend(__dic_values(output_wgs_metrics))
+    y["output_files"].extend(__dic_values(output_multiple_metrics))
+    y["output_files"].extend(__dic_values(output_gridss))
+    y["output_files"].extend(__dic_values(output_manta))
+    y["output_files"].extend(__dic_values(output_melt))
 
     y["post_aln_samples"] = {}
     for sample in y["aln_samples"]:
         y["post_aln_samples"][sample] = rs_align.OUTPUT_FORMAT.format(sample=sample)
     
-    y["htc_samples"] = {}
+    y["haplotypecaller_samples"] = {}
     for sample in sample_conf.haplotype_call:
-        y["htc_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
+        y["haplotypecaller_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
         
-    y["wgs_metrics_samples"] = {}
+    y["collect_wgs_metrics_samples"] = {}
     for sample in sample_conf.wgs_metrics:
-        y["wgs_metrics_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
+        y["collect_wgs_metrics_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
 
-    y["multiple_metrics_samples"] = {}
+    y["collect_multiple_metrics_samples"] = {}
     for sample in sample_conf.multiple_metrics:
-        y["multiple_metrics_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
+        y["collect_multiple_metrics_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
         
     y["gridss_samples"] = {}
     for sample in sample_conf.gridss:

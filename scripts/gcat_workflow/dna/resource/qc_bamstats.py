@@ -39,14 +39,14 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Qc_bamstats(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.qc:
-        output_file = "qc/%s/%s.bamstats" % (sample, sample)
-        output_files.append(output_file)
+        output_file = "%s/qc/%s/%s.bamstats" % (run_conf.project_root, sample, sample)
+        output_files[sample] = output_file
         
         arguments = {
             "INPUT_BAM": input_bams[sample],
-            "OUTPUT_FILE": "%s/%s" % (run_conf.project_root, output_file),
+            "OUTPUT_FILE": output_file,
         }
        
         singularity_bind = [run_conf.project_root]

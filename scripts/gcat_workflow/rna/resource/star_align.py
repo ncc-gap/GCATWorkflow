@@ -57,7 +57,6 @@ rm ${{OUTPUT_PREF}}.Aligned.out.bam
 {remove_fastq}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(gcat_conf, run_conf, sample_conf):
     import os
     

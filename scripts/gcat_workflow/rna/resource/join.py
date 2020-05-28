@@ -23,7 +23,6 @@ set -x
 touch {JOIN_FILE}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(remove_files, gcat_conf, run_conf, sample_conf):
     import os
     
@@ -58,4 +57,4 @@ def configure(remove_files, gcat_conf, run_conf, sample_conf):
     
     stage_class.write_script(arguments, singularity_bind, run_conf)
 
-    return []
+    return {}

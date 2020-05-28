@@ -24,7 +24,6 @@ set -x
 chimera_utils count {OPTION} {INPUT} {OUTPUT}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_files, gcat_conf, run_conf, sample_conf):
     import os
     
@@ -52,7 +51,7 @@ def configure(input_files, gcat_conf, run_conf, sample_conf):
     for sample in samples:
         output_dir = "%s/fusionfusion/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)
-        output_files[sample] = OUTPUT_FORMAT.format(sample = sample)
+        output_files[sample] = run_conf.project_root + "/" + OUTPUT_FORMAT.format(sample = sample)
         
         arguments = {
             "INPUT": input_files[sample],

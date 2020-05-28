@@ -29,7 +29,6 @@ python {OUTPUT_DIR}/runWorkflow.py {MANTA_WORKFLOW_OPTION}
 
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
     STAGE_NAME = "manta"
@@ -43,14 +42,14 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Manta(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.manta:
-        output_vcf = "manta/%s/results/variants/candidateSV.vcf.gz" % (sample)
-        output_files.append(output_vcf)
+        output_vcf = "%s/manta/%s/results/variants/candidateSV.vcf.gz" % (run_conf.project_root, sample)
+        output_files[sample] = output_vcf
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],
-            "OUTPUT_DIR":  "%s/manta/%s" % (run_conf.project_root, sample),
+            "OUTPUT_DIR": output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MANTA_CONFIG_OPTION": gcat_conf.get(CONF_SECTION, "manta_config_option"),
             "MANTA_WORKFLOW_OPTION": gcat_conf.get(CONF_SECTION, "manta_workflow_option"),

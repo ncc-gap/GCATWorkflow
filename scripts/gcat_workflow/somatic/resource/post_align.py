@@ -39,7 +39,6 @@ rm -f {INPUT_BAM}
 rm -f {INPUT_BAI}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(aligned_bams, gcat_conf, run_conf, sample_conf):
 
     STAGE_NAME = "post-bwa-alignment-parabricks"

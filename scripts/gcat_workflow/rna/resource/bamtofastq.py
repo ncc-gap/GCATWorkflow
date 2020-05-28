@@ -57,7 +57,6 @@ fi
 touch {pass_file}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(gcat_conf, run_conf, sample_conf):
     import os
     

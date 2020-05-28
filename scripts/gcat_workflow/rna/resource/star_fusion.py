@@ -27,7 +27,6 @@ set -x
 rm -rf {OUTPUT_DIR}/_starF_checkpoints
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     import os
     
@@ -42,11 +41,11 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Star_fusion(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.star_fusion:
         output_dir = "%s/star_fusion/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)    
-        output_files.append("star_fusion/{sample}/star-fusion.fusion_predictions.abridged.tsv".format(sample = sample))
+        output_files[sample] = "%s/star-fusion.fusion_predictions.abridged.tsv" % (output_dir)
 
         arguments = {
             "CHIMERIC_OUT_JUNCTION": input_bams[sample],

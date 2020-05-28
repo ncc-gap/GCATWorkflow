@@ -54,10 +54,10 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     if gcat_conf.get("qc_coverage", "grc_flag") == "True":
         grc_flag = "--grc_flag"
 
-    output_files = []
+    output_files = {}
     for sample in sample_conf.qc:
-        output_file = "qc/%s/%s.coverage" % (sample, sample)
-        output_files.append(output_file)
+        output_file = "%s/qc/%s/%s.coverage" % (run_conf.project_root, sample, sample)
+        output_files[sample] = output_file
 
         arguments = {
             "data_type": data_type,
@@ -71,7 +71,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "samtools_params": gcat_conf.get("qc_coverage", "samtools_params"),
             "grc_flag": grc_flag,
             "input_file": input_bams[sample],
-            "output_file": "%s/%s" % (run_conf.project_root, output_file)
+            "output_file": output_file
         }
 
         singularity_bind = [

@@ -46,15 +46,15 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Qc_merge(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.qc:
-        output_file = "qc/%s/%s.genomonQC.result.txt" % (sample, sample)
-        output_files.append(output_file)
+        output_file = "%s/qc/%s/%s.genomonQC.result.txt" % (run_conf.project_root, sample, sample)
+        output_files[sample] = output_file
         
         arguments = {
             "bamstats_file": "%s/qc/%s/%s.bamstats" % (run_conf.project_root, sample, sample),
             "coverage_file": "%s/qc/%s/%s.coverage" % (run_conf.project_root, sample, sample),
-            "output_file": "%s/%s" % (run_conf.project_root, output_file),
+            "output_file": output_file,
             "meta": gcat_conf.get_meta_info(["gcat_workflow", "qc_coverage"]),
             "fastq_line_num_file": run_conf.project_root +'/fastq/'+ sample +'/fastq_line_num.txt'
         }

@@ -29,8 +29,7 @@ done
 chimera_utils merge_control {OPTION} {MERGED_LIST} {OUTPUT}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
-def configure(input_files, gcat_conf, run_conf, sample_conf):
+def configure(gcat_conf, run_conf, sample_conf):
     import os
     
     STAGE_NAME = "fusionfusion_merge"
@@ -52,11 +51,11 @@ def configure(input_files, gcat_conf, run_conf, sample_conf):
             continue
         
         output_file = OUTPUT_FORMAT.format(sample = panel)
-        output_files[panel] = output_file
+        output_files[panel] = run_conf.project_root + "/" + output_file
         
         output_dir = "%s/fusionfusion/control_panel" % (run_conf.project_root)
         os.makedirs(output_dir, exist_ok=True)
-        
+
         arguments = {
             "MERGED_LIST": "%s/%s.Chimeric.count.list" % (output_dir, panel),
             "OUTPUT": "%s/%s.merged.Chimeric.count" % (output_dir, panel),
