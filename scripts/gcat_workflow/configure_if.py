@@ -2,6 +2,7 @@
 
 import gcat_workflow.core.gcat_conf as gc
 import gcat_workflow.core.run_conf as rc
+import pkg_resources
 
 def main(args):
 
@@ -23,7 +24,8 @@ def main(args):
     
     ###
     # set gcat_conf and task parameter config data
-    gcat_conf = gc.gcat_conf(conf = run_conf.gcat_conf_file)
+    defaut_conf = pkg_resources.resource_filename('gcat_workflow', args.analysis_type + '/data/default.ini')
+    gcat_conf = gc.gcat_conf(conf = run_conf.gcat_conf_file, default_conf = defaut_conf, exist_check = not args.ignore_invalid_path)
     gcat_conf.software_version_set()
     
     if args.analysis_type == "dna":
@@ -43,6 +45,6 @@ def main(args):
         import gcat_workflow.somatic.configure as configure
 
         
-    sample_conf = sc.Sample_conf(run_conf.sample_conf_file)
+    sample_conf = sc.Sample_conf(run_conf.sample_conf_file, exist_check = not args.ignore_invalid_path)
     configure.main(gcat_conf = gcat_conf, run_conf = run_conf, sample_conf = sample_conf)
 
