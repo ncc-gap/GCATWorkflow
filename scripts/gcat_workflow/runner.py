@@ -113,15 +113,21 @@ class Slurm_runner(Runner):
         qsub_options = []
         if type(self.qsub_option) == type(""):
             qsub_options += self.qsub_option.split(' ')
-            qsub_options.remove('')
+            if '' in qsub_options:
+                qsub_options.remove('')
         if len(qsub_options) > 0:
             qsub_commands += qsub_options
 
-        log_o_path = "%s/%s.o.log" % (self.log_dir, self.jobname)
-        log_e_path = "%s/%s.e.log" % (self.log_dir, self.jobname)
+        log_o_path = "%s/%s.o" % (self.log_dir, self.jobname) + "%j"
+        log_e_path = "%s/%s.e" % (self.log_dir, self.jobname) + "%j"
 
-        #print(qsub_commands + ["-o", log_o_path, "-e", log_e_path, self.singularity_script])
-        returncode = subprocess.call(qsub_commands + ["-o", log_o_path, "-e", log_e_path, self.singularity_script])
+        #print(qsub_commands + ["-o", log_o_path, "-e", log_e_path, "-J", self.jobname, self.singularity_script])
+        returncode = subprocess.call(qsub_commands + [
+            "-o", log_o_path, 
+            "-e", log_e_path, 
+            "-J", self.jobname,
+            self.singularity_script
+        ])
 
         if returncode != 0: 
             raise RuntimeError("The batch job failed.")

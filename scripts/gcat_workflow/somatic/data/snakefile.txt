@@ -184,5 +184,5 @@ rule join:
     output:
         "join/all.txt"
     shell:
-        "cat {input} > {output}"
+        "touch {output}"
 
