@@ -27,7 +27,7 @@ SUMMARY2 = "collect-multiple-metrics"
 
 class ConfigureTest(unittest.TestCase):
     
-    DATA_DIR = "/tmp/temp-test/gcat_test_germ_configure"
+    DATA_DIR = "/tmp/temp-test/gcat_test_germline_configure"
     SAMPLE_DIR = DATA_DIR + "/samples"
     REMOVE = False
     SS_NAME = "/test.csv"
@@ -271,7 +271,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_01_configure_drmaa_nogpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "germline",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -283,7 +283,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_02_configure_drmaa_gpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "germline",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME_P,
@@ -295,7 +295,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_03_configure_qsub_nogpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "germline",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -308,7 +308,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_04_configure_qsub_gpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "germline",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME_P,
@@ -321,7 +321,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_05_configure_slurm_nogpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "germline",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -334,7 +334,7 @@ melt_java_option = -XX:-UseContainerSupport -Xmx32g
     def test2_06_configure_slurm_gpu(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
-            "germ",
+            "germline",
             self.DATA_DIR + self.SS_NAME,
             wdir,
             self.DATA_DIR + self.GC_NAME_P,
@@ -355,7 +355,7 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "germline",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -375,7 +375,7 @@ A_tumor,{sample_dir}/A.markdup.cram
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "germline",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -395,7 +395,7 @@ A_tumor,{sample_dir}/A.markdup.cram
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "germline",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -417,7 +417,7 @@ A_tumor
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "germline",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -439,7 +439,7 @@ A_tumor
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "germline",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
@@ -461,7 +461,7 @@ A_tumor
         f.write(data_sample)
         f.close()
         options = [
-            "germ",
+            "germline",
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,

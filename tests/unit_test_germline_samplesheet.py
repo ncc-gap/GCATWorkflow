@@ -10,7 +10,7 @@ import os
 import sys
 import shutil
 import unittest
-import gcat_workflow.germ.sample_conf as sc
+import gcat_workflow.germline.sample_conf as sc
 
 BAM_IMP = "bam-import"
 BAM_2FQ = "bam-tofastq"
@@ -21,7 +21,7 @@ SUMMARY2 = "collect-multiple-metrics"
 
 class SubmitTest(unittest.TestCase):
     
-    SAMPLE_DIR = "/tmp/temp-test/gcat_test_germ_samplesheet"
+    SAMPLE_DIR = "/tmp/temp-test/gcat_test_germline_samplesheet"
     REMOVE = True
     
     # init class

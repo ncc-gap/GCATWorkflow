@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(prog = "gcat_workflow")
 
 parser.add_argument("--version", action = "version", version = "gcat_workflow-" + gcat_workflow.__version__)
 
-parser.add_argument('analysis_type', choices=['dna', 'rna', 'germ', 'somatic'], help = "analysis type")
+parser.add_argument('analysis_type', choices=['rna', 'germline', 'somatic'], help = "analysis type")
 parser.add_argument("sample_conf_file", metavar = "samplesheet.csv", type = str, help = "input sample list flie [csv]")
 parser.add_argument("project_root", metavar = "project_root_dir", type = str, help = "output root directory")
 parser.add_argument("gcat_conf_file", metavar = "gcat.cfg", type = str, help = "config file for gcat workflow")

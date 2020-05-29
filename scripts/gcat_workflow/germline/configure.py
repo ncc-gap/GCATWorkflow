@@ -5,11 +5,11 @@ def main(gcat_conf, run_conf, sample_conf):
     # preparation
     import gcat_workflow.core.setup_common as setup
     input_stages = (sample_conf.bam_import, sample_conf.fastq, sample_conf.bam_tofastq)
-    setup.create_directories(gcat_conf, run_conf, input_stages, 'germ/data/snakefile.txt')
+    setup.create_directories(gcat_conf, run_conf, input_stages, 'germline/data/snakefile.txt')
     setup.touch_bam_tofastq(run_conf, (sample_conf.bam_tofastq,))
     
     # dump conf.yaml
-    import gcat_workflow.germ.resource.post_align as rs_post_align
+    import gcat_workflow.germline.resource.post_align as rs_post_align
     y = setup.dump_yaml_input_section(
         run_conf, 
         (sample_conf.bam_tofastq, ),
@@ -34,7 +34,7 @@ def main(gcat_conf, run_conf, sample_conf):
     # create scripts
     # ######################
     # bam to fastq
-    import gcat_workflow.germ.resource.bamtofastq as rs_bamtofastq
+    import gcat_workflow.germline.resource.bamtofastq as rs_bamtofastq
     output_fastqs = rs_bamtofastq.configure(gcat_conf, run_conf, sample_conf)
     
     # bwa
@@ -46,33 +46,33 @@ def main(gcat_conf, run_conf, sample_conf):
         sample_conf.fastq[sample] = linked_fastqs[sample]["fastq"]
         sample_conf.fastq_src[sample] = linked_fastqs[sample]["src"]
     
-    import gcat_workflow.germ.resource.parabricks_align as rs_align
+    import gcat_workflow.germline.resource.parabricks_align as rs_align
     align_bams = rs_align.configure(gcat_conf, run_conf, sample_conf)
     post_align_bams = rs_post_align.configure(align_bams, gcat_conf, run_conf, sample_conf)
     output_bams.update(post_align_bams)
 
     # mutation
-    import gcat_workflow.germ.resource.haplotypecaller as rs_mutation
+    import gcat_workflow.germline.resource.haplotypecaller as rs_mutation
     output_mutations = rs_mutation.configure(output_bams, gcat_conf, run_conf, sample_conf)
     
     # wgs summary
-    import gcat_workflow.germ.resource.collectwgsmetrics as rs_wgs_summary
+    import gcat_workflow.germline.resource.collectwgsmetrics as rs_wgs_summary
     output_wgs_metrics = rs_wgs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
 
     # multiple summary
-    import gcat_workflow.germ.resource.collectmultiplemetrics as rs_multiple_summary
+    import gcat_workflow.germline.resource.collectmultiplemetrics as rs_multiple_summary
     output_multiple_metrics = rs_multiple_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
     
     # gridss
-    import gcat_workflow.germ.resource.gridss as rs_gridss
+    import gcat_workflow.germline.resource.gridss as rs_gridss
     output_gridss = rs_gridss.configure(output_bams, gcat_conf, run_conf, sample_conf)
 
     # manta 
-    import gcat_workflow.germ.resource.manta as rs_manta
+    import gcat_workflow.germline.resource.manta as rs_manta
     output_manta = rs_manta.configure(output_bams, gcat_conf, run_conf, sample_conf)
 
     # melt
-    import gcat_workflow.germ.resource.melt as rs_melt
+    import gcat_workflow.germline.resource.melt as rs_melt
     output_melt = rs_melt.configure(output_bams, gcat_conf, run_conf, sample_conf)
 
     # ######################
