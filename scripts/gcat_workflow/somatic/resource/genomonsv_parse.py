@@ -25,7 +25,7 @@ GenomonSV parse {input_bam} {output_prefix} {param}
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
-    STAGE_NAME = "genomonsv-parse"
+    STAGE_NAME = "genomonsv_parse"
     CONF_SECTION = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,

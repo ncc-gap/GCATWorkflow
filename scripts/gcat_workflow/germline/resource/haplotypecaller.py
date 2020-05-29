@@ -52,11 +52,11 @@ set -x
   --tmp-dir /tmp/
 """
 
-STAGE_NAME = "haplotypecaller-parabricks"
+STAGE_NAME = "haplotypecaller_parabricks"
 
 def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     
-    CONF_SECTION = "gatk-%s-compatible" % (STAGE_NAME)
+    CONF_SECTION = "gatk_%s_compatible" % (STAGE_NAME)
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,

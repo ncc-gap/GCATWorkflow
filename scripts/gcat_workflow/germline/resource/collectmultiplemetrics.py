@@ -61,11 +61,11 @@ set -x
     --out-all-metrics {OUTPUT_FILE_PREFIX} {MULTIPLE_METRICS_OPTION}
 """
 
-STAGE_NAME = "collect-multiple-metrics"
+STAGE_NAME = "collect_multiple_metrics"
 
 def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     
-    CONF_SECTION = "gatk-%s-compatible" % (STAGE_NAME)
+    CONF_SECTION = "gatk_%s_compatible" % (STAGE_NAME)
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
@@ -77,7 +77,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = {}
     for sample in sample_conf.multiple_metrics:
-        output_prefix = "%s/summary/%s/%s.collect-multiple-metrics" % (run_conf.project_root, sample, sample)
+        output_prefix = "%s/summary/%s/%s.collect_multiple_metrics" % (run_conf.project_root, sample, sample)
         output_files[sample] = output_prefix + ".gc_bias.pdf"
         arguments = {
             "INPUT_CRAM": input_bams[sample],
@@ -117,7 +117,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = {}
     for sample in sample_conf.multiple_metrics:
-        output_prefix = "%s/summary/%s/%s.collect-multiple-metrics" % (run_conf.project_root, sample, sample)
+        output_prefix = "%s/summary/%s/%s.collect_multiple_metrics" % (run_conf.project_root, sample, sample)
         output_files[sample] = output_prefix + ".gc_bias.pdf"
 
         input_real_path = ""

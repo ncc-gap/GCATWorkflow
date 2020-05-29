@@ -12,12 +12,12 @@ import shutil
 import unittest
 import gcat_workflow.germline.sample_conf as sc
 
-BAM_IMP = "bam-import"
-BAM_2FQ = "bam-tofastq"
-ALN = "bwa-alignment-parabricks"
-HT_CALL = "haplotypecaller-parabricks"
-SUMMARY1 = "collect-wgs-metrics"
-SUMMARY2 = "collect-multiple-metrics"
+BAM_IMP = "bam_import"
+BAM_2FQ = "bam_tofastq"
+ALN = "bwa_alignment_parabricks"
+HT_CALL = "haplotypecaller_parabricks"
+SUMMARY1 = "collect_wgs_metrics"
+SUMMARY2 = "collect_multiple_metrics"
 
 class SubmitTest(unittest.TestCase):
     

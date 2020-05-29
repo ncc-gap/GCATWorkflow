@@ -3,14 +3,14 @@ import gcat_workflow.core.sample_conf_abc as abc
 
 class Sample_conf(abc.Sample_conf_abc):
     SECTION_FASTQ = "fastq"
-    SECTION_BAM_IMPORT = "bam-import"
-    SECTION_BAM_TOFASTQ = "bam-tofastq"
-    SECTION_MTCALL = "mutectcaller-parabricks"
-    SECTION_WGS_METRICS = "collect-wgs-metrics"
-    SECTION_MULTIPLE_METRICS = "collect-multiple-metrics"
+    SECTION_BAM_IMPORT = "bam_import"
+    SECTION_BAM_TOFASTQ = "bam_tofastq"
+    SECTION_MTCALL = "mutectcaller_parabricks"
+    SECTION_WGS_METRICS = "collect_wgs_metrics"
+    SECTION_MULTIPLE_METRICS = "collect_multiple_metrics"
     SECTION_GRIDSS = "gridss"
     SECTION_MANTA = "manta"
-    SECTION_GENOMON_SV = "genomon-sv"
+    SECTION_GENOMON_SV = "genomon_sv"
     SECTION_CONTROL_PANEL = "controlpanel"
     
     def __init__(self, sample_conf_file, exist_check = True):

@@ -32,7 +32,7 @@ mv {output_prefix}.genomonSV.result.filt.txt.tmp {output_prefix}.genomonSV.resul
 
 def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
     
-    STAGE_NAME = "genomonsv-filt"
+    STAGE_NAME = "genomonsv_filt"
     CONF_SECTION = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,
@@ -62,7 +62,7 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
         arguments = {
             "input_bam": input_bams[tumor],
             "output_prefix": output_prefix,
-            "meta_info": "# genomon-sv: %s" % (gcat_conf.path_get(CONF_SECTION, "image")),
+            "meta_info": "# genomon_sv: %s" % (gcat_conf.path_get(CONF_SECTION, "image")),
             "reference_genome": gcat_conf.path_get(CONF_SECTION, "reference"),
             "param": filt_param,
             "sv_utils_param": gcat_conf.get(CONF_SECTION, "sv_utils_params"),

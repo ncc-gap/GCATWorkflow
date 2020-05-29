@@ -53,11 +53,11 @@ set -x
   --out-metrics-file {OUTPUT_FILE} {WGS_METRICS_OPTION}
 """
 
-STAGE_NAME = "collect-wgs-metrics"
+STAGE_NAME = "collect_wgs_metrics"
 
 def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
 
-    CONF_SECTION = "gatk-%s-compatible" % (STAGE_NAME)
+    CONF_SECTION = "gatk_%s_compatible" % (STAGE_NAME)
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
@@ -69,7 +69,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = {}
     for sample in sample_conf.wgs_metrics:
-        output_txt = "%s/summary/%s/%s.collect-wgs-metrics.txt" % (run_conf.project_root, sample, sample)
+        output_txt = "%s/summary/%s/%s.collect_wgs_metrics.txt" % (run_conf.project_root, sample, sample)
         output_files[sample] = output_txt
         arguments = {
             "INPUT_CRAM": input_bams[sample],
@@ -109,7 +109,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = {}
     for sample in sample_conf.wgs_metrics:
-        output_txt = "%s/summary/%s/%s.collect-wgs-metrics.txt" % (run_conf.project_root, sample, sample)
+        output_txt = "%s/summary/%s/%s.collect_wgs_metrics.txt" % (run_conf.project_root, sample, sample)
         output_files[sample] = output_txt
 
         input_real_path = ""

@@ -12,12 +12,12 @@ import shutil
 import unittest
 import gcat_workflow.somatic.sample_conf as sc
 
-BAM_IMP = "bam-import"
-BAM_2FQ = "bam-tofastq"
-ALN = "bwa-alignment-parabricks"
-HT_CALL = "mutectcaller-parabricks"
-SUMMARY1 = "collect-wgs-metrics"
-SUMMARY2 = "collect-multiple-metrics"
+BAM_IMP = "bam_import"
+BAM_2FQ = "bam_tofastq"
+ALN = "bwa_alignment_parabricks"
+HT_CALL = "mutectcaller_parabricks"
+SUMMARY1 = "collect_wgs_metrics"
+SUMMARY2 = "collect_multiple_metrics"
 
 class SubmitTest(unittest.TestCase):
     
@@ -91,7 +91,7 @@ A_tumor
 [gridss]
 A_tumor
 
-[genomon-sv]
+[genomon_sv]
 A_tumor,pool1,None
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, htcall = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         

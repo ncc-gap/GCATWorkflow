@@ -25,7 +25,7 @@ GenomonSV merge {control_info} {merge_output_file} {param}
 
 def configure(gcat_conf, run_conf, sample_conf):
     
-    STAGE_NAME = "genomonsv-merge"
+    STAGE_NAME = "genomonsv_merge"
     CONF_SECTION = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,

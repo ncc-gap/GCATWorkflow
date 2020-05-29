@@ -74,11 +74,11 @@ set -x
 {RM}
 """
 
-STAGE_NAME = "bwa-alignment-parabricks"
+STAGE_NAME = "bwa_alignment_parabricks"
 
 def _compatible(gcat_conf, run_conf, sample_conf):
 
-    CONF_SECTION = "gatk-%s-compatible" % (STAGE_NAME)
+    CONF_SECTION = "gatk_%s_compatible" % (STAGE_NAME)
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,

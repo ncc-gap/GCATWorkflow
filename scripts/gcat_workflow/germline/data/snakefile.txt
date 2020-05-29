@@ -9,8 +9,8 @@ rule bam_tofastq:
     output:
         "fastq/{sample}/pass.txt"
     params:
-        script = "script/{sample}/singularity_bam-tofastq.sh",
-        yaml = "script/{sample}/conf_bam-tofastq.yml"
+        script = "script/{sample}/singularity_bam_tofastq.sh",
+        yaml = "script/{sample}/conf_bam_tofastq.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -74,8 +74,8 @@ rule bwa:
     output:
         "cram/{sample}/{sample}.markdup.bam"
     params:
-        script = "script/{sample}/singularity_bwa-alignment-parabricks.sh",
-        yaml = "script/{sample}/conf_bwa-alignment-parabricks.yml"
+        script = "script/{sample}/singularity_bwa_alignment_parabricks.sh",
+        yaml = "script/{sample}/conf_bwa_alignment_parabricks.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -85,8 +85,8 @@ rule post_bwa:
     output:
         "cram/{sample}/{sample}.markdup.cram"
     params:
-        script = "script/{sample}/singularity_post-bwa-alignment-parabricks.sh",
-        yaml = "script/{sample}/conf_post-bwa-alignment-parabricks.yml"
+        script = "script/{sample}/singularity_post_bwa_alignment_parabricks.sh",
+        yaml = "script/{sample}/conf_post_bwa_alignment_parabricks.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -96,8 +96,8 @@ rule haplotypecaller:
     output:
         "haplotypecaller/{sample}/{sample}.haplotypecaller.vcf"
     params:
-        script = "script/{sample}/singularity_haplotypecaller-parabricks.sh",
-        yaml = "script/{sample}/conf_haplotypecaller-parabricks.yml"
+        script = "script/{sample}/singularity_haplotypecaller_parabricks.sh",
+        yaml = "script/{sample}/conf_haplotypecaller_parabricks.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -105,10 +105,10 @@ rule collect_wgs_metrics:
     input:
         lambda wildcards: config["collect_wgs_metrics_samples"][wildcards.sample],
     output:
-        "summary/{sample}/{sample}.collect-wgs-metrics.txt"
+        "summary/{sample}/{sample}.collect_wgs_metrics.txt"
     params:
-        script = "script/{sample}/singularity_collect-wgs-metrics.sh",
-        yaml = "script/{sample}/conf_collect-wgs-metrics.yml"
+        script = "script/{sample}/singularity_collect_wgs_metrics.sh",
+        yaml = "script/{sample}/conf_collect_wgs_metrics.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -116,10 +116,10 @@ rule collect_multiple_metrics:
     input:
         lambda wildcards: config["collect_multiple_metrics_samples"][wildcards.sample],
     output:
-        "summary/{sample}/{sample}.collect-multiple-metrics.gc_bias.pdf"
+        "summary/{sample}/{sample}.collect_multiple_metrics.gc_bias.pdf"
     params:
-        script = "script/{sample}/singularity_collect-multiple-metrics.sh",
-        yaml = "script/{sample}/conf_collect-multiple-metrics.yml"
+        script = "script/{sample}/singularity_collect_multiple_metrics.sh",
+        yaml = "script/{sample}/conf_collect_multiple_metrics.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 

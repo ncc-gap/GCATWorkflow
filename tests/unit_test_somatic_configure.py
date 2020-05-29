@@ -18,12 +18,12 @@ def func_path (root, name):
     ss_path = root + "/" + name + ".csv"
     return (wdir, ss_path)
 
-BAM_IMP = "bam-import"
-BAM_2FQ = "bam-tofastq"
-ALN = "bwa-alignment-parabricks"
-HT_CALL = "mutectcaller-parabricks"
-SUMMARY1 = "collect-wgs-metrics"
-SUMMARY2 = "collect-multiple-metrics"
+BAM_IMP = "bam_import"
+BAM_2FQ = "bam_tofastq"
+ALN = "bwa_alignment_parabricks"
+HT_CALL = "mutectcaller_parabricks"
+SUMMARY1 = "collect_wgs_metrics"
+SUMMARY2 = "collect_multiple_metrics"
 
 class ConfigureTest(unittest.TestCase):
     
@@ -90,7 +90,7 @@ A_tumor
 [gridss]
 A_tumor
 
-[genomon-sv]
+[genomon_sv]
 A_tumor,A_control,list1
 A_control,None,list1
 
@@ -105,135 +105,78 @@ list1,pool1,pool2,pool3
         conf_template = """[{bam2fq}]
 qsub_option = -l s_vmem=2G,mem_req=2G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-params = collate=1 exclude=QCFAIL,SECONDARY,SUPPLEMENTARY tryoq=0
 
-[gatk-{aln}-compatible]
+[gatk_{aln}_compatible]
 qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-bwa_option = -t 8 -K 10000000 -T 0
-read_group_pl = na
-read_group_lb = ILLUMINA 
-read_group_pu = na
-gatk_jar = /tools/gatk-4.0.4.0/gatk-package-4.0.4.0-local.jar
-gatk_sort_option = --MAX_RECORDS_IN_RAM=5000000
-gatk_sort_java_option = -XX:-UseContainerSupport -Xmx32g 
-gatk_markdup_option =
-gatk_markdup_java_option = -XX:-UseContainerSupport -Xmx32g 
-samtools_view_option = -@ 8
-samtools_index_option = -@ 8
 reference = {sample_dir}/reference/XXX.fa
 
 [{aln}]
 gpu_support = {gpu_support}
 pbrun = {sample_dir}/parabricks/pbrun
 qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
-bwa_option = -t 8 -K 10000000 -T 0
-read_group_pl = na
-read_group_lb = ILLUMINA 
-read_group_pu = na
 reference = {sample_dir}/reference/XXX.fa
 
-[post-{aln}]
+[post_{aln}]
 qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-gatk_jar = /tools/gatk-4.0.4.0/gatk-package-4.0.4.0-local.jar
-gatk_markdup_option =
-gatk_markdup_java_option = -XX:-UseContainerSupport -Xmx32g 
-samtools_view_option = -@ 8
-samtools_index_option = -@ 8
 reference = {sample_dir}/reference/XXX.fa
 
-[gatk-{ht_call}-compatible]
+[gatk_{ht_call}_compatible]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-gatk_jar = /tools/gatk-4.0.4.0/gatk-package-4.0.4.0-local.jar
-mutect_option = --native-pair-hmm-threads=8
-mutect_java_option = -XX:-UseContainerSupport -Xmx32g
 reference = {sample_dir}/reference/XXX.fa
 
 [{ht_call}]
 gpu_support = {gpu_support}
 pbrun = {sample_dir}/parabricks/pbrun
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
-mutect_option = --native-pair-hmm-threads=8
 reference = {sample_dir}/reference/XXX.fa
 
-[gatk-{summary1}-compatible]
+[gatk_{summary1}_compatible]
 qsub_option = -l s_vmem=32G,mem_req=32G
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-gatk_jar = /gatk/gatk.jar
-wgs_metrics_option =
-wgs_metrics_java_option = -XX:-UseContainerSupport -Xmx24g
 reference = {sample_dir}/reference/XXX.fa
 
 [{summary1}]
 gpu_support = {gpu_support}
 pbrun = {sample_dir}/parabricks/pbrun
 qsub_option = -l s_vmem=32G,mem_req=32G
-image = 
-singularity_option = 
-wgs_metrics_option =
 reference = {sample_dir}/reference/XXX.fa
 
-[gatk-{summary2}-compatible]
+[gatk_{summary2}_compatible]
 qsub_option = -l s_vmem=32G,mem_req=32G
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-gatk_jar = /gatk/gatk.jar
-multiple_metrics_option =
-multiple_metrics_java_option = -XX:-UseContainerSupport -Xmx24g
 reference = {sample_dir}/reference/XXX.fa
 
 [{summary2}]
 gpu_support = {gpu_support}
 pbrun = {sample_dir}/parabricks/pbrun
 qsub_option = -l s_vmem=32G,mem_req=32G
-image = 
-singularity_option = 
-multiple_metrics_option =
 reference = {sample_dir}/reference/XXX.fa
 
 [gridss]
 qsub_option = -l s_vmem=4G,mem_req=4G -pe def_slot 8
 image = {sample_dir}/image/YYY.simg
-singularity_option =
 reference = {sample_dir}/reference/XXX.fa
-gridss_option = --picardoptions VALIDATION_STRINGENCY=LENIENT -t 8
-gridss_jar = gridss-2.8.0-gridss-jar-with-dependencies.jar
-samtools_option = -@ 8
 
 [manta]
 qsub_option = -l s_vmem=2G,mem_req=2G -pe def_slot 8
 image = {sample_dir}/image/YYY.simg
-singularity_option =
 reference = {sample_dir}/reference/XXX.fa
-manta_config_option = 
-manta_workflow_option = -m local -j 8
 
-[genomonsv-parse]
+[genomonsv_parse]
 qsub_option = -l s_vmem=3G,mem_req=3G
 image = {sample_dir}/image/YYY.simg
-singularity_option =
-params = 
 
-[genomonsv-merge]
+[genomonsv_merge]
 qsub_option = -l s_vmem=3G,mem_req=3G
 image = {sample_dir}/image/YYY.simg
-singularity_option =
-params = 
 
-[genomonsv-filt]
+[genomonsv_filt]
 qsub_option = -l s_vmem=3G,mem_req=3G
 image = {sample_dir}/image/YYY.simg
-singularity_option =
 reference = {sample_dir}/reference/XXX.fa
-params = 
-sv_utils_params = 
 """
         # Not parabricks
         data_conf = conf_template.format(

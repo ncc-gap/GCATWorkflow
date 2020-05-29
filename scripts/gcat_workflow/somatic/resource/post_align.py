@@ -41,7 +41,7 @@ rm -f {INPUT_BAI}
 
 def configure(aligned_bams, gcat_conf, run_conf, sample_conf):
 
-    STAGE_NAME = "post-bwa-alignment-parabricks"
+    STAGE_NAME = "post_bwa_alignment_parabricks"
     CONF_SECTION = STAGE_NAME
     params = {
         "work_dir": run_conf.project_root,
