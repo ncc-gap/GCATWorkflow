@@ -71,9 +71,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_CRAM": input_bams[sample],
             "OUTPUT_VCF":  output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "GRIDSS_OPTION": gcat_conf.get(CONF_SECTION, "gridss_option"),
+            "GRIDSS_OPTION": gcat_conf.get(CONF_SECTION, "gridss_option") + " " + gcat_conf.get(CONF_SECTION, "gridss_threads_option"),
             "GRIDSS_JAR": gcat_conf.get(CONF_SECTION, "gridss_jar"),
-            "SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "samtools_option")
+            "SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "samtools_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_threads_option")
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

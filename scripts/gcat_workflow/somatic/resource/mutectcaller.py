@@ -82,7 +82,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_VCF":  output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
-            "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option"),
+            "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option") + " " + gcat_conf.get(CONF_SECTION, "mutect_threads_option"),
             "MUTECT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "mutect_java_option")
         }
        
@@ -147,7 +147,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_NORMAL_CRAM": input_normal_cram,
             "OUTPUT_VCF": output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option"),
+            "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option") + " " + gcat_conf.get(CONF_SECTION, "mutect_threads_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        

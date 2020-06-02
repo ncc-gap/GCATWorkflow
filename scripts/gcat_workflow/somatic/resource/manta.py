@@ -52,7 +52,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_DIR": output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MANTA_CONFIG_OPTION": gcat_conf.get(CONF_SECTION, "manta_config_option"),
-            "MANTA_WORKFLOW_OPTION": gcat_conf.get(CONF_SECTION, "manta_workflow_option"),
+            "MANTA_WORKFLOW_OPTION": gcat_conf.get(CONF_SECTION, "manta_workflow_option") + " " + gcat_conf.get(CONF_SECTION, "manta_workflow_threads_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

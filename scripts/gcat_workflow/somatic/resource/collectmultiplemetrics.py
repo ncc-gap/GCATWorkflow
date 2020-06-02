@@ -84,7 +84,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_FILE_PREFIX": output_prefix,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
-            "MULTIPLE_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_option"),
+            "MULTIPLE_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_option") + " " + gcat_conf.get(CONF_SECTION, "multiple_metrics_threads_option"),
             "MULTIPLE_METRICS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_java_option"),
         }
        
@@ -132,7 +132,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_CRAM": input_real_path,
             "OUTPUT_FILE_PREFIX": output_prefix,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "MULTIPLE_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_option"),
+            "MULTIPLE_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_option") + " " + gcat_conf.get(CONF_SECTION, "multiple_metrics_threads_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        

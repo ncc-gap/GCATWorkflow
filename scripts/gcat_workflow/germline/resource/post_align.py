@@ -62,8 +62,8 @@ def configure(aligned_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_BAI": aligned_bams[sample] + ".bai",
             "OUTPUT_CRAM": output_crams[sample],
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "SAMTOOLS_VIEW_OPTION": gcat_conf.get(CONF_SECTION, "samtools_view_option"),
-            "SAMTOOLS_INDEX_OPTION": gcat_conf.get(CONF_SECTION, "samtools_index_option")
+            "SAMTOOLS_VIEW_OPTION": gcat_conf.get(CONF_SECTION, "samtools_view_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_view_threads_option"),
+            "SAMTOOLS_INDEX_OPTION": gcat_conf.get(CONF_SECTION, "samtools_index_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_index_threads_option")
         }
         
         singularity_bind = [

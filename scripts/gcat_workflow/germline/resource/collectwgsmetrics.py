@@ -76,7 +76,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_FILE":  output_txt,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
-            "WGS_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "wgs_metrics_option"),
+            "WGS_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "wgs_metrics_option") + " " + gcat_conf.get(CONF_SECTION, "wgs_metrics_threads_option"),
             "WGS_METRICS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "wgs_metrics_java_option"),
         }
        
@@ -124,7 +124,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_CRAM": input_real_path,
             "OUTPUT_FILE": output_txt,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "WGS_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "wgs_metrics_option"),
+            "WGS_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "wgs_metrics_option") + " " + gcat_conf.get(CONF_SECTION, "wgs_metrics_threads_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        

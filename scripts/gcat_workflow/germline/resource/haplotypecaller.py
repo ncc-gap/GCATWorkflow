@@ -76,7 +76,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_VCF": output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
-            "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
+            "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
             "HAPLOTYPE_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_java_option")
         }
        
@@ -129,7 +129,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_CRAM": input_real_path,
             "OUTPUT_VCF": output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option"),
+            "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        
