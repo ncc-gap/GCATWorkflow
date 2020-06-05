@@ -69,7 +69,9 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = []
     for sample in sample_conf.haplotype_call:
         output_vcf = "haplotypecaller/%s/%s.gatk-hc.vcf" % (sample, sample)
+        output_vcf_idx = "haplotypecaller/%s/%s.gatk-hc.vcf.idx" % (sample, sample)
         output_files.append(output_vcf)
+        output_files.append(output_vcf_idx)
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],

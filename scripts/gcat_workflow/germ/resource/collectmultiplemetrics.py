@@ -55,7 +55,11 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = []
     for sample in sample_conf.multiple_metrics:
         output_prefix = "summary/%s/%s.collect-multiple-metrics" % (sample, sample)
+        output_files.append(output_prefix + ".base_distribution_by_cycle.pdf")
         output_files.append(output_prefix + ".gc_bias.pdf")
+        output_files.append(output_prefix + ".insert_size_histogram.pdf")
+        output_files.append(output_prefix + ".quality_by_cycle.pdf")
+        output_files.append(output_prefix + ".quality_distribution.pdf")
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],

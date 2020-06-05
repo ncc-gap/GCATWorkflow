@@ -9,8 +9,8 @@ rule bam_tofastq:
     output:
         "fastq/{sample}/pass.txt"
     params:
-        script = "script/{sample}/singularity_bam_tofastq.sh",
-        yaml = "script/{sample}/conf_bam_tofastq.yml"
+        script = "script/{sample}/singularity_bam-tofastq.sh",
+        yaml = "script/{sample}/conf_bam-tofastq.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -95,7 +95,8 @@ rule haplotypecaller:
     input:
         lambda wildcards: config["htc_samples"][wildcards.sample],
     output:
-        "haplotypecaller/{sample}/{sample}.gatk-hc.vcf"
+        "haplotypecaller/{sample}/{sample}.gatk-hc.vcf",
+        "haplotypecaller/{sample}/{sample}.gatk-hc.vcf.idx"
     params:
         script = "script/{sample}/singularity_gatk-haplotypecaller-parabricks.sh",
         yaml = "script/{sample}/conf_gatk-haplotypecaller-parabricks.yml"
@@ -117,7 +118,11 @@ rule collectmultiplemetrics:
     input:
         lambda wildcards: config["multiple_metrics_samples"][wildcards.sample],
     output:
-        "summary/{sample}/{sample}.collect-multiple-metrics.gc_bias.pdf"
+        "summary/{sample}/{sample}.collect-multiple-metrics.base_distribution_by_cycle.pdf",
+        "summary/{sample}/{sample}.collect-multiple-metrics.gc_bias.pdf",
+        "summary/{sample}/{sample}.collect-multiple-metrics.insert_size_histogram.pdf",
+        "summary/{sample}/{sample}.collect-multiple-metrics.quality_by_cycle.pdf",
+        "summary/{sample}/{sample}.collect-multiple-metrics.quality_distribution.pdf"
     params:
         script = "script/{sample}/singularity_gatk-collect-multiple-metrics.sh",
         yaml = "script/{sample}/conf_gatk-collect-multiple-metrics.yml"
@@ -128,7 +133,8 @@ rule gridss:
     input:
         lambda wildcards: config["gridss_samples"][wildcards.sample],
     output:
-        "gridss/{sample}/{sample}.gridss.vcf"
+        "gridss/{sample}/{sample}.gridss.vcf",
+        "gridss/{sample}/{sample}.gridss.vcf.idx"
     params:
         script = "script/{sample}/singularity_gridss.sh",
         yaml = "script/{sample}/conf_gridss.yml"
@@ -139,7 +145,8 @@ rule manta:
     input:
         lambda wildcards: config["manta_samples"][wildcards.sample],
     output:
-        "manta/{sample}/results/variants/candidateSV.vcf.gz"
+        "manta/{sample}/results/variants/candidateSV.vcf.gz",
+        "manta/{sample}/results/variants/candidateSV.vcf.gz.tbi"
     params:
         script = "script/{sample}/singularity_manta.sh",
         yaml = "script/{sample}/conf_manta.yml"
@@ -150,7 +157,10 @@ rule melt:
     input:
         lambda wildcards: config["melt_samples"][wildcards.sample],
     output:
-        "melt/{sample}/ALU.final_comp.vcf"
+        "melt/{sample}/ALU.final_comp.vcf",
+        "melt/{sample}/HERVK.final_comp.vcf",
+        "melt/{sample}/LINE1.final_comp.vcf",
+        "melt/{sample}/SVA.final_comp.vcf"
     params:
         script = "script/{sample}/singularity_melt.sh",
         yaml = "script/{sample}/conf_melt.yml"

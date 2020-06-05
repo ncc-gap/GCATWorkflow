@@ -61,8 +61,10 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = []
     for sample in sample_conf.melt:
-        output_vcf = "melt/%s/ALU.final_comp.vcf" % (sample)
-        output_files.append(output_vcf)
+        output_files.append("melt/%s/ALU.final_comp.vcf" % (sample))
+        output_files.append("melt/%s/HERVK.final_comp.vcf" % (sample))
+        output_files.append("melt/%s/LINE1.final_comp.vcf" % (sample))
+        output_files.append("melt/%s/SVA.final_comp.vcf" % (sample))
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],

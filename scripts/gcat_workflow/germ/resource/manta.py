@@ -20,6 +20,10 @@ set -o nounset
 set -o pipefail
 set -x
 
+if [ -f {OUTPUT_DIR}/runWorkflow.py ]; then
+    rm {OUTPUT_DIR}/runWorkflow.py
+fi
+
 python /manta/bin/configManta.py \\
     --bam {INPUT_CRAM} \\
     --referenceFasta {REFERENCE} \\
@@ -46,7 +50,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = []
     for sample in sample_conf.manta:
         output_vcf = "manta/%s/results/variants/candidateSV.vcf.gz" % (sample)
+        output_vcf_tbi = "manta/%s/results/variants/candidateSV.vcf.gz.tbi" % (sample)
         output_files.append(output_vcf)
+        output_files.append(output_vcf_tbi)
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],

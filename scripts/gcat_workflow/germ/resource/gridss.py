@@ -68,7 +68,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = []
     for sample in sample_conf.gridss:
         output_vcf = "gridss/%s/%s.gridss.vcf" % (sample, sample)
+        output_vcf_idx = "gridss/%s/%s.gridss.vcf.idx" % (sample, sample)
         output_files.append(output_vcf)
+        output_files.append(output_vcf_idx)
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],
