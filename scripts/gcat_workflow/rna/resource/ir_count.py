@@ -25,7 +25,6 @@ intron_retention_utils simple_count \
   {OPTION}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     import os
     
@@ -40,12 +39,12 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = IR_count(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.ir_count:
         output_dir = "%s/ir_count/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)  
-        output_file = "ir_count/{sample}/{sample}.genomonIR.result.txt".format(sample = sample)
-        output_files.append(output_file)
+        output_file = "%s/%s.genomonIR.result.txt" % (output_dir, sample)
+        output_files[sample] = output_file
         
         arguments = {
             "SAMPLE": sample,

@@ -14,54 +14,53 @@ class Bam_tofastq(stage_task.Stage_task):
 pwd                     # print current working directory
 hostname                # print hostname
 date                    # print date
-set -o errexit
-set -o nounset
+set -xv
 set -o pipefail
-set -x
-
 export LD_LIBRARY_PATH=/usr/local/lib
 bams=( `echo "{input_bam}" | tr -s ';' ' '`)
 if [ ${{#bams[@]}} -eq 1 ]; then
     bam=${{bams[0]}}
     echo $bam
-    /usr/local/bin/bamtofastq {param} filename=${{bam}} F={f1_name}.tmp F2={f2_name}.tmp T={t} S={s}.tmp O={o1_name} O2={o2_name}
-    if [ -s {f1_name}.tmp ]; then
-        mv {f1_name}.tmp {f1_name}
-        mv {f2_name}.tmp {f2_name}
-        mv {s}.tmp {s}
-    elif [ -s {s}.tmp ]; then
-        mv {s}.tmp {f1_name}
-        rm {f1_name}.tmp {f2_name}.tmp
-    fi
+    /usr/local/bin/bamtofastq {param} filename=${{bam}} F={f1_name} F2={f2_name} T={t} S={s} O={o1_name} O2={o2_name} || exit $?    
 else
-    touch {f1_name} {f2_name} {t} {s} {o1_name} {o2_name}
-    
+    echo -n > {f1_name}
+    echo -n > {f2_name}
+    echo -n > {t}
+    echo -n > {s}
+    echo -n > {o1_name}
+    echo -n > {o2_name}
     for bam in ${{bams[@]}}; do
         echo $bam
-        /usr/local/bin/bamtofastq {param} filename=${{bam}} F={f1_name}.tmp F2={f2_name}.tmp T={t}.tmp S={s}.tmp O={o1_name}.tmp O2={o2_name}.tmp
-        if [ -s {f1_name}.tmp ]; then
-            cat {f1_name}.tmp >> {f1_name}
-            cat {f2_name}.tmp >> {f2_name}
-            cat {s}.tmp >> {s}
-        elif [ -s {s}.tmp ]; then
-            cat {s}.tmp >> {f1_name}
+        /usr/local/bin/bamtofastq {param} filename=${{bam}} F={f1_name}.tmp F2={f2_name}.tmp T={t}.tmp S={s}.tmp O={o1_name}.tmp O2={o2_name}.tmp || exit $?
+        cat {f1_name}.tmp >> {f1_name} || exit $?
+        cat {f2_name}.tmp >> {f2_name} || exit $?
+        if [ -s {t}.tmp ]; then
+            cat {t}.tmp >> {t} || exit $?
         fi
-            
-        cat {t}.tmp >> {t}
-        cat {o1_name}.tmp >> {o1_name}
-        cat {o2_name}.tmp >> {o2_name}
-        
-        rm {f1_name}.tmp {f2_name}.tmp {t}.tmp {s}.tmp {o1_name}.tmp {o2_name}.tmp
+        if [ -s {s}.tmp ]; then
+            cat {s}.tmp >> {s} || exit $?
+        fi
+        if [ -s {o1_name}.tmp ]; then
+            cat {o1_name}.tmp >> {o1_name} || exit $?
+        fi
+        if [ -s {o2_name}.tmp ]; then
+            cat {o2_name}.tmp >> {o2_name} || exit $?
+        fi
+        rm {f1_name}.tmp
+        rm {f2_name}.tmp
+        rm {t}.tmp
+        rm {s}.tmp
+        rm {o1_name}.tmp
+        rm {o2_name}.tmp
     done
 fi
-touch {pass_file}
+touch {pass}
 """
 
 def configure(gcat_conf, run_conf, sample_conf):
-    import os
     
-    STAGE_NAME = "bam_tofastq"
-    CONF_SECTION = "bam_tofastq"
+    STAGE_NAME = sample_conf.SECTION_BAM_TOFASTQ
+    CONF_SECTION = sample_conf.SECTION_BAM_TOFASTQ
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
@@ -70,10 +69,10 @@ def configure(gcat_conf, run_conf, sample_conf):
         "singularity_option": gcat_conf.get(CONF_SECTION, "singularity_option")
     }
     stage_class = Bam_tofastq(params)
+    
     output_fastqs = {}
     for sample in sample_conf.bam_tofastq:
         output_dir = "%s/fastq/%s" % (run_conf.project_root, sample)
-        os.makedirs(output_dir, exist_ok=True)    
         f1_name = output_dir + "/1_1.fastq"
         f2_name = output_dir + "/1_2.fastq"
         output_fastqs[sample] = [[f1_name], [f2_name]]
@@ -87,7 +86,7 @@ def configure(gcat_conf, run_conf, sample_conf):
             "o2_name": output_dir + '/unmatched_second_output.txt',
             "t": output_dir + '/temp.txt',
             "s": output_dir + '/single_end_output.txt',
-            "pass_file": output_dir + '/pass.txt'
+            "pass": output_dir + '/pass.txt'
         }
         
         singularity_bind = [

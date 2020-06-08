@@ -47,7 +47,6 @@ python /tools/pizzly-0.37.3/scripts/flatten_json.py \
 {remove_command}
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(gcat_conf, run_conf, sample_conf):
     import os
     import gcat_workflow.rna.resource.bamtofastq as rs_bamtofastq
@@ -64,11 +63,11 @@ def configure(gcat_conf, run_conf, sample_conf):
     stage_class = Kallisto(params)
     bamtofastq_class = rs_bamtofastq.Bam_tofastq(params)
     
-    output_files = []
+    output_files = {}
     for sample in sample_conf.kallisto:
         output_dir = "%s/kallisto/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)    
-        output_files.append("kallisto/{sample}/{sample}.pizzly.table".format(sample = sample))
+        output_files[sample] = "%s/%s.pizzly.table" % (output_dir, sample)
             
         f1_name = ""
         f2_name = ""

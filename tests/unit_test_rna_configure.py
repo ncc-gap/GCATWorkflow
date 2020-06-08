@@ -142,79 +142,56 @@ list1,sampleB,sampleC,sampleE,sampleF
         data_conf = """[bam_tofastq]
 qsub_option = -l s_vmem=2G,mem_req=2G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-params = collate=1 exclude=QCFAIL,SECONDARY,SUPPLEMENTARY tryoq=0
 
 [star_alignment]
 qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-star_option = --runThreadN 6
 star_genome = {sample_dir}/reference
 
 [star_fusion]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-star_fusion_option = 
 star_genome = {sample_dir}/reference
 
 [fusionfusion_count]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-chimera_utils_count_option=
 
 [fusionfusion_merge]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-chimera_utils_merge_option=
 
 [fusionfusion]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-fusionfusion_option = --grc
-filt_option = --filter_same_gene --grc
 reference = {sample_dir}/reference/XXX.fa
 
 [expression]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
 gtf = {sample_dir}/reference/ZZZ.gtf
 
 [intron_retention]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-params = --grc
 
 [iravnet]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
 reference = {sample_dir}/reference/XXX.fa
 clinvar_db = {sample_dir}/reference/ZZZ.vcf.gz
 target_file = {sample_dir}/reference/ZZZ.bed
-gnomad_exome = https://storage.googleapis.com/gnomad-public/release/2.1.1/liftover_grch38/vcf/exomes/gnomad.exomes.r2.1.1.sites.liftover_grch38.vcf.bgz
-gnomad_genome = https://storage.googleapis.com/gnomad-public/release/3.0/vcf/genomes/gnomad.genomes.r3.0.sites.vcf.bgz
 
 [kallisto]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
 reference_fasta = {sample_dir}/reference/XXX.fa
 reference_kallisto_index = {sample_dir}/reference/ZZZ.idx
 annotation_gtf = {sample_dir}/reference/ZZZ.gtf
-pizzly_option = 
 
 [join]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-singularity_option = 
-remove_fastq = True
 """.format(sample_dir = self.DATA_DIR)
         
         f = open(self.DATA_DIR + self.GC_NAME, "w")

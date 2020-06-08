@@ -34,7 +34,6 @@ mv {OUTPUT_DIR}/fusion_fusion.result.txt {OUTPUT_DIR}/{SAMPLE}.genomonFusion.res
 mv {OUTPUT_DIR}/{SAMPLE}.fusion_fusion.result.filt.txt {OUTPUT_DIR}/{SAMPLE}.genomonFusion.result.filt.txt
 """
 
-# merge sorted bams into one and mark duplicate reads with biobambam
 def configure(input_counts, input_merges, gcat_conf, run_conf, sample_conf):
     import os
     
@@ -48,15 +47,14 @@ def configure(input_counts, input_merges, gcat_conf, run_conf, sample_conf):
         "singularity_option": gcat_conf.get(SECTION_NAME, "singularity_option")
     }
     stage_class = Fusionfusion(params)
-    output_files = []
+    output_files = {}
     for (sample, panel) in sample_conf.fusionfusion:
         output_dir = "%s/fusionfusion/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)
-        output_files.append(OUTPUT_FORMAT.format(sample = sample))
+        output_files[sample] = run_conf.project_root + "/" + OUTPUT_FORMAT.format(sample = sample)
         
         merged_count = ""
         if panel != None:
-            #merged_count = "%s/fusionfusion/control_panel/%s.merged.Chimeric.count" % (run_conf.project_root, panel)
             merged_count = "%s/%s" % (run_conf.project_root, input_merges[panel])
             
         arguments = {

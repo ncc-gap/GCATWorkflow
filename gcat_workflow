@@ -8,17 +8,17 @@ parser = argparse.ArgumentParser(prog = "gcat_workflow")
 
 parser.add_argument("--version", action = "version", version = "gcat_workflow-" + gcat_workflow.__version__)
 
-parser.add_argument('analysis_type', choices=['dna', 'rna', 'germ'], help = "analysis type")
+parser.add_argument('analysis_type', choices=['rna', 'germline', 'somatic'], help = "analysis type")
 parser.add_argument("sample_conf_file", metavar = "samplesheet.csv", type = str, help = "input sample list flie [csv]")
 parser.add_argument("project_root", metavar = "project_root_dir", type = str, help = "output root directory")
 parser.add_argument("gcat_conf_file", metavar = "gcat.cfg", type = str, help = "config file for gcat workflow")
 
 parser.add_argument("--param_check", help = "only param check", action='store_true')
-#parser.add_argument("--disable_drmaa", help = "disable drmaa", action='store_true')
 parser.add_argument('--runner', choices=['drmaa', 'qsub', 'slurm'], help = "choice runner", default='drmaa')
 parser.add_argument("--multiprocess", help = "use ruffus multiprocess", default='100', type=int)
 parser.add_argument("--verbose", help = "write messages to STDERR", default='3', type=int)
 parser.add_argument("--retry_count", help = "retry count", type = int, default=0)
+parser.add_argument("--ignore_invalid_path", help = "ignore invalid path", action='store_true')
 
 args = parser.parse_args()
 

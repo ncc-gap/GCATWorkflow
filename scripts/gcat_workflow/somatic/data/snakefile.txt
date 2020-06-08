@@ -1,0 +1,188 @@
+configfile: "config.yml"
+
+rule all:
+    input:
+        "join/all.txt"
+rule bam_tofastq:
+    input:
+        lambda wildcards: config["bam_tofastq"][wildcards.sample]
+    output:
+        "fastq/{sample}/pass.txt"
+    params:
+        script = "script/{sample}/singularity_bam_tofastq.sh",
+        yaml = "script/{sample}/conf_bam_tofastq.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule fastq:
+    input:
+        r1=lambda wildcards: config["fastq_r1"][wildcards.sample],
+        r2=lambda wildcards: config["fastq_r2"][wildcards.sample]
+    output:
+        "fastq/{sample}/pass.txt"
+    run:
+        sample = output[0].split("/")[1]
+        import os
+        link_dir = 'fastq/%s' % (sample)
+        os.makedirs(link_dir, exist_ok=True)
+        for (count, target_fastq) in enumerate(input.r1):
+            fastq_prefix, ext = os.path.splitext(target_fastq)
+            link = '%s/%d_%d%s' % (link_dir, count+1, 1, ext)
+            if not os.path.exists(link):
+                os.symlink(target_fastq, link)
+        for (count, target_fastq) in enumerate(input.r2):
+            fastq_prefix, ext = os.path.splitext(target_fastq)
+            link = '%s/%d_%d%s' % (link_dir, count+1, 2, ext)
+            if not os.path.exists(link):
+                os.symlink(target_fastq, link)
+        open(output[0], "w").close()
+
+rule bam_import:
+    input:
+        lambda wildcards: config["bam_import"][wildcards.sample]
+    output:
+        "cram/{sample}/{sample}.markdup.cram"
+    run:
+        bam_postfix = ".markdup.cram"
+        bai_postfix = ".markdup.cram.crai"
+        subdir = "cram"
+        
+        import os
+        sample = output[0].split("/")[1]
+        link_dir = '%s/%s' % (subdir, sample)
+        os.makedirs(link_dir, exist_ok=True)
+        bam = str(input)
+        prefix, ext = os.path.splitext(bam)
+        if ext == ".bam":
+            bai = ".bai"
+        elif ext == ".cram":
+            bai = ".crai"
+        linked_bam = link_dir +'/'+ sample + bam_postfix
+        linked_bai = link_dir +'/'+ sample + bai_postfix
+
+        if not os.path.exists(linked_bam):
+            os.symlink(bam, linked_bam)
+        if not os.path.exists(linked_bai):
+            if (os.path.exists(bam + bai)):
+                os.symlink(bam + bai, linked_bai)
+            elif (os.path.exists(prefix + bai)):
+                os.symlink(prefix + bai, linked_bai)
+
+rule bwa:
+    input:
+        lambda wildcards: config["aln_samples"][wildcards.sample],
+    output:
+        "cram/{sample}/{sample}.markdup.bam"
+    params:
+        script = "script/{sample}/singularity_bwa_alignment_parabricks.sh",
+        yaml = "script/{sample}/conf_bwa_alignment_parabricks.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule post_bwa:
+    input:
+        lambda wildcards: config["post_aln_samples"][wildcards.sample],
+    output:
+        "cram/{sample}/{sample}.markdup.cram"
+    params:
+        script = "script/{sample}/singularity_post_bwa_alignment_parabricks.sh",
+        yaml = "script/{sample}/conf_post_bwa_alignment_parabricks.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule mutectcaller:
+    input:
+        lambda wildcards: config["mutectcaller_samples"][wildcards.sample],
+    output:
+        "mutectcaller/{sample}/{sample}.mutectcaller.vcf"
+    params:
+        script = "script/{sample}/singularity_mutectcaller_parabricks.sh",
+        yaml = "script/{sample}/conf_mutectcaller_parabricks.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule collect_wgs_metrics:
+    input:
+        lambda wildcards: config["collect_wgs_metrics_samples"][wildcards.sample],
+    output:
+        "summary/{sample}/{sample}.collect_wgs_metrics.txt"
+    params:
+        script = "script/{sample}/singularity_collect_wgs_metrics.sh",
+        yaml = "script/{sample}/conf_collect_wgs_metrics.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule collect_multiple_metrics:
+    input:
+        lambda wildcards: config["collect_multiple_metrics_samples"][wildcards.sample],
+    output:
+        "summary/{sample}/{sample}.collect_multiple_metrics.gc_bias.pdf"
+    params:
+        script = "script/{sample}/singularity_collect_multiple_metrics.sh",
+        yaml = "script/{sample}/conf_collect_multiple_metrics.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule gridss:
+    input:
+        lambda wildcards: config["gridss_samples"][wildcards.sample],
+    output:
+        "gridss/{sample}/{sample}.gridss.vcf"
+    params:
+        script = "script/{sample}/singularity_gridss.sh",
+        yaml = "script/{sample}/conf_gridss.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule manta:
+    input:
+        lambda wildcards: config["manta_samples"][wildcards.sample],
+    output:
+        "manta/{sample}/results/variants/candidateSV.vcf.gz"
+    params:
+        script = "script/{sample}/singularity_manta.sh",
+        yaml = "script/{sample}/conf_manta.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule genomonsv_parse:
+    input:
+        lambda wildcards: config["genomonsv_parse_samples"][wildcards.sample],
+    output:
+        "genomonsv/{sample}/{sample}.junction.clustered.bedpe.gz.tbi"
+    params:
+        script = "script/{sample}/singularity_genomonsv_parse.sh",
+        yaml = "script/{sample}/conf_genomonsv_parse.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule genomonsv_merge:
+    input:
+        lambda wildcards: config["genomonsv_merge_samples"][wildcards.sample],
+    output:
+        "genomonsv/non_matched_control_panel/{sample}.merged.junction.control.bedpe.gz.tbi"
+    params:
+        script = "script/{sample}/singularity_genomonsv_merge.sh",
+        yaml = "script/{sample}/conf_genomonsv_merge.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule genomonsv_filt:
+    input:
+        lambda wildcards: config["genomonsv_filt_samples"][wildcards.sample],
+    output:
+        "genomonsv/{sample}/{sample}.genomonSV.result.filt.txt"
+    params:
+        script = "script/{sample}/singularity_genomonsv_filt.sh",
+        yaml = "script/{sample}/conf_genomonsv_filt.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule join:
+    input:
+        ["{dataset}".format(dataset=dataset) for dataset in config["output_files"]]
+    output:
+        "join/all.txt"
+    shell:
+        "touch {output}"
+

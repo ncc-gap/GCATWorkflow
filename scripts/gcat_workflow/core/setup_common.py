@@ -13,7 +13,8 @@ def create_directories(gcat_conf, run_conf, input_stages, snakefile_name):
     
     # copy gcat.cfg
     gcat_conf_name, gcat_conf_ext = os.path.splitext(os.path.basename(run_conf.gcat_conf_file))
-    shutil.copyfile(run_conf.gcat_conf_file, run_conf.project_root + '/config/' + gcat_conf_name +'_'+ gcat_conf.analysis_timestamp + gcat_conf_ext)
+    #shutil.copyfile(run_conf.gcat_conf_file, run_conf.project_root + '/config/' + gcat_conf_name +'_'+ gcat_conf.analysis_timestamp + gcat_conf_ext)
+    gcat_conf.write(run_conf.project_root + '/config/' + gcat_conf_name +'_'+ gcat_conf.analysis_timestamp + gcat_conf_ext)
     
     # copy sample.csv
     sample_conf_name, sample_conf_ext = os.path.splitext(os.path.basename(run_conf.sample_conf_file))

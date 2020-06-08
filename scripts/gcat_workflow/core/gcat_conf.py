@@ -14,13 +14,27 @@ class gcat_conf(object):
     class for job related parameters
     """
 
-    def __init__(self, conf, exist_check = True):
+    def __init__(self, conf, default_conf = "", exist_check = True):
         
         self.exist_check = exist_check
         self.software_version ={'gcat_workflow':'gcat_workflow-'+__version__} 
-        self.parsed_conf = configparser.SafeConfigParser()
-        self.parsed_conf.read(conf)
-        
+        self.parsed_conf = configparser.ConfigParser()
+        if not os.path.exists(conf):
+            raise ValueError('No conf File : \'%s\'' % (conf))
+                
+        #print([conf, default_conf])
+        if default_conf == "":
+            self.parsed_conf.read(conf)
+        else:
+            if not os.path.exists(default_conf):
+                raise ValueError('No default conf File : \'%s\'' % (default_conf))
+            self.parsed_conf.read(default_conf)
+            spec_conf = configparser.ConfigParser()
+            spec_conf.read(conf)
+            for section in spec_conf.sections():
+                for option in spec_conf.options(section):
+                    self.parsed_conf.set(section, option, spec_conf.get(section, option))
+                        
         now = datetime.datetime.now()
         self.analysis_date = date_format.format(
              year = now.year,
@@ -58,19 +72,14 @@ class gcat_conf(object):
                         __path_check(section, option)
                 else:
                     if target_option in self.parsed_conf[section]:
-                        __path_check(section, target_option)                  
+                        __path_check(section, target_option)
         else:
             if target_option == None:
                 for option in self.parsed_conf[target_section]:
                     __path_check(target_section, option)
             else:
                 __path_check(target_section, target_option) 
-                        
-    def gcat_conf_check(self):
-    
-        self._conf_check(target_section = "REFERENCE")
-        self._conf_check(target_option = "image")
-    
+
     def software_version_set(self):
         for section in self.parsed_conf.sections():
             if "image" in self.parsed_conf[section]:
@@ -97,7 +106,7 @@ class gcat_conf(object):
         return self.parsed_conf.getboolean(section, option)
 
     def path_get(self, section, option):
-        path = self.parsed_conf.get(section, option)
+        path = self.get(section, option)
         if self.exist_check and not os.path.exists(path):
             err_msg = "[%s] %s: path %s is not exists" % (section, option, path)
             raise ValueError(err_msg)
@@ -106,7 +115,11 @@ class gcat_conf(object):
     
     def safe_get(self, section, option, default):
         try:
-            return self.parsed_conf.get(section, option)
+            return self.get(section, option)
         except Exception:
             pass
         return default
+    
+    def write(self, file_path):
+        self.parsed_conf.write(open(file_path, "w"))
+        
