@@ -48,17 +48,16 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = {}
     for sample in sample_conf.manta:
-        output_vcf = "%s/manta/%s/results/variants/candidateSV.vcf.gz" % (run_conf.project_root, sample)
-        output_vcf_tbi = "%s/manta/%s/results/variants/candidateSV.vcf.gz.tbi" % (run_conf.project_root, sample)
+        output_dir = "%s/manta/%s" % (run_conf.project_root, sample)
 
         output_files[sample] = []
-        output_files[sample].append(output_vcf)
-        output_files[sample].append(output_vcf_tbi)
+        output_files[sample].append(output_dir + "/results/variants/candidateSV.vcf.gz")
+        output_files[sample].append(output_dir + "/results/variants/candidateSV.vcf.gz.tbi")
 
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],
-            "OUTPUT_DIR": output_vcf,
+            "OUTPUT_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MANTA_CONFIG_OPTION": gcat_conf.get(CONF_SECTION, "manta_config_option"),
             "MANTA_WORKFLOW_OPTION": gcat_conf.get(CONF_SECTION, "manta_workflow_option") + " " + gcat_conf.get(CONF_SECTION, "manta_workflow_threads_option"),
