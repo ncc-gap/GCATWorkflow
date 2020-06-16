@@ -381,10 +381,10 @@ A_tumor,A_normal
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[{bam2fq}]
-A_tumor,{sample_dir}/A.markdup.cram
-A_normal,{sample_dir}/A.markdup.cram
+tumor,{sample_dir}/A.markdup.cram
+normal,{sample_dir}/B.markdup.cram
 [{ht_call}]
-A_tumor,A_normal
+tumor,normal
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, ht_call = HT_CALL)
         
         f = open(ss_path, "w")
