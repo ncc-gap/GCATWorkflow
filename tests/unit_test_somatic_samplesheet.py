@@ -73,11 +73,7 @@ A_control,{sample_dir}/A.markdup.cram
 pool3,{sample_dir}/B.markdup.cram
 
 [{htcall}]
-A_tumor
-A_control
-pool1
-pool2
-pool3
+A_tumor,A_control
 
 [{summary1}]
 A_tumor
@@ -86,13 +82,16 @@ A_tumor
 A_tumor
 
 [manta]
-A_tumor
+A_tumor,A_control
 
 [gridss]
-A_tumor
+A_tumor,A_control
 
 [genomon_sv]
-A_tumor,pool1,None
+A_tumor,A_control,list1
+
+[controlpanel]
+list1,pool1,pool2,pool3
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, htcall = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         
         f = open(ss_path, "w")
@@ -116,12 +115,12 @@ A_tumor,pool1,None
         self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.markdup.cram']})
         self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.markdup.cram'})
         self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.markdup.cram', self.SAMPLE_DIR + '/B.markdup.crai']})
-        self.assertEqual(sample_conf.mutect_call, [('A_tumor', None), ('A_control', None), ('pool1', None), ('pool2', None), ('pool3', None)])
-        self.assertEqual(sample_conf.manta, ['A_tumor'])
-        self.assertEqual(sample_conf.gridss, ['A_tumor'])
+        self.assertEqual(sample_conf.mutect_call, [('A_tumor', 'A_control')])
+        self.assertEqual(sample_conf.manta, [('A_tumor', 'A_control')])
+        self.assertEqual(sample_conf.gridss, [('A_tumor', 'A_control')])
         self.assertEqual(sample_conf.wgs_metrics, ['A_tumor'])
         self.assertEqual(sample_conf.multiple_metrics, ['A_tumor'])
-        self.assertEqual(sample_conf.genomon_sv, [('A_tumor', 'pool1', None)])
+        self.assertEqual(sample_conf.genomon_sv, [('A_tumor', 'A_control', 'list1')])
 
     # --------------------------------------------------------------------
     # Not Exist
@@ -527,7 +526,203 @@ A_tumor,{sample_dir}/A.markdup.cram,{sample_dir}/B.markdup.cram
 
         self.assertTrue(fail)
 
+    # --------------------------------------------------------------------
+    # normal is None
+    # --------------------------------------------------------------------
+    def test6_01_none(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[{htcall}]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test6_02_none(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[{htcall}]
+A_tumor,None
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test6_03_none(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[manta]
+A_tumor,None
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test6_04_none(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[manta]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test6_05_none(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[gridss]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test6_06_none(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[gridss]
+A_tumor,None
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test6_07_none(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[genomon_sv]
+A_tumor,None
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test6_08_none(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+
+[genomon_sv]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test6_09_none(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq
+
+[genomon_sv]
+A_tumor,None,list1
+
+[controlpanel]
+list1,pool1
+""".format(sample_dir = self.SAMPLE_DIR, htcall = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
 
 if __name__ == '__main__':
     unittest.main()
+
 

@@ -111,8 +111,7 @@ def main(gcat_conf, run_conf, sample_conf):
     y["mutectcaller_samples"] = {}
     for (tumor, normal) in sample_conf.mutect_call:
         y["mutectcaller_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
-        if normal != None:
-            y["mutectcaller_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
+        y["mutectcaller_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
         
     y["collect_wgs_metrics_samples"] = {}
     for sample in sample_conf.wgs_metrics:
@@ -123,13 +122,15 @@ def main(gcat_conf, run_conf, sample_conf):
         y["collect_multiple_metrics_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
         
     y["gridss_samples"] = {}
-    for sample in sample_conf.gridss:
-        y["gridss_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
+    for (tumor, normal) in sample_conf.gridss:
+        y["gridss_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
+        y["gridss_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
         
     y["manta_samples"] = {}
-    for sample in sample_conf.manta:
-        y["manta_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
-    
+    for (tumor, normal) in sample_conf.manta:
+        y["manta_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
+        y["manta_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
+        
     y["genomonsv_parse_samples"] = {}
     for sample in output_genomon_parse:
         y["genomonsv_parse_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
@@ -143,8 +144,7 @@ def main(gcat_conf, run_conf, sample_conf):
     y["genomonsv_filt_samples"] = {}
     for (tumor, normal, panel) in sample_conf.genomon_sv:
         y["genomonsv_filt_samples"][tumor] = [__to_relpath(output_genomon_parse[tumor])]
-        if normal != None:
-            y["genomonsv_filt_samples"][tumor].append(__to_relpath(output_genomon_parse[normal]))
+        y["genomonsv_filt_samples"][tumor].append(__to_relpath(output_genomon_parse[normal]))
         if panel != None:
             y["genomonsv_filt_samples"][tumor].append(__to_relpath(output_genomon_merge[panel]))
         

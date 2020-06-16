@@ -75,11 +75,13 @@ class Sample_conf(abc.Sample_conf_abc):
             self.multiple_metrics += self.parse_data_general(splited[self.SECTION_MULTIPLE_METRICS])
 
         if self.SECTION_GRIDSS in splited:
-            self.gridss += self.parse_data_general(splited[self.SECTION_GRIDSS])
-
+            #self.gridss += self.parse_data_general(splited[self.SECTION_GRIDSS])
+            self.gridss += self.parse_data_tumor_normal(splited[self.SECTION_GRIDSS], sample_ids, self.SECTION_GRIDSS)
+            
         if self.SECTION_MANTA in splited:
-            self.manta += self.parse_data_general(splited[self.SECTION_MANTA])
-        
+            #self.manta += self.parse_data_general(splited[self.SECTION_MANTA])
+            self.manta += self.parse_data_tumor_normal(splited[self.SECTION_MANTA], sample_ids, self.SECTION_MANTA)
+            
         if self.SECTION_CONTROL_PANEL in splited:
             self.control_panel.update(self.parse_data_controlpanel(
                 splited[self.SECTION_CONTROL_PANEL], 

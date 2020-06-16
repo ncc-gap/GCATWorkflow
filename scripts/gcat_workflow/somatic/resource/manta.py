@@ -21,12 +21,12 @@ set -o pipefail
 set -x
 
 python /manta/bin/configManta.py \\
-    --bam {INPUT_CRAM} \\
-    --referenceFasta {REFERENCE} \\
-    --runDir {OUTPUT_DIR} {MANTA_CONFIG_OPTION}
+  --normalBam {INPUT_NORMAL_CRAM} \\
+  --tumorBam {INPUT_TUMOR_CRAM} \\
+  --referenceFasta {REFERENCE} \\
+  --runDir {OUTPUT_DIR} {MANTA_CONFIG_OPTION}
 
 python {OUTPUT_DIR}/runWorkflow.py {MANTA_WORKFLOW_OPTION}
-
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
@@ -43,12 +43,13 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     stage_class = Manta(params)
     
     output_files = {}
-    for sample in sample_conf.manta:
-        output_vcf = "%s/manta/%s/results/variants/candidateSV.vcf.gz" % (run_conf.project_root, sample)
-        output_files[sample] = output_vcf
+    for (tumor, normal) in sample_conf.manta:
+        output_vcf = "%s/manta/%s/results/variants/candidateSV.vcf.gz" % (run_conf.project_root, tumor)
+        output_files[tumor] = output_vcf
         arguments = {
-            "SAMPLE": sample,
-            "INPUT_CRAM": input_bams[sample],
+            "SAMPLE": tumor,
+            "INPUT_TUMOR_CRAM": input_bams[tumor],
+            "INPUT_NORMAL_CRAM": input_bams[normal],
             "OUTPUT_DIR": output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MANTA_CONFIG_OPTION": gcat_conf.get(CONF_SECTION, "manta_config_option"),
@@ -56,9 +57,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
-        if sample in sample_conf.bam_import_src:
-            singularity_bind += sample_conf.bam_import_src[sample]
+        if tumor in sample_conf.bam_import_src:
+            singularity_bind += sample_conf.bam_import_src[tumor]
             
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, sample = tumor)
     
     return output_files

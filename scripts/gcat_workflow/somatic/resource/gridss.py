@@ -30,10 +30,20 @@ output_pref=${{output_dir}}/{SAMPLE}
     -h \\
     -b \\
     {SAMTOOLS_OPTION} \\
-    {INPUT_CRAM} > ${{output_pref}}.temp.bam
+    {INPUT_TUMOR_CRAM} > ${{output_pref}}.tumor.temp.bam
+
+/tools/samtools-1.9/samtools view \\
+    -T {REFERENCE} \\
+    -h \\
+    -b \\
+    {SAMTOOLS_OPTION} \\
+    {INPUT_NORMAL_CRAM} > ${{output_pref}}.normal.temp.bam
 
 /tools/samtools-1.9/samtools index \\
-    ${{output_pref}}.temp.bam
+    ${{output_pref}}.tumor.temp.bam
+    
+/tools/samtools-1.9/samtools index \\
+    ${{output_pref}}.normal.temp.bam
 
 /opt/gridss/gridss.sh \\
     -o {OUTPUT_VCF}  \\
@@ -42,11 +52,13 @@ output_pref=${{output_dir}}/{SAMPLE}
     -j /opt/gridss/{GRIDSS_JAR} \\
     -w ${{output_dir}} \\
     {GRIDSS_OPTION} \\
-    ${{output_pref}}.temp.bam
+    ${{output_pref}}.normal.temp.bam \\
+    ${{output_pref}}.tumor.temp.bam
 
-rm ${{output_pref}}.temp.bam
-rm ${{output_pref}}.temp.bam.bai
-
+rm ${{output_pref}}.tumor.temp.bam
+rm ${{output_pref}}.tumor.temp.bam.bai
+rm ${{output_pref}}.normal.temp.bam
+rm ${{output_pref}}.normal.temp.bam.bai
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
@@ -63,12 +75,13 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     stage_class = Gridss(params)
     
     output_files = {}
-    for sample in sample_conf.gridss:
-        output_vcf = "%s/gridss/%s/%s.gridss.vcf" % (run_conf.project_root, sample, sample)
-        output_files[sample] = output_vcf
+    for (tumor, normal) in sample_conf.gridss:
+        output_vcf = "%s/gridss/%s/%s.gridss.vcf" % (run_conf.project_root, tumor, tumor)
+        output_files[tumor] = output_vcf
         arguments = {
-            "SAMPLE": sample,
-            "INPUT_CRAM": input_bams[sample],
+            "SAMPLE": tumor,
+            "INPUT_TUMOR_CRAM": input_bams[tumor],
+            "INPUT_NORMAL_CRAM": input_bams[normal],
             "OUTPUT_VCF":  output_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GRIDSS_OPTION": gcat_conf.get(CONF_SECTION, "gridss_option") + " " + gcat_conf.get(CONF_SECTION, "gridss_threads_option"),
@@ -77,9 +90,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
-        if sample in sample_conf.bam_import_src:
-            singularity_bind += sample_conf.bam_import_src[sample]
+        if tumor in sample_conf.bam_import_src:
+            singularity_bind += sample_conf.bam_import_src[tumor]
             
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, sample = tumor)
     
     return output_files

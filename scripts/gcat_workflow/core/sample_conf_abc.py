@@ -349,7 +349,10 @@ class Sample_conf_abc(object):
         analysis = []
         for row in _data:
             normalID = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
-            if normalID != None and not normalID in sample_list:
+            if normalID == None:
+                err_msg = "[%s] section, None cannot be set" % (section_name)
+                raise ValueError(err_msg)
+            elif not normalID in sample_list:
                 err_msg = "[%s] section, %s is not defined" % (section_name, normalID)
                 raise ValueError(err_msg)
             analysis.append((row[0], normalID))
@@ -361,7 +364,10 @@ class Sample_conf_abc(object):
         analysis = []
         for row in _data:
             normalID = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
-            if normalID != None and not normalID in sample_list:
+            if normalID == None:
+                err_msg = "[%s] section, None cannot be set" % (section_name)
+                raise ValueError(err_msg)
+            elif not normalID in sample_list:
                 err_msg = "[%s] section, %s is not defined" % (section_name, normalID)
                 raise ValueError(err_msg)
 

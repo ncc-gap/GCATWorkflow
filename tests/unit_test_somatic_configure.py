@@ -76,7 +76,6 @@ pool3,{sample_dir}/B.markdup.cram
 
 [{ht_call}]
 A_tumor, A_control
-A_control
 
 [{summary1}]
 A_tumor
@@ -85,14 +84,13 @@ A_tumor
 A_tumor
 
 [manta]
-A_tumor
+A_tumor, A_control
 
 [gridss]
-A_tumor
+A_tumor, A_control
 
 [genomon_sv]
 A_tumor,A_control,list1
-A_control,None,list1
 
 [controlpanel]
 list1,pool1,pool2,pool3
@@ -361,8 +359,9 @@ A_tumor,{sample_dir}/A.markdup.cram
         
         data_sample = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+A_normal,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 [{ht_call}]
-A_tumor
+A_tumor,A_normal
 """.format(sample_dir = self.SAMPLE_DIR, ht_call = HT_CALL)
         
         f = open(ss_path, "w")
@@ -383,8 +382,9 @@ A_tumor
         
         data_sample = """[{bam2fq}]
 A_tumor,{sample_dir}/A.markdup.cram
+A_normal,{sample_dir}/A.markdup.cram
 [{ht_call}]
-A_tumor
+A_tumor,A_normal
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, ht_call = HT_CALL)
         
         f = open(ss_path, "w")
@@ -405,8 +405,9 @@ A_tumor
         
         data_sample = """[{bamimp}]
 A_tumor,{sample_dir}/A.markdup.cram
+A_normal,{sample_dir}/A.markdup.cram
 [{ht_call}]
-A_tumor
+A_tumor,A_normal
 """.format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP, ht_call = HT_CALL)
         
         f = open(ss_path, "w")
