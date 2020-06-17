@@ -22,6 +22,8 @@ set -o nounset
 set -o pipefail
 set -x
 
+rm -rf {WORK_DIR}/*
+
 /tools/bwa-0.7.15/bwa mem \\
   {BWA_OPTION} \\
   -R "@RG\\tID:{SAMPLE_NAME}\\tPL:{READ_GROUP_PL}\\tLB:{READ_GROUP_LB}\\tSM:{SAMPLE_NAME}\\tPU:{READ_GROUP_PU}" \\
@@ -62,6 +64,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 set -x
+
+rm -rf {OUTPUT_DIR}/*
 
 {CAT}
 {PBRUN} fq2bam \\

@@ -20,6 +20,10 @@ set -o nounset
 set -o pipefail
 set -x
 
+if [ -f {OUTPUT_DIR}/runWorkflow.py ]; then
+    rm {OUTPUT_DIR}/runWorkflow.py
+fi
+
 python /manta/bin/configManta.py \\
   --normalBam {INPUT_NORMAL_CRAM} \\
   --tumorBam {INPUT_TUMOR_CRAM} \\
