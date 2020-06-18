@@ -54,7 +54,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "SAMPLE": tumor,
             "INPUT_TUMOR_CRAM": input_bams[tumor],
             "INPUT_NORMAL_CRAM": input_bams[normal],
-            "OUTPUT_DIR": output_vcf,
+            "OUTPUT_DIR":  "%s/manta/%s" % (run_conf.project_root, tumor),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MANTA_CONFIG_OPTION": gcat_conf.get(CONF_SECTION, "manta_config_option"),
             "MANTA_WORKFLOW_OPTION": gcat_conf.get(CONF_SECTION, "manta_workflow_option") + " " + gcat_conf.get(CONF_SECTION, "manta_workflow_threads_option"),
