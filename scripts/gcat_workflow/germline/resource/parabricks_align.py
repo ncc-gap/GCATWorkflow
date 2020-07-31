@@ -126,9 +126,6 @@ def _compatible(gcat_conf, run_conf, sample_conf):
             "WORK_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option") + " " + gcat_conf.get(CONF_SECTION, "bwa_threads_option"),
-            "READ_GROUP_PL": gcat_conf.get(CONF_SECTION, "read_group_pl"),
-            "READ_GROUP_LB": gcat_conf.get(CONF_SECTION, "read_group_lb"),
-            "READ_GROUP_PU": gcat_conf.get(CONF_SECTION, "read_group_pu"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
             "GATK_SORT_OPTION": gcat_conf.get(CONF_SECTION, "gatk_sort_option"),
             "GATK_SORT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gatk_sort_java_option"),
@@ -172,7 +169,7 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
         readgroups = open(sample_conf.readgroup[sample]).readlines()
         input_params = ""
         for i in range(len(sample_conf.fastq[sample][0])):
-            input_params += '--in-fq %s %s "%s"' % (sample_conf.fastq[sample][0][i], sample_conf.fastq[sample][1][i], readgroups[i].rstrip())
+            input_params += ' --in-fq %s %s "%s"' % (sample_conf.fastq[sample][0][i], sample_conf.fastq[sample][1][i], readgroups[i].rstrip())
             
         arguments = {
             "SAMPLE_NAME": sample,
@@ -182,9 +179,6 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option") + " " + gcat_conf.get(CONF_SECTION, "bwa_threads_option"),
-            "READ_GROUP_PL": gcat_conf.get(CONF_SECTION, "read_group_pl"),
-            "READ_GROUP_LB": gcat_conf.get(CONF_SECTION, "read_group_lb"),
-            "READ_GROUP_PU": gcat_conf.get(CONF_SECTION, "read_group_pu"),
         }
         
         singularity_bind = [
