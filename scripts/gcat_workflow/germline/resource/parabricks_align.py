@@ -52,7 +52,7 @@ do
       -O={WORK_DIR}/{SAMPLE_NAME}_$NUM.bam \\
       --SORT_ORDER=coordinate
       
-    SORTED_BAMS=$SORTED_BAMS" I={WORK_DIR}/{SAMPLE_NAME}_$NUM.bam"
+    SORTED_BAMS=$SORTED_BAMS" -I={WORK_DIR}/{SAMPLE_NAME}_$NUM.bam"
     REMOVE_BAMS=$REMOVE_BAMS" {WORK_DIR}/{SAMPLE_NAME}_$NUM.bam"
 done
 
