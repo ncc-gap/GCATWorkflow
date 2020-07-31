@@ -102,11 +102,11 @@ class Sample_conf_abc(object):
             return os.path.exists(file_path)
         return True
     
-    def split_section_data(self, _data, input_sections, analysis_sections, controlpanel_sections = []):
+    def split_section_data(self, _data, input_sections, analysis_sections, controlpanel_sections = [], extend_sections = []):
         
         split_data = {}
         sampleID_list = []
-        except_sections = input_sections + analysis_sections + controlpanel_sections
+        except_sections = input_sections + analysis_sections + controlpanel_sections + extend_sections
         mode = ""
         for row in _data:
             if row[0].startswith('['):
@@ -131,7 +131,7 @@ class Sample_conf_abc(object):
                     raise ValueError(err_msg)
 
                 sampleID_list.append(sampleID)
-            elif mode in analysis_sections:
+            elif mode in (analysis_sections + extend_sections):
                 if not sampleID in sampleID_list:
                     err_msg = "%s section, %s is not defined" % (mode, sampleID)
                     raise ValueError(err_msg)
@@ -146,16 +146,7 @@ class Sample_conf_abc(object):
                 
             split_data[mode].append(row)
         
-        for mode in analysis_sections:
-            if not mode in split_data:
-                continue
-            l = [x[0] for x in split_data[mode]]
-            dup = [x for x in set(l) if l.count(x) > 1]
-            if len(dup) > 0:
-                err_msg = "%s section, %s is duplicated" % (mode, ",".join(dup))
-                raise ValueError(err_msg)
-        
-        for mode in controlpanel_sections:
+        for mode in (analysis_sections + controlpanel_sections + extend_sections):
             if not mode in split_data:
                 continue
             l = [x[0] for x in split_data[mode]]
@@ -379,6 +370,38 @@ class Sample_conf_abc(object):
             analysis.append((row[0], normalID, controlpanelID))
         return analysis
 
+    def parse_data_readgroup(self, _data, sample_list, section_name):
+        # analysis section type readgroup (sample, /path/to/metadata.txt)
+        
+        keys = [x[0] for x in _data]
+        for key in sample_list:
+            if not key in keys:
+                err_msg = "[%s] section, %s is not set" % (section_name, key)
+                raise ValueError(err_msg)
+                
+        metadata = {}
+        metadata_src = {}
+        for row in _data:
+            sampleID = row[0]
+            file_path = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
+            
+            if file_path == None:
+                err_msg = "[%s] section, None cannot be set" % (section_name)
+                raise ValueError(err_msg)
+                
+            if not self._exists(file_path):
+                err_msg = "[%s] section, %s does not exists" % (section_name, file_path)
+                raise ValueError(err_msg)
+                
+            if not sampleID in sample_list:
+                err_msg = "[%s] section, %s is not defined" % (section_name, sampleID)
+                raise ValueError(err_msg)
+                
+            metadata[sampleID] = file_path
+            metadata_src[sampleID] = [file_path] + self._link_sources(file_path)
+        
+        return {"metadata": metadata, "metadata_src": metadata_src}
+    
     def parse_data(self, _data ):
         pass
 

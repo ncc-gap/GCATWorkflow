@@ -41,6 +41,9 @@ class SubmitTest(unittest.TestCase):
             "/A.markdup.cram.crai",
             "/B.markdup.cram",
             "/B.markdup.crai",
+            "/A.metadata.txt",
+            "/B.metadata.txt",
+            "/C.metadata.txt",
         ]
         for p in touch_files:
             open(self.SAMPLE_DIR + p, "w").close()
@@ -93,6 +96,12 @@ A_tumor
 
 [gridss]
 A_tumor
+
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
+pool1,{sample_dir}/B.metadata.txt
+pool2,{sample_dir}/C.metadata.txt
+A_control,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, htcall = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         
         f = open(ss_path, "w")
@@ -122,6 +131,18 @@ A_tumor
         self.assertEqual(sample_conf.gridss, ['A_tumor'])
         self.assertEqual(sample_conf.wgs_metrics, ['A_tumor'])
         self.assertEqual(sample_conf.multiple_metrics, ['A_tumor'])
+        self.assertEqual(sample_conf.readgroup, {
+            'A_tumor': self.SAMPLE_DIR + '/A.metadata.txt',
+            'pool1': self.SAMPLE_DIR + '/B.metadata.txt',
+            'pool2': self.SAMPLE_DIR + '/C.metadata.txt',
+            'A_control': self.SAMPLE_DIR + '/A.metadata.txt'
+        })
+        self.assertEqual(sample_conf.readgroup_src, {
+            'A_tumor': [self.SAMPLE_DIR + '/A.metadata.txt'],
+            'pool1': [self.SAMPLE_DIR + '/B.metadata.txt'],
+            'pool2': [self.SAMPLE_DIR + '/C.metadata.txt'],
+            'A_control': [self.SAMPLE_DIR + '/A.metadata.txt']
+        })
 
     # --------------------------------------------------------------------
     # Not Exist
@@ -222,10 +243,50 @@ pool3,{sample_dir}/X.markdup.cram,,,
 
         self.assertTrue(fail)
 
+    def test2_06_not_exists(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+[readgroup]
+A_tumor,{sample_dir}/A1.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+    
+    def test2_07_not_exists(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[{bam2fq}]
+A_control,{sample_dir}/A.markdup.cram
+[readgroup]
+A_control,{sample_dir}/A1.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+        
     # --------------------------------------------------------------------
     # Not defined
     # --------------------------------------------------------------------
-    def test3_03_undefine(self):
+    def test3_01_undefine(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
@@ -246,6 +307,84 @@ B_tumor
 
         self.assertTrue(fail)
 
+    def test3_02_undefine(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test3_03_undefine(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+        
+    def test3_04_undefine(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[{bam2fq}]
+A_control,{sample_dir}/A.markdup.cram
+""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test3_05_undefine(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[{bam2fq}]
+A_tumor,{sample_dir}/A.markdup.cram
+A_control,{sample_dir}/A.markdup.cram
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+        
     # --------------------------------------------------------------------
     # Duplicate
     # --------------------------------------------------------------------

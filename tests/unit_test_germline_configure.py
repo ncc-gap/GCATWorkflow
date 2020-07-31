@@ -58,11 +58,16 @@ class ConfigureTest(unittest.TestCase):
             "/samples/B.markdup.crai",
             "/reference/XXX.fa",
             "/image/YYY.simg",
-            "/parabricks/pbrun"
+            "/parabricks/pbrun",
         ]
         for p in touch_files:
             open(self.DATA_DIR + p, "w").close()
         
+        for p in ["/samples/A.metadata.txt", "/samples/B.metadata.txt", "/samples/C.metadata.txt"]:
+            f = open(self.DATA_DIR + p, "w")
+            f.write("@RG:xxx\n@RG:xxx\n@RG:xxx")
+            f.close()
+
         data_sample = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq
@@ -95,6 +100,12 @@ A_tumor
 
 [gridss]
 A_tumor
+
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
+pool1,{sample_dir}/B.metadata.txt
+pool2,{sample_dir}/C.metadata.txt
+A_control,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         
         f = open(self.DATA_DIR + self.SS_NAME, "w")
@@ -291,6 +302,8 @@ reference = {sample_dir}/reference/XXX.fa
         
         data_sample = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -311,6 +324,8 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
         
         data_sample = """[{bam2fq}]
 A_tumor,{sample_dir}/A.markdup.cram
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ)
         
         f = open(ss_path, "w")
@@ -353,6 +368,8 @@ A_tumor,{sample_dir}/A.markdup.cram
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 [{ht_call}]
 A_tumor
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, ht_call = HT_CALL)
         
         f = open(ss_path, "w")
@@ -375,6 +392,8 @@ A_tumor
 A_tumor,{sample_dir}/A.markdup.cram
 [{ht_call}]
 A_tumor
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, ht_call = HT_CALL)
         
         f = open(ss_path, "w")
