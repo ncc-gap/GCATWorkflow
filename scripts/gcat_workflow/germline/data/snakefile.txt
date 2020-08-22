@@ -94,8 +94,8 @@ rule haplotypecaller:
     input:
         lambda wildcards: config["haplotypecaller_samples"][wildcards.sample],
     output:
-        "haplotypecaller/{sample}/{sample}.haplotypecaller.vcf",
-        "haplotypecaller/{sample}/{sample}.haplotypecaller.vcf.idx"
+        "haplotypecaller/{sample}/{sample}.haplotypecaller.g.vcf",
+        "haplotypecaller/{sample}/{sample}.haplotypecaller.g.vcf.idx"
     params:
         script = "script/{sample}/singularity_haplotypecaller_parabricks.sh",
         yaml = "script/{sample}/conf_haplotypecaller_parabricks.yml"

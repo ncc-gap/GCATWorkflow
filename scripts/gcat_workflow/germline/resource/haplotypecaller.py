@@ -69,8 +69,8 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = {}
     for sample in sample_conf.haplotype_call:
         output_dir = "%s/haplotypecaller/%s" % (run_conf.project_root, sample) 
-        output_vcf = "%s/%s.haplotypecaller.vcf" % (output_dir, sample)
-        output_vcf_idx = "%s/%s.haplotypecaller.vcf.idx" % (output_dir, sample)
+        output_vcf = "%s/%s.haplotypecaller.g.vcf" % (output_dir, sample)
+        output_vcf_idx = "%s/%s.haplotypecaller.g.vcf.idx" % (output_dir, sample)
         output_files[sample] = []
         output_files[sample].append(output_vcf)
         output_files[sample].append(output_vcf_idx)
@@ -118,8 +118,8 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.haplotype_call:
         output_dir = "%s/haplotypecaller/%s" % (run_conf.project_root, sample) 
         os.makedirs(output_dir, exist_ok = True)
-        output_vcf = "%s/%s.haplotypecaller.vcf" % (output_dir, sample)
-        output_vcf_idx = "%s/%s.haplotypecaller.vcf.idx" % (output_dir, sample)
+        output_vcf = "%s/%s.haplotypecaller.g.vcf" % (output_dir, sample)
+        output_vcf_idx = "%s/%s.haplotypecaller.g.vcf.idx" % (output_dir, sample)
         output_files[sample] = []
         output_files[sample].append(output_vcf)
         output_files[sample].append(output_vcf_idx)
