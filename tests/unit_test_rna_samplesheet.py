@@ -12,7 +12,7 @@ import shutil
 import unittest
 import gcat_workflow.rna.sample_conf as sc
 
-class SubmitTest(unittest.TestCase):
+class ConfigureTest(unittest.TestCase):
     
     SAMPLE_DIR = "/tmp/temp-test/gcat_test_rna_samplesheet"
     REMOVE = True
@@ -68,6 +68,9 @@ A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 [bam_import],,,,
 pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
 ,,,,
+[sra_fastq_dump],,,,
+pool4,RUNID123456
+
 [fusionfusion],,,,
 A_tumor,list1,,
 A_control,None,,
@@ -96,7 +99,7 @@ pool2,,,,
 pool3,,,,
 ,,,,
 [controlpanel]
-list1,pool1,pool2,pool3
+list1,pool1,pool2,pool3,pool4
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -121,6 +124,7 @@ list1,pool1,pool2,pool3
             'pool2_s': [[self.SAMPLE_DIR + '/C1_1.fq', self.SAMPLE_DIR + '/C1_2.fq'], []],
         })
 
+        self.assertEqual(sample_conf.sra_fastq_dump, {'pool4': 'RUNID123456'})
         self.assertEqual(sample_conf.bam_tofastq, {'A_control': self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam'})
         self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam']})
         self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam'})
@@ -128,7 +132,7 @@ list1,pool1,pool2,pool3
         self.assertEqual(sample_conf.fusionfusion, [('A_tumor', 'list1'), ('A_control', None)])
         self.assertEqual(sample_conf.expression, ['A_tumor', 'A_tumor_s'])
         self.assertEqual(sample_conf.qc, ['A_tumor', 'A_control', 'pool1', 'pool2', 'pool3'])
-        self.assertEqual(sample_conf.control_panel, {'list1': ['pool1', 'pool2', 'pool3']})
+        self.assertEqual(sample_conf.control_panel, {'list1': ['pool1', 'pool2', 'pool3', 'pool4']})
         self.assertEqual(sample_conf.star_fusion, ['A_tumor'])
         self.assertEqual(sample_conf.ir_count, ['A_tumor'])
         self.assertEqual(sample_conf.iravnet, ['A_tumor'])
@@ -454,12 +458,9 @@ pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
 
     def test4_04_duplicate(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
-        data = """[fastq],,,,
-A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
-[bam_tofastq],,,,
-A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
-[bam_import],,,,
-pool1,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
+        data = """[sra_fastq_dump],,,,
+tumorA,RUNID123
+tumorA,RUNID456
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -474,14 +475,12 @@ pool1,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
 
         self.assertTrue(fail)
 
-    def test4_05_duplicate(self):
+    def test5_01_duplicate(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
 [bam_tofastq],,,,
-pool3,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
-[bam_import],,,,
-pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
+A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -496,14 +495,12 @@ pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
 
         self.assertTrue(fail)
 
-    def test4_06_duplicate(self):
+    def test5_02_duplicate(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
-pool3,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
-[bam_tofastq],,,,
-A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
 [bam_import],,,,
-pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
+A_tumor,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -518,8 +515,87 @@ pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
 
         self.assertTrue(fail)
 
+    def test5_03_duplicate(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[fastq],,,,
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
+[sra_fastq_dump],,,,
+A_tumor,RUNID123
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sample_conf = sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
 
-    def test4_07_duplicate(self):
+        self.assertTrue(fail)
+
+    def test5_04_duplicate(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[bam_tofastq],,,,
+A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
+[bam_import],,,,
+A_tumor,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sample_conf = sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test5_05_duplicate(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[bam_tofastq],,,,
+A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
+[sra_fastq_dump],,,,
+A_tumor,RUNID123
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sample_conf = sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test5_06_duplicate(self):
+        ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
+        data = """[bam_import],,,,
+A_tumor,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
+[sra_fastq_dump],,,,
+A_tumor,RUNID123
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data)
+        f.close()
+        try:
+            fail = False
+            sample_conf = sc.Sample_conf(ss_path)
+        except Exception as e:
+            print(e)
+            fail = True
+
+        self.assertTrue(fail)
+
+    def test5_07_duplicate(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
@@ -548,7 +624,7 @@ list1,pool1
 
         self.assertTrue(fail)
 
-    def test4_08_duplicate(self):
+    def test5_08_duplicate(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
@@ -570,7 +646,7 @@ A_tumor
 
         self.assertTrue(fail)
 
-    def test4_09_duplicate(self):
+    def test5_09_duplicate(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
@@ -592,7 +668,7 @@ A_tumor
 
         self.assertTrue(fail)
 
-    def test4_10_duplicate(self):
+    def test5_10_duplicate(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,
@@ -622,7 +698,7 @@ list1,pool2
     # --------------------------------------------------------------------
     # Format error
     # --------------------------------------------------------------------
-    def test5_01_unformat_ok(self):
+    def test6_01_unformat_ok(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
 A_tumor,{sample_dir}/A1.fastq
@@ -640,7 +716,7 @@ A_tumor,{sample_dir}/A1.fastq
 
         self.assertFalse(fail)
 
-    def test5_02_unformat_ok(self):
+    def test6_02_unformat_ok(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,{sample_dir}/A2.fastq
@@ -658,7 +734,7 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,{sample_dir}/A2.fastq
 
         self.assertFalse(fail)
 
-    def test5_03_unformat(self):
+    def test6_03_unformat(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[bam_tofastq]
 {sample_dir}/A.Aligned.sortedByCoord.out.bam
@@ -676,7 +752,7 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,{sample_dir}/A2.fastq
 
         self.assertTrue(fail)
 
-    def test5_04_unformat(self):
+    def test6_04_unformat(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[bam_tofastq]
 A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,{sample_dir}/B.Aligned.sortedByCoord.out.bam
@@ -694,7 +770,7 @@ A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,{sample_dir}/B.Aligned.sort
 
         self.assertTrue(fail)
 
-    def test5_05_unformat(self):
+    def test6_05_unformat(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[bam_import]
 {sample_dir}/B.Aligned.sortedByCoord.out.bam
@@ -712,7 +788,7 @@ A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,{sample_dir}/B.Aligned.sort
 
         self.assertTrue(fail)
 
-    def test5_06_unformat(self):
+    def test6_06_unformat(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[bam_import]
 A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,{sample_dir}/B.Aligned.sortedByCoord.out.bam
@@ -730,7 +806,7 @@ A_tumor,{sample_dir}/A.Aligned.sortedByCoord.out.bam,{sample_dir}/B.Aligned.sort
 
         self.assertTrue(fail)
 
-    def test5_07_unformat(self):
+    def test6_07_unformat(self):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq],,,,
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq,,

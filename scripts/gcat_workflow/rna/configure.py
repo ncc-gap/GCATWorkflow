@@ -16,15 +16,22 @@ def link_import_attached_files(run_conf, bam_import_stage, bam_postfix, junction
         if not os.path.exists(link_file):
             os.symlink(source_file, link_file)
 
+def touch_sra_fastq_dump(run_conf, sra_fastq_dump_stage):
+    for sample in sra_fastq_dump_stage:
+        wdir = run_conf.project_root + '/sra_fastq_dump/' + sample
+        os.makedirs(wdir, exist_ok=True)
+        open(wdir + '/' + sample + ".txt", "w").close()
+
 def main(gcat_conf, run_conf, sample_conf):
     
     # preparation
     import gcat_workflow.core.setup_common as setup
-    input_stages = (sample_conf.bam_import, sample_conf.fastq, sample_conf.bam_tofastq)
+    input_stages = (sample_conf.bam_import, sample_conf.fastq, sample_conf.bam_tofastq, sample_conf.sra_fastq_dump)
     setup.create_directories(gcat_conf, run_conf, input_stages, 'rna/data/snakefile.txt')
     bam_tofastq_stages = (sample_conf.bam_tofastq, )
     setup.touch_bam_tofastq(run_conf, bam_tofastq_stages)
-    
+    touch_sra_fastq_dump(run_conf,  sample_conf.sra_fastq_dump)
+
     # dump conf.yaml
     import gcat_workflow.rna.resource.star_align as rs_align
     y = setup.dump_yaml_input_section(
@@ -67,6 +74,11 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.rna.resource.bamtofastq as rs_bamtofastq
     output_fastqs = rs_bamtofastq.configure(gcat_conf, run_conf, sample_conf)
     
+    # SRA fastq-dump
+    import gcat_workflow.rna.resource.sra_fastq_dump as rs_sra_fastq_dump
+    output_sra_fastq_dump = rs_sra_fastq_dump.configure(gcat_conf, run_conf, sample_conf)
+    output_fastqs.update(output_sra_fastq_dump)
+
     # star
     for sample in output_fastqs:
         sample_conf.fastq[sample] = output_fastqs[sample]
@@ -136,7 +148,15 @@ def main(gcat_conf, run_conf, sample_conf):
             else:
                 values.append(__to_relpath(dic[key]))
         return values
-
+    
+    y["sra_fastq_dump"] = {}
+    output_dumps = {}
+    for sample in sample_conf.sra_fastq_dump:
+        y["sra_fastq_dump"][sample] = "sra_fastq_dump/%s/%s.txt" % (sample, sample)
+        y["aln_samples"][sample] = "fastq/%s/pass.txt" % (sample)
+        output_dumps[sample] = rs_align.OUTPUT_BAM_FORMAT.format(sample=sample)
+    
+    y["output_files"].extend(__dic_values(output_dumps))
     y["output_files"].extend(__dic_values(output_fusionfusions))
     y["output_files"].extend(__dic_values(output_star_fusions))
     y["output_files"].extend(__dic_values(output_ir_counts))

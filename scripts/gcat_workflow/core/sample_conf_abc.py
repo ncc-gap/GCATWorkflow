@@ -401,7 +401,23 @@ class Sample_conf_abc(object):
             metadata_src[sampleID] = [file_path] + self._link_sources(file_path)
         
         return {"metadata": metadata, "metadata_src": metadata_src}
-    
+
+    def parse_data_parameter(self, _data, section_name):
+        # fastq-dump section type fastq-dump (sample, RUNID)
+        
+        params = {}
+        for row in _data:
+            sampleID = row[0]
+            param = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
+            
+            if param == None:
+                err_msg = "[%s] section, None cannot be set" % (section_name)
+                raise ValueError(err_msg)
+                
+            params[sampleID] = param
+        
+        return params
+
     def parse_data(self, _data ):
         pass
 

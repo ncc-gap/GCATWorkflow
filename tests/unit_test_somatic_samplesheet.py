@@ -19,7 +19,7 @@ HT_CALL = "mutectcaller_parabricks"
 SUMMARY1 = "collect_wgs_metrics"
 SUMMARY2 = "collect_multiple_metrics"
 
-class SubmitTest(unittest.TestCase):
+class ConfigureTest(unittest.TestCase):
     
     SAMPLE_DIR = "/tmp/temp-test/gcat_test_somatic_samplesheet"
     REMOVE = True

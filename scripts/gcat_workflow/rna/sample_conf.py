@@ -13,7 +13,8 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_STAR_FUSION = "star_fusion"
     SECTION_KALLISTO = "kallisto"
     SECTION_CONTROL_PANEL = "controlpanel"
-    
+    SECTION_SRA_FASTQ_DUMP = "sra_fastq_dump"
+
     def __init__(self, sample_conf_file, exist_check = True):
         self.fastq = {}
         self.fastq_src = {}
@@ -29,12 +30,13 @@ class Sample_conf(abc.Sample_conf_abc):
         self.iravnet = []
         self.star_fusion = []
         self.kallisto = []
+        self.sra_fastq_dump = {}
         self.exist_check = exist_check
         self.parse_file(sample_conf_file)
     
     def parse_data(self, _data):
         
-        input_sections = [self.SECTION_FASTQ , self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ]
+        input_sections = [self.SECTION_FASTQ , self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ, self.SECTION_SRA_FASTQ_DUMP]
         analysis_sections = [
             self.SECTION_FUSIONFUSION, self.SECTION_STAR_FUSION,
             self.SECTION_EXPRESSION, self.SECTION_IR_COUNT, self.SECTION_IRAVNET, self.SECTION_KALLISTO,
@@ -57,6 +59,9 @@ class Sample_conf(abc.Sample_conf_abc):
             parsed_bam_import = self.parse_data_bam_import(splited[self.SECTION_BAM_IMPORT])
             self.bam_import.update(parsed_bam_import["bam_import"])
             self.bam_import_src.update(parsed_bam_import["bam_import_src"])
+        
+        if self.SECTION_SRA_FASTQ_DUMP in splited:
+            self.sra_fastq_dump = self.parse_data_parameter(splited[self.SECTION_SRA_FASTQ_DUMP], self.SECTION_SRA_FASTQ_DUMP)
         
         if self.SECTION_EXPRESSION in splited:
             self.expression += self.parse_data_general(splited[self.SECTION_EXPRESSION])

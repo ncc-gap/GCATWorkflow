@@ -4,6 +4,17 @@ rule all:
     input:
         "join/all.txt"
 
+rule sra_fastq_dump:
+    input:
+        lambda wildcards: config["sra_fastq_dump"][wildcards.sample]
+    output:
+        "fastq/{sample}/pass.txt"
+    params:
+        script = "script/{sample}/singularity_sra_fastq_dump.sh",
+        yaml = "script/{sample}/conf_sra_fastq_dump.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
 rule bam_tofastq:
     input:
         lambda wildcards: config["bam_tofastq"][wildcards.sample]
