@@ -83,13 +83,13 @@ sampleI,{sample_dir}/I.Aligned.sortedByCoord.out.bam,,,
 [sra_fastq_dump],,,,
 sampleJ,RUNID123456
 ,,,,
-[fusionfusion],,,,
-sampleA,list1
-sampleD,list1
-sampleG,None
-sampleH,,,,
-sampleI,,,,
-sampleJ
+#[fusionfusion],,,,
+#sampleA,list1
+#sampleD,list1
+#sampleG,None
+#sampleH,,,,
+#sampleI,,,,
+#sampleJ
 ,,,,,,,,,,,,
 [expression],,,,
 sampleA,,,,
@@ -356,9 +356,9 @@ sample,RUNID123456
 sampleA,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 sampleB,{sample_dir}/B1.fq,{sample_dir}/B2.fq
 pool1,{sample_dir}/C1_1.fq;{sample_dir}/C1_2.fq,{sample_dir}/C2_1.fq;{sample_dir}/C2_2.fq
-[fusionfusion]
-sampleA,list1
-sampleB,None
+#[fusionfusion]
+#sampleA,list1
+#sampleB,None
 [controlpanel]
 list1,pool1
 """.format(sample_dir = self.SAMPLE_DIR)
@@ -383,9 +383,9 @@ list1,pool1
 sampleA,{sample_dir}/H.Aligned.sortedByCoord.out.bam
 sampleB,{sample_dir}/H.Aligned.sortedByCoord.out.bam
 pool1,{sample_dir}/I.Aligned.sortedByCoord.out.bam
-[fusionfusion]
-sampleA,list1
-sampleB,None
+#[fusionfusion]
+#sampleA,list1
+#sampleB,None
 [controlpanel]
 list1,pool1
 """.format(sample_dir = self.SAMPLE_DIR)
@@ -408,8 +408,8 @@ list1,pool1
         
         data_sample = """[bam_import]
 sample,{sample_dir}/I.Aligned.sortedByCoord.out.bam
-[fusionfusion]
-sample,None
+#[fusionfusion]
+#sample,None
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -430,8 +430,8 @@ sample,None
         
         data_sample = """[sra_fastq_dump]
 sample,RUNID123456
-[fusionfusion]
-sample,None
+#[fusionfusion]
+#sample,None
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")

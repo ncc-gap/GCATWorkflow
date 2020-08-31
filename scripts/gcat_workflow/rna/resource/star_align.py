@@ -34,11 +34,19 @@ OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
 {cat_fastq}
 
 # STAR
-/usr/local/bin/STAR \
-  --genomeDir {STAR_REFERENCE} \
-  --readFilesIn {FASTQ1} {FASTQ2} \
-  --outFileNamePrefix ${{OUTPUT_PREF}}. \
-  {STAR_OPTION}
+if [ -e {FASTQ2} ]; then
+  /usr/local/bin/STAR \
+    --genomeDir {STAR_REFERENCE} \
+    --readFilesIn {FASTQ1} {FASTQ2} \
+    --outFileNamePrefix ${{OUTPUT_PREF}}. \
+    {STAR_OPTION}
+else
+  /usr/local/bin/STAR \
+    --genomeDir {STAR_REFERENCE} \
+    --readFilesIn {FASTQ1} \
+    --outFileNamePrefix ${{OUTPUT_PREF}}. \
+    {STAR_OPTION}
+fi
 
 # sort
 /usr/local/bin/samtools sort \
@@ -92,10 +100,12 @@ def configure(gcat_conf, run_conf, sample_conf):
             )
             fastq1 = "{OUTPUT_DIR}/1_1_temp.fastq".format(OUTPUT_DIR = output_dir)
             if paired:
+                cat_fastq += "if [ -e {FASTQ2_1} ]; then".format(FASTQ2_1=sample_conf.fastq[sample][1][0])
                 cat_fastq += "cat {FASTQ2s} > {OUTPUT_DIR}/2_1_temp.fastq\n".format(
                     FASTQ2s = " ".join(sample_conf.fastq[sample][1]),
                     OUTPUT_DIR = output_dir
                 )
+                cat_fastq += "fi"
                 fastq2 = "{OUTPUT_DIR}/2_1_temp.fastq".format(OUTPUT_DIR = output_dir)
 
         arguments = {
