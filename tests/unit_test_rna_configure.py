@@ -117,7 +117,11 @@ sampleI,,,,
 sampleJ
 [iravnet],,,,
 sampleA,,,,
+sampleB,,,,
+sampleC,,,,
 sampleD,,,,
+sampleE,,,,
+sampleF,,,,
 sampleG,,,,
 sampleH,,,,
 sampleI,,,,
@@ -265,7 +269,6 @@ annotation_gtf = {sample_dir}/reference/ZZZ.gtf
 [join]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-remove_fastq = True
 remove_bam = True
 """.format(sample_dir = self.DATA_DIR)
         
@@ -554,104 +557,103 @@ sample,RUNID123456
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-
-    def test4_11_fusionfusion_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
-        
-        data_sample = """[fastq]
-sampleA,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
-sampleB,{sample_dir}/B1.fq,{sample_dir}/B2.fq
-pool1,{sample_dir}/C1_1.fq;{sample_dir}/C1_2.fq,{sample_dir}/C2_1.fq;{sample_dir}/C2_2.fq
+#    def test4_11_fusionfusion_limited(self):
+#        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+#        
+#        data_sample = """[fastq]
+#sampleA,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+#sampleB,{sample_dir}/B1.fq,{sample_dir}/B2.fq
+#pool1,{sample_dir}/C1_1.fq;{sample_dir}/C1_2.fq,{sample_dir}/C2_1.fq;{sample_dir}/C2_2.fq
 #[fusionfusion]
 #sampleA,list1
 #sampleB,None
-[controlpanel]
-list1,pool1
-""".format(sample_dir = self.SAMPLE_DIR)
-        
-        f = open(ss_path, "w")
-        f.write(data_sample)
-        f.close()
-        options = [
-            "rna",
-            ss_path,
-            wdir,
-            self.DATA_DIR + self.GC2_NAME,
-        ]
-        subprocess.check_call(['python', 'gcat_workflow'] + options)
-        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
-        self.assertTrue(success)
-
-    def test4_12_fusionfusion_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
-        
-        data_sample = """[bam_tofastq]
-sampleA,{sample_dir}/H.Aligned.sortedByCoord.out.bam
-sampleB,{sample_dir}/H.Aligned.sortedByCoord.out.bam
-pool1,{sample_dir}/I.Aligned.sortedByCoord.out.bam
+#[controlpanel]
+#list1,pool1
+#""".format(sample_dir = self.SAMPLE_DIR)
+#        
+#        f = open(ss_path, "w")
+#        f.write(data_sample)
+#        f.close()
+#        options = [
+#            "rna",
+#            ss_path,
+#            wdir,
+#            self.DATA_DIR + self.GC2_NAME,
+#        ]
+#        subprocess.check_call(['python', 'gcat_workflow'] + options)
+#        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+#        self.assertTrue(success)
+#
+#    def test4_12_fusionfusion_limited(self):
+#        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+#        
+#        data_sample = """[bam_tofastq]
+#sampleA,{sample_dir}/H.Aligned.sortedByCoord.out.bam
+#sampleB,{sample_dir}/H.Aligned.sortedByCoord.out.bam
+#pool1,{sample_dir}/I.Aligned.sortedByCoord.out.bam
 #[fusionfusion]
 #sampleA,list1
 #sampleB,None
-[controlpanel]
-list1,pool1
-""".format(sample_dir = self.SAMPLE_DIR)
-        
-        f = open(ss_path, "w")
-        f.write(data_sample)
-        f.close()
-        options = [
-            "rna",
-            ss_path,
-            wdir,
-            self.DATA_DIR + self.GC2_NAME,
-        ]
-        subprocess.check_call(['python', 'gcat_workflow'] + options)
-        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
-        self.assertTrue(success)
-
-    def test4_13_fusionfusion_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
-        
-        data_sample = """[bam_import]
-sample,{sample_dir}/I.Aligned.sortedByCoord.out.bam
+#[controlpanel]
+#list1,pool1
+#""".format(sample_dir = self.SAMPLE_DIR)
+#        
+#        f = open(ss_path, "w")
+#        f.write(data_sample)
+#        f.close()
+#        options = [
+#            "rna",
+#            ss_path,
+#            wdir,
+#            self.DATA_DIR + self.GC2_NAME,
+#        ]
+#        subprocess.check_call(['python', 'gcat_workflow'] + options)
+#        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+#        self.assertTrue(success)
+#
+#    def test4_13_fusionfusion_limited(self):
+#        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+#        
+#        data_sample = """[bam_import]
+#sample,{sample_dir}/I.Aligned.sortedByCoord.out.bam
 #[fusionfusion]
 #sample,None
-""".format(sample_dir = self.SAMPLE_DIR)
-        
-        f = open(ss_path, "w")
-        f.write(data_sample)
-        f.close()
-        options = [
-            "rna",
-            ss_path,
-            wdir,
-            self.DATA_DIR + self.GC2_NAME,
-        ]
-        subprocess.check_call(['python', 'gcat_workflow'] + options)
-        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
-        self.assertTrue(success)
-
-    def test4_14_fusionfusion_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
-        
-        data_sample = """[sra_fastq_dump]
-sample,RUNID123456
+#""".format(sample_dir = self.SAMPLE_DIR)
+#        
+#        f = open(ss_path, "w")
+#        f.write(data_sample)
+#        f.close()
+#        options = [
+#            "rna",
+#            ss_path,
+#            wdir,
+#            self.DATA_DIR + self.GC2_NAME,
+#        ]
+#        subprocess.check_call(['python', 'gcat_workflow'] + options)
+#        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+#        self.assertTrue(success)
+#
+#    def test4_14_fusionfusion_limited(self):
+#        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+#        
+#        data_sample = """[sra_fastq_dump]
+#sample,RUNID123456
 #[fusionfusion]
 #sample,None
-""".format(sample_dir = self.SAMPLE_DIR)
-        
-        f = open(ss_path, "w")
-        f.write(data_sample)
-        f.close()
-        options = [
-            "rna",
-            ss_path,
-            wdir,
-            self.DATA_DIR + self.GC2_NAME,
-        ]
-        subprocess.check_call(['python', 'gcat_workflow'] + options)
-        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
-        self.assertTrue(success)
+#""".format(sample_dir = self.SAMPLE_DIR)
+#        
+#        f = open(ss_path, "w")
+#        f.write(data_sample)
+#        f.close()
+#        options = [
+#            "rna",
+#            ss_path,
+#            wdir,
+#            self.DATA_DIR + self.GC2_NAME,
+#        ]
+#        subprocess.check_call(['python', 'gcat_workflow'] + options)
+#        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+#        self.assertTrue(success)
 
     def test5_01_expression_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
@@ -917,7 +919,7 @@ sample
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test6_01_star_fusion_limited(self):
+    def test6_11_star_fusion_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[fastq]
@@ -933,13 +935,13 @@ sample
             "rna",
             ss_path,
             wdir,
-            self.DATA_DIR + self.GC_NAME,
+            self.DATA_DIR + self.GC2_NAME,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test6_02_star_fusion_limited(self):
+    def test6_12_star_fusion_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[bam_tofastq]
@@ -955,13 +957,13 @@ sample
             "rna",
             ss_path,
             wdir,
-            self.DATA_DIR + self.GC_NAME,
+            self.DATA_DIR + self.GC2_NAME,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test6_03_star_fusion_limited(self):
+    def test6_13_star_fusion_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[bam_import]
@@ -977,106 +979,18 @@ sample
             "rna",
             ss_path,
             wdir,
-            self.DATA_DIR + self.GC_NAME,
+            self.DATA_DIR + self.GC2_NAME,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test6_04_star_fusion_limited(self):
+    def test6_14_star_fusion_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[sra_fastq_dump],,,,
 sample,RUNID123456
 [star_fusion]
-sample
-""".format(sample_dir = self.SAMPLE_DIR)
-        
-        f = open(ss_path, "w")
-        f.write(data_sample)
-        f.close()
-        options = [
-            "rna",
-            ss_path,
-            wdir,
-            self.DATA_DIR + self.GC_NAME,
-        ]
-        subprocess.check_call(['python', 'gcat_workflow'] + options)
-        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
-        self.assertTrue(success)
-
-    def test7_11_iravnet_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
-        
-        data_sample = """[fastq]
-sample,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
-[iravnet]
-sample
-""".format(sample_dir = self.SAMPLE_DIR)
-        
-        f = open(ss_path, "w")
-        f.write(data_sample)
-        f.close()
-        options = [
-            "rna",
-            ss_path,
-            wdir,
-            self.DATA_DIR + self.GC2_NAME,
-        ]
-        subprocess.check_call(['python', 'gcat_workflow'] + options)
-        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
-        self.assertTrue(success)
-
-    def test7_12_iravnet_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
-        
-        data_sample = """[bam_tofastq]
-sample,{sample_dir}/H.Aligned.sortedByCoord.out.bam
-[iravnet]
-sample
-""".format(sample_dir = self.SAMPLE_DIR)
-        
-        f = open(ss_path, "w")
-        f.write(data_sample)
-        f.close()
-        options = [
-            "rna",
-            ss_path,
-            wdir,
-            self.DATA_DIR + self.GC2_NAME,
-        ]
-        subprocess.check_call(['python', 'gcat_workflow'] + options)
-        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
-        self.assertTrue(success)
-
-    def test7_13_iravnet_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
-        
-        data_sample = """[bam_import]
-sample,{sample_dir}/I.Aligned.sortedByCoord.out.bam
-[iravnet]
-sample
-""".format(sample_dir = self.SAMPLE_DIR)
-        
-        f = open(ss_path, "w")
-        f.write(data_sample)
-        f.close()
-        options = [
-            "rna",
-            ss_path,
-            wdir,
-            self.DATA_DIR + self.GC2_NAME,
-        ]
-        subprocess.check_call(['python', 'gcat_workflow'] + options)
-        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
-        self.assertTrue(success)
-
-    def test7_14_iravnet_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
-        
-        data_sample = """[sra_fastq_dump],,,,
-sample,RUNID123456
-[iravnet]
 sample
 """.format(sample_dir = self.SAMPLE_DIR)
         

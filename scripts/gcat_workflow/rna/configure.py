@@ -131,17 +131,8 @@ def main(gcat_conf, run_conf, sample_conf):
     output_kallistos = rs_kallisto.configure(gcat_conf, run_conf, sample_conf)
     
     # join
-    samples = []
-    samples.extend(align_bams.keys())
-    samples.extend(output_fusionfusions.keys())
-    samples.extend(output_star_fusions.keys())
-    samples.extend(output_ir_counts.keys())
-    samples.extend(output_iravnets.keys())
-    samples.extend(output_expressions.keys())
-    samples.extend(output_kallistos.keys())
-    samples = sorted(list(set(samples)))
     import gcat_workflow.rna.resource.join as rs_join
-    output_joins = rs_join.configure(samples, output_fastqs, align_bams, gcat_conf, run_conf, sample_conf)
+    output_joins = rs_join.configure(output_bams.keys(), output_fastqs, align_bams, gcat_conf, run_conf, sample_conf)
 
     # ######################
     # dump conf.yaml
@@ -170,17 +161,12 @@ def main(gcat_conf, run_conf, sample_conf):
                 target[key].append(__to_relpath(src[key]))
 
     y["sra_fastq_dump"] = {}
+    output_dumps = {}
     for sample in sample_conf.sra_fastq_dump:
         y["sra_fastq_dump"][sample] = "sra_fastq_dump/%s/%s.txt" % (sample, sample)
         y["aln_samples"][sample] = "fastq/%s/pass.txt" % (sample)
-    
-    #y["output_files"].extend(__dic_values(output_fusionfusions))
-    #y["output_files"].extend(__dic_values(output_star_fusions))
-    #y["output_files"].extend(__dic_values(output_ir_counts))
-    #y["output_files"].extend(__dic_values(output_iravnets))
-    #y["output_files"].extend(__dic_values(output_expressions))
-    #y["output_files"].extend(__dic_values(output_kallistos))
-
+        output_dumps[sample] = rs_align.OUTPUT_BAM_FORMAT.format(sample=sample)
+        
     output_files = y.pop("output_files")
     dic_output_files = {}
     for path in output_files:
@@ -189,6 +175,7 @@ def main(gcat_conf, run_conf, sample_conf):
             dic_output_files[sample] = []
         dic_output_files[sample].append(path)
 
+    __update_dic(dic_output_files, output_dumps)
     __update_dic(dic_output_files, output_fusionfusions)
     __update_dic(dic_output_files, output_star_fusions)
     __update_dic(dic_output_files, output_ir_counts)
