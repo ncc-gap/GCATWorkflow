@@ -97,8 +97,8 @@ rule star:
     output:
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam",
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
-        "star/{sample}/{sample}.Chimeric.out.sam",
         "star/{sample}/{sample}.Chimeric.out.junction",
+    priority: 50
     params:
         script = "script/{sample}/singularity_star_alignment.sh",
         yaml = "script/{sample}/conf_star_alignment.yml"
@@ -154,6 +154,7 @@ rule expression:
         lambda wildcards: config["expression_samples"][wildcards.sample],
     output:
         "expression/{sample}/{sample}.txt.fpkm"
+    priority: 80
     params:
         script = "script/{sample}/singularity_expression.sh",
         yaml = "script/{sample}/conf_expression.yml"
@@ -165,6 +166,7 @@ rule intron_retention:
         lambda wildcards: config["ir_count_samples"][wildcards.sample],
     output:
         "ir_count/{sample}/{sample}.genomonIR.result.txt"
+    priority: 80
     params:
         script = "script/{sample}/singularity_intron_retention.sh",
         yaml = "script/{sample}/conf_intron_retention.yml"
@@ -176,6 +178,7 @@ rule iravnet:
         lambda wildcards: config["iravnet_samples"][wildcards.sample],
     output:
         "iravnet/{sample}/{sample}.iravnet.filt.bam"
+    priority: 80
     params:
         script = "script/{sample}/singularity_iravnet.sh",
         yaml = "script/{sample}/conf_iravnet.yml"
@@ -193,14 +196,23 @@ rule kallisto:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
-rule join:
+rule join_sample:
     input:
-        ["{dataset}".format(dataset=dataset) for dataset in config["output_files"]]
+        lambda wildcards: config["output_files"][wildcards.sample],
     output:
-        "join/all.txt"
+        "join/{sample}/join.txt"
+    priority: 100
     params:
-        script = "script/singularity_join.sh",
-        yaml = "script/conf_join.yml"
+        script = "script/{sample}/singularity_join.sh",
+        yaml = "script/{sample}/conf_join.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
+
+rule join:
+    input:
+        config["join"]
+    output:
+        "join/all.txt"
+    shell:
+        "touch {output}"
 

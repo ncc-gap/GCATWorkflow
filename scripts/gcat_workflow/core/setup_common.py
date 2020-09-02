@@ -106,7 +106,7 @@ def link_import_bam(run_conf, bam_import_stage, bam_postfix, bai_postfix, subdir
                 os.symlink(bam_postfix + bai, link_bai)
     return linked_bam
 
-def dump_yaml_input_section(run_conf, bam_tofastq_stages, fastq_stage, bam_import_stage, bam_template):
+def dump_yaml_input_section(run_conf, bam_tofastq_stages, fastq_stage, bam_import_stage, bam_template, rm_bams = False):
     if not type(bam_tofastq_stages) in [type(()), type([])]:
         raise Exception("type of bam_tofastq_stages must be tuple or list")
     
@@ -118,7 +118,8 @@ def dump_yaml_input_section(run_conf, bam_tofastq_stages, fastq_stage, bam_impor
         for sample in stage:
             bam_tofastq[sample] = stage[sample].split(";")
             input_aln[sample] = "fastq/%s/pass.txt" % (sample)
-            outputs.append(bam_template.format(sample = sample))
+            if not rm_bams:
+                outputs.append(bam_template.format(sample = sample))
 
     fastq_r1 = {}
     fastq_r2 = {}
@@ -130,12 +131,14 @@ def dump_yaml_input_section(run_conf, bam_tofastq_stages, fastq_stage, bam_impor
             fastq_r2[sample].extend(fastq_stage[sample][1])
         
         input_aln[sample] = "fastq/%s/pass.txt" % (sample)
-        outputs.append(bam_template.format(sample = sample))
+        if not rm_bams:
+            outputs.append(bam_template.format(sample = sample))
     
     bam_import = {}
     for sample in bam_import_stage:
         bam_import[sample] = bam_import_stage[sample]
-        outputs.append(bam_template.format(sample = sample))
+        if not rm_bams:
+            outputs.append(bam_template.format(sample = sample))
 
     dumped = {
         "output_files": outputs,

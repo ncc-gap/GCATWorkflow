@@ -20,10 +20,11 @@ set -o pipefail
 set -x
 
 {RM_FASTQS}
+{RM_BAMS}
 touch {JOIN_FILE}
 """
 
-def configure(remove_files, gcat_conf, run_conf, sample_conf):
+def configure(samples, fastq_files, bam_files, gcat_conf, run_conf, sample_conf):
     import os
     
     STAGE_NAME = "join"
@@ -36,25 +37,40 @@ def configure(remove_files, gcat_conf, run_conf, sample_conf):
         "singularity_option": ""
     }
     stage_class = Join(params)
-    
-    output_dir = "%s/join" % (run_conf.project_root)
-    os.makedirs(output_dir, exist_ok=True)
-    fastqs = []
-    for sample in remove_files:
-        for li in remove_files[sample]:
-            fastqs.extend(li)
-    
-    rm_fastqs = ""
-    if bool(gcat_conf.get(SECTION_NAME, "qsub_option")) and len(fastqs) > 0:
-        rm_fastqs = "rm -f " +  " ".join(fastqs)
+    remove_fastq = gcat_conf.get(SECTION_NAME, "remove_fastq").lower() == "true"
+    remove_bam = gcat_conf.get(SECTION_NAME, "remove_bam").lower() == "true" 
+    #print([remove_fastq,remove_bam])
+    output_files = {}
+    for sample in samples:
+        output_dir = "%s/join/%s" % (run_conf.project_root, sample)
+        os.makedirs(output_dir, exist_ok=True)
+        output_file = "%s/join.txt" % (output_dir)
+        output_files[sample] = output_file
 
-    arguments = {
-        "RM_FASTQS": rm_fastqs,
-        "JOIN_FILE": "%s/all.txt" % (output_dir)
-    }
-    
-    singularity_bind = []
-    
-    stage_class.write_script(arguments, singularity_bind, run_conf)
+        list_fastq = []
+        if sample in fastq_files:
+            for li in fastq_files[sample]:
+                list_fastq.extend(li)
+        rm_fastqs = ""
+        if remove_fastq and len(list_fastq) > 0:
+            rm_fastqs = "rm -f " +  " ".join(list_fastq)
 
-    return {}
+        list_bam = []
+        if sample in bam_files:
+            list_bam.append(bam_files[sample])
+            list_bam.append(bam_files[sample] + ".bai")
+        rm_bams = ""
+        if remove_bam and len(list_bam) > 0:
+            rm_bams = "rm -f " +  " ".join(list_bam)
+
+        arguments = {
+            "RM_FASTQS": rm_fastqs,
+            "RM_BAMS": rm_bams,
+            "JOIN_FILE": output_file
+        }
+    
+        singularity_bind = [run_conf.project_root]
+    
+        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+
+    return output_files

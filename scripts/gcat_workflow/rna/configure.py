@@ -39,9 +39,10 @@ def main(gcat_conf, run_conf, sample_conf):
         (sample_conf.bam_tofastq, ),
         sample_conf.fastq,
         sample_conf.bam_import, 
-        rs_align.OUTPUT_BAM_FORMAT
+        rs_align.OUTPUT_BAM_FORMAT,
+        gcat_conf.get("join", "remove_bam").lower() == "true"
     )
-
+    
     # link fastq
     linked_fastqs = setup.link_input_fastq(run_conf, sample_conf.fastq, sample_conf.fastq_src)
     
@@ -130,15 +131,24 @@ def main(gcat_conf, run_conf, sample_conf):
     output_kallistos = rs_kallisto.configure(gcat_conf, run_conf, sample_conf)
     
     # join
+    samples = []
+    samples.extend(align_bams.keys())
+    samples.extend(output_fusionfusions.keys())
+    samples.extend(output_star_fusions.keys())
+    samples.extend(output_ir_counts.keys())
+    samples.extend(output_iravnets.keys())
+    samples.extend(output_expressions.keys())
+    samples.extend(output_kallistos.keys())
+    samples = sorted(list(set(samples)))
     import gcat_workflow.rna.resource.join as rs_join
-    rs_join.configure(output_fastqs, gcat_conf, run_conf, sample_conf)
+    output_joins = rs_join.configure(samples, output_fastqs, align_bams, gcat_conf, run_conf, sample_conf)
 
     # ######################
     # dump conf.yaml
     # ######################
     def __to_relpath(fullpath):
         return fullpath.replace(run_conf.project_root + "/", "", 1)
-        
+  
     def __dic_values(dic):
         values = []
         for key in dic:
@@ -148,22 +158,46 @@ def main(gcat_conf, run_conf, sample_conf):
             else:
                 values.append(__to_relpath(dic[key]))
         return values
-    
+
+    def __update_dic(target, src):
+        for key in src:
+            if not key in target:
+                target[key] = []
+            if type(src[key]) == list:
+                for path in src[key]:
+                    target[key].append(__to_relpath(path))
+            else:
+                target[key].append(__to_relpath(src[key]))
+
     y["sra_fastq_dump"] = {}
-    output_dumps = {}
     for sample in sample_conf.sra_fastq_dump:
         y["sra_fastq_dump"][sample] = "sra_fastq_dump/%s/%s.txt" % (sample, sample)
         y["aln_samples"][sample] = "fastq/%s/pass.txt" % (sample)
-        output_dumps[sample] = rs_align.OUTPUT_BAM_FORMAT.format(sample=sample)
     
-    y["output_files"].extend(__dic_values(output_dumps))
-    y["output_files"].extend(__dic_values(output_fusionfusions))
-    y["output_files"].extend(__dic_values(output_star_fusions))
-    y["output_files"].extend(__dic_values(output_ir_counts))
-    y["output_files"].extend(__dic_values(output_iravnets))
-    y["output_files"].extend(__dic_values(output_expressions))
-    y["output_files"].extend(__dic_values(output_kallistos))
-    
+    #y["output_files"].extend(__dic_values(output_fusionfusions))
+    #y["output_files"].extend(__dic_values(output_star_fusions))
+    #y["output_files"].extend(__dic_values(output_ir_counts))
+    #y["output_files"].extend(__dic_values(output_iravnets))
+    #y["output_files"].extend(__dic_values(output_expressions))
+    #y["output_files"].extend(__dic_values(output_kallistos))
+
+    output_files = y.pop("output_files")
+    dic_output_files = {}
+    for path in output_files:
+        sample = path.split("/")[-2]
+        if not sample in dic_output_files:
+            dic_output_files[sample] = []
+        dic_output_files[sample].append(path)
+
+    __update_dic(dic_output_files, output_fusionfusions)
+    __update_dic(dic_output_files, output_star_fusions)
+    __update_dic(dic_output_files, output_ir_counts)
+    __update_dic(dic_output_files, output_iravnets)
+    __update_dic(dic_output_files, output_expressions)
+    __update_dic(dic_output_files, output_kallistos)
+    y["output_files"] = dic_output_files
+    y["join"] = __dic_values(output_joins)
+
     y["fusionfusion_count_samples"] = {}
     for [sample, panel] in sample_conf.fusionfusion:
         y["fusionfusion_count_samples"][sample] = rs_align.OUTPUT_CHIMERIC_SAM_FORMAT.format(sample=sample)
@@ -211,7 +245,7 @@ def main(gcat_conf, run_conf, sample_conf):
             y["kallisto_samples"][sample] = y["aln_samples"][sample]
         else:
             y["kallisto_samples"][sample] = y["bam_import"][sample]
-            
+
     import yaml
     open(run_conf.project_root + "/config.yml", "w").write(yaml.dump(y))
     
