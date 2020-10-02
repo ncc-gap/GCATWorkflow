@@ -175,6 +175,15 @@ def main(gcat_conf, run_conf, sample_conf):
             dic_output_files[sample] = []
         dic_output_files[sample].append(path)
 
+    output_stars = {}
+    for sample in output_bams:
+        output_stars[sample] = [
+            output_bams[sample],
+            output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.BAI_POSTFIX),
+            output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.CHIMERIC_JUNCTION_POSTFIX),
+        ]
+    __update_dic(dic_output_files, output_stars)
+    __update_dic(dic_output_files, output_dumps)
     __update_dic(dic_output_files, output_dumps)
     __update_dic(dic_output_files, output_fusionfusions)
     __update_dic(dic_output_files, output_star_fusions)

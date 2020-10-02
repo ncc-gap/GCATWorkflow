@@ -161,7 +161,7 @@ image = {sample_dir}/image/YYY.simg
 qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
 image = {sample_dir}/image/YYY.simg
 star_genome = {sample_dir}/reference
-
+remove_fastq = True
 [star_fusion]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
@@ -206,6 +206,8 @@ annotation_gtf = {sample_dir}/reference/ZZZ.gtf
 [join]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
+remove_fastq = True
+remove_bam = True
 """.format(sample_dir = self.DATA_DIR)
         
         f = open(self.DATA_DIR + self.GC_NAME, "w")

@@ -108,6 +108,13 @@ def configure(gcat_conf, run_conf, sample_conf):
                 cat_fastq += "fi"
                 fastq2 = "{OUTPUT_DIR}/2_1_temp.fastq".format(OUTPUT_DIR = output_dir)
 
+        if gcat_conf.get(SECTION_NAME, "remove_fastq").lower() == "true":
+            remove_fastq = " ".join(sample_conf.fastq[sample][0])
+            if paired:
+                remove_fastq += " " + " ".join(sample_conf.fastq[sample][1])
+            if remove_fastq != "":
+                remove_fastq = "rm " + remove_fastq
+
         arguments = {
             "SAMPLE": sample,
             "cat_fastq": cat_fastq,
