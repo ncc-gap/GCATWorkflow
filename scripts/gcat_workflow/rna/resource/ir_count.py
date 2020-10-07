@@ -21,7 +21,7 @@ set -x
 
 intron_retention_utils simple_count \
   {INPUT_BAM} \
-  {OUTPUT_DIR}/{SAMPLE}.genomonIR.result.txt \
+  {OUTPUT_DIR}/{SAMPLE}.ir_simple_count.txt \
   {OPTION}
 """
 
