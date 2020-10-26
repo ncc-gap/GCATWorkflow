@@ -43,7 +43,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.ir_count:
         output_dir = "%s/ir_count/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)  
-        output_file = "%s/%s.genomonIR.result.txt" % (output_dir, sample)
+        output_file = "%s/%s.ir_simple_count.txt" % (output_dir, sample)
         output_files[sample] = output_file
         
         arguments = {
