@@ -29,6 +29,7 @@ set -o pipefail
 set -x
 
 OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
+rm -rf {OUTPUT_DIR}/*
 
 # cat fastq
 {cat_fastq}

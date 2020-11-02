@@ -26,7 +26,7 @@ mkdir -p {OUTPUT_DIR}/temp
 cd {OUTPUT_DIR}/temp
 
 prefetch --max-size 100000000 {RUN_ID}
-ls -l {RUN_ID}/
+#ls -l {RUN_ID}/
 fasterq-dump -v --split-files {RUN_ID}/{RUN_ID}.sra
 rm -rf {RUN_ID}
 
