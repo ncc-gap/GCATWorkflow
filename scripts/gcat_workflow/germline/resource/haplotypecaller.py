@@ -102,8 +102,37 @@ set -x
 {PBRUN} haplotypecaller \\
   --ref {REFERENCE} \\
   --in-bam {INPUT_CRAM} \\
-  --out-variants {OUTPUT_VCF} {HAPLOTYPE_OPTION} \\
-  --tmp-dir /tmp/
+  --out-variants {OUTPUT_AUTOSOME_GVCF} \\
+  --interval-file {INTERVAL_AUTOSOME} \\
+  {HAPLOTYPE_OPTION_AUTOSOME} --tmp-dir /tmp/
+
+{PBRUN} haplotypecaller \\
+  --ref {REFERENCE} \\
+  --in-bam {INPUT_CRAM} \\
+  --out-variants {OUTPUT_PAR_GVCF} \\
+  --interval-file {INTERVAL_PAR} \\
+  {HAPLOTYPE_OPTION_PAR} --tmp-dir /tmp/
+
+{PBRUN} haplotypecaller \\
+  --ref {REFERENCE} \\
+  --in-bam {INPUT_CRAM} \\
+  --out-variants {OUTPUT_CHRX_FEMALE_GVCF} \\
+  --interval-file {INTERVAL_CHRX} \\
+  {HAPLOTYPE_OPTION_CHRX_FEMALE} --tmp-dir /tmp/
+
+{PBRUN} haplotypecaller \\
+  --ref {REFERENCE} \\
+  --in-bam {INPUT_CRAM} \\
+  --out-variants {OUTPUT_CHRX_MALE_GVCF} \\
+  --interval-file {INTERVAL_CHRX} \\
+  {HAPLOTYPE_OPTION_CHRX_MALE} --tmp-dir /tmp/
+
+{PBRUN} haplotypecaller \\
+  --ref {REFERENCE} \\
+  --in-bam {INPUT_CRAM} \\
+  --out-variants {OUTPUT_CHRY_MALE_GVCF} \\
+  --interval-file {INTERVAL_CHRY} \\
+  {HAPLOTYPE_OPTION_CHRY_MALE} --tmp-dir /tmp/
 """
 
 STAGE_NAME = "haplotypecaller_parabricks"
@@ -149,10 +178,10 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_CHRY_MALE_GVCF": output_chrY_male_gvcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
-            "INTERVAL_AUTOSOME": gcat_conf.get(CONF_SECTION, "interval_autosome"),
-            "INTERVAL_PAR": gcat_conf.get(CONF_SECTION, "interval_par"),
-            "INTERVAL_CHRX": gcat_conf.get(CONF_SECTION, "interval_chrx"),
-            "INTERVAL_CHRY": gcat_conf.get(CONF_SECTION, "interval_chry"),
+            "INTERVAL_AUTOSOME": gcat_conf.path_get(CONF_SECTION, "interval_autosome"),
+            "INTERVAL_PAR": gcat_conf.path_get(CONF_SECTION, "interval_par"),
+            "INTERVAL_CHRX": gcat_conf.path_get(CONF_SECTION, "interval_chrx"),
+            "INTERVAL_CHRY": gcat_conf.path_get(CONF_SECTION, "interval_chry"),
             "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
             "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
             "HAPLOTYPE_OPTION_AUTOSOME": gcat_conf.get(CONF_SECTION, "haplotype_option_autosome") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
@@ -196,11 +225,22 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.haplotype_call:
         output_dir = "%s/haplotypecaller/%s" % (run_conf.project_root, sample) 
         os.makedirs(output_dir, exist_ok = True)
-        output_vcf = "%s/%s.haplotypecaller.g.vcf" % (output_dir, sample)
-        output_vcf_idx = "%s/%s.haplotypecaller.g.vcf.idx" % (output_dir, sample)
+        output_autosome_gvcf = "%s/%s.autosome.g.vcf" % (output_dir, sample)
+        output_PAR_gvcf = "%s/%s.PAR.g.vcf" % (output_dir, sample)
+        output_chrX_female_gvcf = "%s/%s.chrX.female.g.vcf" % (output_dir, sample)
+        output_chrX_male_gvcf = "%s/%s.chrX.male.g.vcf" % (output_dir, sample)
+        output_chrY_male_gvcf = "%s/%s.chrY.male.g.vcf" % (output_dir, sample)
         output_files[sample] = []
-        output_files[sample].append(output_vcf)
-        output_files[sample].append(output_vcf_idx)
+        output_files[sample].append(output_autosome_gvcf+".gz")
+        output_files[sample].append(output_autosome_gvcf+".gz.tbi")
+        output_files[sample].append(output_PAR_gvcf+".gz")
+        output_files[sample].append(output_PAR_gvcf+".gz.tbi")
+        output_files[sample].append(output_chrX_female_gvcf+".gz")
+        output_files[sample].append(output_chrX_female_gvcf+".gz.tbi")
+        output_files[sample].append(output_chrX_male_gvcf+".gz")
+        output_files[sample].append(output_chrX_male_gvcf+".gz.tbi")
+        output_files[sample].append(output_chrY_male_gvcf+".gz")
+        output_files[sample].append(output_chrY_male_gvcf+".gz.tbi")
 
         input_real_path = ""
         if not os.path.islink(input_bams[sample]):
@@ -213,9 +253,21 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_real_path,
-            "OUTPUT_VCF": output_vcf,
+            "OUTPUT_AUTOSOME_GVCF": output_autosome_gvcf,
+            "OUTPUT_PAR_GVCF": output_PAR_gvcf,
+            "OUTPUT_CHRX_FEMALE_GVCF": output_chrX_female_gvcf,
+            "OUTPUT_CHRX_MALE_GVCF": output_chrX_male_gvcf,
+            "OUTPUT_CHRY_MALE_GVCF": output_chrY_male_gvcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "HAPLOTYPE_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_option") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
+            "INTERVAL_AUTOSOME": gcat_conf.path_get(CONF_SECTION, "interval_autosome"),
+            "INTERVAL_PAR": gcat_conf.path_get(CONF_SECTION, "interval_par"),
+            "INTERVAL_CHRX": gcat_conf.path_get(CONF_SECTION, "interval_chrx"),
+            "INTERVAL_CHRY": gcat_conf.path_get(CONF_SECTION, "interval_chry"),
+            "HAPLOTYPE_OPTION_AUTOSOME": gcat_conf.get(CONF_SECTION, "haplotype_option_autosome") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
+            "HAPLOTYPE_OPTION_PAR": gcat_conf.get(CONF_SECTION, "haplotype_option_par") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
+            "HAPLOTYPE_OPTION_CHRX_FEMALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_female") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
+            "HAPLOTYPE_OPTION_CHRX_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_male") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
+            "HAPLOTYPE_OPTION_CHRY_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chry_male") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        

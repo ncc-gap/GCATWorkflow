@@ -98,6 +98,7 @@ rule star:
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam",
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
         "star/{sample}/{sample}.Chimeric.out.junction",
+        "star/{sample}/{sample}.Chimeric.out.sam",
     priority: 50
     params:
         script = "script/{sample}/singularity_star_alignment.sh",

@@ -57,6 +57,7 @@ class ConfigureTest(unittest.TestCase):
             "/samples/B.markdup.cram",
             "/samples/B.markdup.crai",
             "/reference/XXX.fa",
+            "/reference/XXX.bed",
             "/image/YYY.simg",
             "/parabricks/pbrun",
         ]
@@ -136,11 +137,19 @@ reference = {sample_dir}/reference/XXX.fa
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 reference = {sample_dir}/reference/XXX.fa
+interval_autosome = {sample_dir}/reference/XXX.bed
+interval_par = {sample_dir}/reference/XXX.bed
+interval_chrx = {sample_dir}/reference/XXX.bed
+interval_chry = {sample_dir}/reference/XXX.bed
 
 [{ht_call}]
 gpu_support = {gpu_support}
 pbrun = {sample_dir}/parabricks/pbrun
 reference = {sample_dir}/reference/XXX.fa
+interval_autosome = {sample_dir}/reference/XXX.bed
+interval_par = {sample_dir}/reference/XXX.bed
+interval_chrx = {sample_dir}/reference/XXX.bed
+interval_chry = {sample_dir}/reference/XXX.bed
 
 [gatk_{summary1}_compatible]
 qsub_option = -l s_vmem=32G,mem_req=32G
