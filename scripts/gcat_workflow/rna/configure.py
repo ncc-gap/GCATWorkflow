@@ -28,8 +28,7 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.core.setup_common as setup
     input_stages = (sample_conf.bam_import, sample_conf.fastq, sample_conf.bam_tofastq, sample_conf.sra_fastq_dump)
     setup.create_directories(gcat_conf, run_conf, input_stages, 'rna/data/snakefile.txt')
-    bam_tofastq_stages = (sample_conf.bam_tofastq, )
-    setup.touch_bam_tofastq(run_conf, bam_tofastq_stages)
+    setup.touch_bam_tofastq(run_conf, (sample_conf.bam_tofastq,))
     touch_sra_fastq_dump(run_conf,  sample_conf.sra_fastq_dump)
 
     # dump conf.yaml
@@ -183,7 +182,6 @@ def main(gcat_conf, run_conf, sample_conf):
             output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.CHIMERIC_JUNCTION_POSTFIX),
         ]
     __update_dic(dic_output_files, output_stars)
-    __update_dic(dic_output_files, output_dumps)
     __update_dic(dic_output_files, output_dumps)
     __update_dic(dic_output_files, output_fusionfusions)
     __update_dic(dic_output_files, output_star_fusions)
