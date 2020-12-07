@@ -57,6 +57,7 @@ rule bam_import:
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
         "star/{sample}/{sample}.Chimeric.out.sam",
         "star/{sample}/{sample}.Chimeric.out.junction",
+        "star/{sample}/{sample}.SJ.out.tab",
     run:
         bam_postfix = ".Aligned.sortedByCoord.out.bam"
         bai_postfix = ".Aligned.sortedByCoord.out.bam.bai"
@@ -99,6 +100,7 @@ rule star:
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
         "star/{sample}/{sample}.Chimeric.out.junction",
         "star/{sample}/{sample}.Chimeric.out.sam",
+        "star/{sample}/{sample}.SJ.out.tab",
     priority: 50
     params:
         script = "script/{sample}/singularity_star_alignment.sh",
@@ -183,6 +185,18 @@ rule iravnet:
     params:
         script = "script/{sample}/singularity_iravnet.sh",
         yaml = "script/{sample}/conf_iravnet.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
+rule juncmut:
+    input:
+        lambda wildcards: config["juncmut_samples"][wildcards.sample],
+    output:
+        "juncmut/{sample}/{sample}.juncmut.filt.bam"
+    priority: 80
+    params:
+        script = "script/{sample}/singularity_juncmut.sh",
+        yaml = "script/{sample}/conf_juncmut.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 

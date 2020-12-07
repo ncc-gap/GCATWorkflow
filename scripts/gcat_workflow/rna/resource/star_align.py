@@ -6,10 +6,12 @@ BAM_POSTFIX = ".Aligned.sortedByCoord.out.bam"
 BAI_POSTFIX = ".Aligned.sortedByCoord.out.bam.bai"
 CHIMERIC_JUNCTION_POSTFIX = ".Chimeric.out.junction"
 CHIMERIC_SAM_POSTFIX = ".Chimeric.out.sam"
+SJ_TAB_POSTFIX = ".SJ.out.tab"
 
 OUTPUT_BAM_FORMAT = "star/{sample}/{sample}" + BAM_POSTFIX
 OUTPUT_CHIMERIC_JUNCTION_FORMAT = "star/{sample}/{sample}" + CHIMERIC_JUNCTION_POSTFIX
 OUTPUT_CHIMERIC_SAM_FORMAT = "star/{sample}/{sample}" + CHIMERIC_SAM_POSTFIX
+OUTPUT_SJ_TAB_FORMAT = "star/{sample}/{sample}" + SJ_TAB_POSTFIX
 
 class Star_align(stage_task.Stage_task):
     def __init__(self, params):

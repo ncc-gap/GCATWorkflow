@@ -10,6 +10,7 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_IR_COUNT = "intron_retention"
     SECTION_QC = "qc"
     SECTION_IRAVNET = "iravnet"
+    SECTION_JUNCMUT = "juncmut"
     SECTION_STAR_FUSION = "star_fusion"
     SECTION_KALLISTO = "kallisto"
     SECTION_CONTROL_PANEL = "controlpanel"
@@ -28,6 +29,7 @@ class Sample_conf(abc.Sample_conf_abc):
         self.ir_count = []
         self.qc = []
         self.iravnet = []
+        self.juncmut = []
         self.star_fusion = []
         self.kallisto = []
         self.sra_fastq_dump = {}
@@ -39,7 +41,7 @@ class Sample_conf(abc.Sample_conf_abc):
         input_sections = [self.SECTION_FASTQ , self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ, self.SECTION_SRA_FASTQ_DUMP]
         analysis_sections = [
             self.SECTION_FUSIONFUSION, self.SECTION_STAR_FUSION,
-            self.SECTION_EXPRESSION, self.SECTION_IR_COUNT, self.SECTION_IRAVNET, self.SECTION_KALLISTO,
+            self.SECTION_EXPRESSION, self.SECTION_IR_COUNT, self.SECTION_IRAVNET, self.SECTION_JUNCMUT, self.SECTION_KALLISTO,
             self.SECTION_QC
         ]
         controlpanel_sections = [self.SECTION_CONTROL_PANEL]
@@ -71,6 +73,9 @@ class Sample_conf(abc.Sample_conf_abc):
         
         if self.SECTION_IRAVNET in splited:
             self.iravnet += self.parse_data_general(splited[self.SECTION_IRAVNET])
+        
+        if self.SECTION_JUNCMUT in splited:
+            self.juncmut += self.parse_data_general(splited[self.SECTION_JUNCMUT])
         
         if self.SECTION_KALLISTO in splited:
             self.kallisto += self.parse_data_general(splited[self.SECTION_KALLISTO])

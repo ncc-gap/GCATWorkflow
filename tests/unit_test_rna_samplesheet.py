@@ -88,6 +88,9 @@ A_tumor,,,,
 [iravnet],,,,
 A_tumor,,,,
 
+[juncmut],,,,
+A_tumor,,,,
+
 [kallisto],,,,
 A_tumor,,,,
 
@@ -136,6 +139,7 @@ list1,pool1,pool2,pool3,pool4
         self.assertEqual(sample_conf.star_fusion, ['A_tumor'])
         self.assertEqual(sample_conf.ir_count, ['A_tumor'])
         self.assertEqual(sample_conf.iravnet, ['A_tumor'])
+        self.assertEqual(sample_conf.juncmut, ['A_tumor'])
         self.assertEqual(sample_conf.kallisto, ['A_tumor'])
 
     # --------------------------------------------------------------------

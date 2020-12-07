@@ -66,6 +66,12 @@ def main(gcat_conf, run_conf, sample_conf):
         rs_align.CHIMERIC_SAM_POSTFIX, 
         rs_align.OUTPUT_BAM_FORMAT.split("/")[0]
     )
+    link_import_attached_files(
+        run_conf, sample_conf.bam_import,
+        rs_align.BAM_POSTFIX, 
+        rs_align.SJ_TAB_POSTFIX, 
+        rs_align.OUTPUT_BAM_FORMAT.split("/")[0]
+    )
     
     # ######################
     # create scripts
@@ -120,6 +126,14 @@ def main(gcat_conf, run_conf, sample_conf):
     # iravnet
     import gcat_workflow.rna.resource.iravnet as rs_iravnet
     output_iravnets = rs_iravnet.configure(output_bams, gcat_conf, run_conf, sample_conf)
+    
+    # juncmut
+    output_sj_tabs = {}
+    for sample in output_bams:
+        output_sj_tabs[sample] = output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.SJ_TAB_POSTFIX)
+
+    import gcat_workflow.rna.resource.juncmut as rs_juncmut
+    output_juncmuts = rs_juncmut.configure(output_bams, output_sj_tabs, gcat_conf, run_conf, sample_conf)
     
     # expression
     import gcat_workflow.rna.resource.expression as rs_expression
@@ -187,6 +201,7 @@ def main(gcat_conf, run_conf, sample_conf):
     __update_dic(dic_output_files, output_star_fusions)
     __update_dic(dic_output_files, output_ir_counts)
     __update_dic(dic_output_files, output_iravnets)
+    __update_dic(dic_output_files, output_juncmuts)
     __update_dic(dic_output_files, output_expressions)
     __update_dic(dic_output_files, output_kallistos)
     y["output_files"] = dic_output_files
@@ -232,6 +247,10 @@ def main(gcat_conf, run_conf, sample_conf):
     y["iravnet_samples"] = {}
     for sample in sample_conf.iravnet:
         y["iravnet_samples"][sample] = rs_align.OUTPUT_BAM_FORMAT.format(sample=sample)
+
+    y["juncmut_samples"] = {}
+    for sample in sample_conf.juncmut:
+        y["juncmut_samples"][sample] = rs_align.OUTPUT_SJ_TAB_FORMAT.format(sample=sample)
 
     y["kallisto_samples"] = {}
     for sample in sample_conf.kallisto:

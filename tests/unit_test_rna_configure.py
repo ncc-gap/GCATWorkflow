@@ -54,9 +54,9 @@ class ConfigureTest(unittest.TestCase):
             "/samples/H.Aligned.sortedByCoord.out.bai",
             "/samples/I.Aligned.sortedByCoord.out.bam",
             "/samples/I.Aligned.sortedByCoord.out.bam.bai",
-            "/samples/I.Aligned.sortedByCoord.out.bam.bai",
             "/samples/I.Chimeric.out.junction",
             "/samples/I.Chimeric.out.sam",
+            "/samples/I.SJ.out.tab",
             "/reference/XXX.fa",
             "/image/YYY.simg",
             "/reference/ZZZ.gtf",
@@ -116,6 +116,17 @@ sampleH,,,,
 sampleI,,,,
 sampleJ
 [iravnet],,,,
+sampleA,,,,
+sampleB,,,,
+sampleC,,,,
+sampleD,,,,
+sampleE,,,,
+sampleF,,,,
+sampleG,,,,
+sampleH,,,,
+sampleI,,,,
+sampleJ
+[juncmut],,,,
 sampleA,,,,
 sampleB,,,,
 sampleC,,,,
@@ -196,6 +207,14 @@ reference = {sample_dir}/reference/XXX.fa
 clinvar_db = {sample_dir}/reference/ZZZ.vcf.gz
 target_file = {sample_dir}/reference/ZZZ.bed
 
+[juncmut]
+qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+control_file1 = {sample_dir}/reference/ZZZ.vcf.gz
+control_file2 = {sample_dir}/reference/ZZZ.vcf.gz
+genecode_gene_file = {sample_dir}/reference/ZZZ.vcf.gz
+
 [kallisto]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
@@ -260,6 +279,14 @@ image = {sample_dir}/image/YYY.simg
 reference = {sample_dir}/reference/XXX.fa
 clinvar_db = {sample_dir}/reference/ZZZ.vcf.gz
 target_file = {sample_dir}/reference/ZZZ.bed
+
+[juncmut]
+qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+control_file1 = {sample_dir}/reference/ZZZ.vcf.gz
+control_file2 = {sample_dir}/reference/ZZZ.vcf.gz
+genecode_gene_file = {sample_dir}/reference/ZZZ.vcf.gz
 
 [kallisto]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
@@ -1433,6 +1460,95 @@ sample
         data_sample = """[sra_fastq_dump],,,,
 sample,RUNID123456
 [kallisto]
+sample
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "rna",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC2_NAME,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+
+    def test10_11_juncmut_limited(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[fastq]
+sample,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+[juncmut]
+sample
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "rna",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC2_NAME,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test10_12_juncmut_limited(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[bam_tofastq]
+sample,{sample_dir}/H.Aligned.sortedByCoord.out.bam
+[juncmut]
+sample
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "rna",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC2_NAME,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test10_13_juncmut_limited(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[bam_import]
+sample,{sample_dir}/I.Aligned.sortedByCoord.out.bam
+[juncmut]
+sample
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "rna",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC2_NAME,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test10_14_juncmut_limited(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[sra_fastq_dump],,,,
+sample,RUNID123456
+[juncmut]
 sample
 """.format(sample_dir = self.SAMPLE_DIR)
         
