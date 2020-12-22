@@ -23,6 +23,9 @@ intron_retention_utils simple_count \
   {INPUT_BAM} \
   {OUTPUT_DIR}/{SAMPLE}.ir_simple_count.txt \
   {OPTION}
+tail -n +2 {OUTPUT_DIR}/{SAMPLE}.ir_simple_count.txt | bgzip -c > {OUTPUT_DIR}/{SAMPLE}.ir_simple_count.txt.gz
+tabix -p vcf {OUTPUT_DIR}/{SAMPLE}.ir_simple_count.txt.gz
+rm {OUTPUT_DIR}/{SAMPLE}.ir_simple_count.txt
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
@@ -43,7 +46,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.ir_count:
         output_dir = "%s/ir_count/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)  
-        output_file = "%s/%s.ir_simple_count.txt" % (output_dir, sample)
+        output_file = "%s/%s.ir_simple_count.txt.gz.tbi" % (output_dir, sample)
         output_files[sample] = output_file
         
         arguments = {

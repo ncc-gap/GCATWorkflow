@@ -168,7 +168,7 @@ rule intron_retention:
     input:
         lambda wildcards: config["ir_count_samples"][wildcards.sample],
     output:
-        "ir_count/{sample}/{sample}.ir_simple_count.txt"
+        "ir_count/{sample}/{sample}.ir_simple_count.txt.gz.tbi"
     priority: 80
     params:
         script = "script/{sample}/singularity_intron_retention.sh",
