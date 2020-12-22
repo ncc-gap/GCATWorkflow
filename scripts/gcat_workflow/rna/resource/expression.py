@@ -20,7 +20,7 @@ set -o pipefail
 set -x
 
 OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
-
+rm -rf {OUTPUT_DIR}/*
 featureCounts -T 4 -p -a {GTF} -O -B -C -o ${{OUTPUT_PREF}}.txt {INPUT_BAM}
 python /tools/simple_exp/proc_fc.py ${{OUTPUT_PREF}}.txt ${{OUTPUT_PREF}}.txt.summary {GTF} > ${{OUTPUT_PREF}}.txt.fpkm
 """
