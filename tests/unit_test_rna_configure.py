@@ -445,7 +445,7 @@ list1,pool1
         sys.stdout.close()
         sys.stdout = sys.__stdout__
         self.assertTrue(success)
-        if subprocess.check_output('which dot', shell=True).decode('utf-8').strip().split('\n') != "":
+        if subprocess.call('which dot', shell=True) == 0:
             subprocess.check_call('dot -Tpng {wdir}/rna.dot > {wdir}/dag_rna.png'.format(wdir=wdir), shell=True)
 
     def test2_22_dag(self):
@@ -478,7 +478,7 @@ sampleR
         sys.stdout.close()
         sys.stdout = sys.__stdout__
         self.assertTrue(success)
-        if subprocess.check_output('which dot', shell=True).decode('utf-8').strip().split('\n') != "":
+        if subprocess.call('which dot', shell=True) == 0:
             subprocess.check_call('dot -Tpng {wdir}/rna.dot > {wdir}/dag_rna_sradump.png'.format(wdir=wdir), shell=True)
 
     def test3_01_star_limited(self):

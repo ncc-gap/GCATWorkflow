@@ -349,7 +349,7 @@ A_tumor,{sample_dir}/A.metadata.txt
         sys.stdout.close()
         sys.stdout = sys.__stdout__
         self.assertTrue(success)
-        if subprocess.check_output('which dot', shell=True).decode('utf-8').strip().split('\n') != "":
+        if subprocess.call('which dot', shell=True) == 0:
             subprocess.check_call('dot -Tpng {wdir}/germline.dot > {wdir}/dag_germline.png'.format(wdir=wdir), shell=True)
 
     def test3_01_bwa_limited(self):
