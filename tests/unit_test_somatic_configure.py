@@ -294,6 +294,56 @@ reference = {sample_dir}/reference/XXX.fa
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
+    def test2_21_dag(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+
+        data_sample = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+A_control,{sample_dir}/B1.fq,{sample_dir}/B2.fq
+
+[{bamimp}]
+pool1,{sample_dir}/B.markdup.cram
+
+[{ht_call}]
+A_tumor, A_control
+
+[{summary1}]
+A_tumor
+
+[{summary2}]
+A_tumor
+
+[manta]
+A_tumor, A_control
+
+[gridss]
+A_tumor, A_control
+
+[genomon_sv]
+A_tumor,A_control,list1
+
+[controlpanel]
+list1,pool1
+""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "somatic",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC_NAME,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        sys.stdout = open(wdir + '/somatic.dot', 'w')
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True, printdag = True)
+        sys.stdout.close()
+        sys.stdout = sys.__stdout__
+        self.assertTrue(success)
+        if subprocess.check_output('which dot', shell=True).decode('utf-8').strip().split('\n') != "":
+            subprocess.check_call('dot -Tpng {wdir}/somatic.dot > {wdir}/dag_somatic.png'.format(wdir=wdir), shell=True)
+
     def test3_01_bwa_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         

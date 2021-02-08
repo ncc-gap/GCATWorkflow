@@ -445,7 +445,8 @@ list1,pool1
         sys.stdout.close()
         sys.stdout = sys.__stdout__
         self.assertTrue(success)
-        subprocess.check_call('dot -Tpng {wdir}/rna.dot > {wdir}/dag_rna.png'.format(wdir=wdir), shell=True)
+        if subprocess.check_output('which dot', shell=True).decode('utf-8').strip().split('\n') != "":
+            subprocess.check_call('dot -Tpng {wdir}/rna.dot > {wdir}/dag_rna.png'.format(wdir=wdir), shell=True)
 
     def test2_22_dag(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
@@ -477,7 +478,8 @@ sampleR
         sys.stdout.close()
         sys.stdout = sys.__stdout__
         self.assertTrue(success)
-        subprocess.check_call('dot -Tpng {wdir}/rna.dot > {wdir}/dag_rna_sradump.png'.format(wdir=wdir), shell=True)
+        if subprocess.check_output('which dot', shell=True).decode('utf-8').strip().split('\n') != "":
+            subprocess.check_call('dot -Tpng {wdir}/rna.dot > {wdir}/dag_rna_sradump.png'.format(wdir=wdir), shell=True)
 
     def test3_01_star_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
