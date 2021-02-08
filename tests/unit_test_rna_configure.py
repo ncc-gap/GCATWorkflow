@@ -405,6 +405,79 @@ remove_bam = True
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
+    
+    def test2_21_dag(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+
+        data_sample = """[fastq]
+sampleA,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq
+[fusionfusion]
+sampleA,list1
+[expression]
+sampleA
+[star_fusion]
+sampleA
+[iravnet]
+sampleA
+[juncmut]
+sampleA
+[intron_retention]
+sampleA
+[kallisto]
+sampleA
+[controlpanel]
+list1,pool1
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "rna",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC_NAME,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        sys.stdout = open(wdir + '/rna.dot', 'w')
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True, printdag = True)
+        sys.stdout.close()
+        sys.stdout = sys.__stdout__
+        self.assertTrue(success)
+        subprocess.check_call('dot -Tpng {wdir}/rna.dot > {wdir}/dag_rna.png'.format(wdir=wdir), shell=True)
+
+    def test2_22_dag(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+
+        data_sample = """[sra_fastq_dump]
+sampleR,RUNID123456
+[expression]
+sampleR
+[iravnet]
+sampleR
+[juncmut]
+sampleR
+[intron_retention]
+sampleR
+""".format(sample_dir = self.SAMPLE_DIR)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "rna",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC_NAME,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        sys.stdout = open(wdir + '/rna.dot', 'w')
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True, printdag = True)
+        sys.stdout.close()
+        sys.stdout = sys.__stdout__
+        self.assertTrue(success)
+        subprocess.check_call('dot -Tpng {wdir}/rna.dot > {wdir}/dag_rna_sradump.png'.format(wdir=wdir), shell=True)
 
     def test3_01_star_limited(self):
         (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
