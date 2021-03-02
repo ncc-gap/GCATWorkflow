@@ -322,55 +322,65 @@ class Sample_conf_abc(object):
             control_panel[controlpanelID] = row[1:]
         return control_panel
 
-    def parse_data_tumor_controlpanel(self, _data, controlpanel_list, section_name):
+    def parse_data_tumor_controlpanel(self, _data, controlpanel_list, section_name, deny_none=False):
         # analysis section type fusion (tumor, controlpanel)
 
         analysis = []
         for row in _data:
             controlpanelID = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
-            if controlpanelID != None and not controlpanelID in controlpanel_list:
+            if controlpanelID == None:
+                if deny_none:
+                    err_msg = "[%s] section, None cannot be set" % (section_name)
+                    raise ValueError(err_msg)
+            elif not controlpanelID in controlpanel_list:
                 err_msg = "[%s] section, %s is not defined" % (section_name, controlpanelID)
                 raise ValueError(err_msg)
             analysis.append((row[0], controlpanelID))
         return analysis
 
-    def parse_data_tumor_normal(self, _data, sample_list, section_name):
+    def parse_data_tumor_normal(self, _data, sample_list, section_name, deny_none=False):
         # analysis section type mutect (tumor, normal)
         
         analysis = []
         for row in _data:
             normalID = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
             if normalID == None:
-                err_msg = "[%s] section, None cannot be set" % (section_name)
-                raise ValueError(err_msg)
+                if deny_none:
+                    err_msg = "[%s] section, None cannot be set" % (section_name)
+                    raise ValueError(err_msg)
             elif not normalID in sample_list:
                 err_msg = "[%s] section, %s is not defined" % (section_name, normalID)
                 raise ValueError(err_msg)
             analysis.append((row[0], normalID))
         return analysis
     
-    def parse_data_tumor_normal_controlpanel(self, _data, sample_list, controlpanel_list, section_name):
+    def parse_data_tumor_normal_controlpanel(self, _data, sample_list, controlpanel_list, section_name, deny_normal_none=False, deny_controlpanel_none=False):
         # analysis section type genomon_mutation (tumor, normal, controlpanel)
         
         analysis = []
         for row in _data:
             normalID = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
             if normalID == None:
-                err_msg = "[%s] section, None cannot be set" % (section_name)
-                raise ValueError(err_msg)
+                if deny_normal_none:
+                    err_msg = "[%s] section, None cannot be set" % (section_name)
+                    raise ValueError(err_msg)
             elif not normalID in sample_list:
                 err_msg = "[%s] section, %s is not defined" % (section_name, normalID)
                 raise ValueError(err_msg)
 
             controlpanelID = row[2] if len(row) >= 3 and row[2] not in ['', 'None'] else None
-            if controlpanelID != None and not controlpanelID in controlpanel_list:
+            if controlpanelID == None:
+                if deny_controlpanel_none:
+                    err_msg = "[%s] section, None cannot be set" % (section_name)
+                    raise ValueError(err_msg)
+            elif not controlpanelID in controlpanel_list:
                 err_msg = "[%s] section, %s is not defined" % (section_name, controlpanelID)
                 raise ValueError(err_msg)
 
             analysis.append((row[0], normalID, controlpanelID))
         return analysis
 
-    def parse_data_readgroup(self, _data, sample_list, section_name):
+    def parse_data_readgroup(self, _data, sample_list, section_name, deny_none=True):
         # analysis section type readgroup (sample, /path/to/metadata.txt)
         
         keys = [x[0] for x in _data]
@@ -386,8 +396,9 @@ class Sample_conf_abc(object):
             file_path = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
             
             if file_path == None:
-                err_msg = "[%s] section, None cannot be set" % (section_name)
-                raise ValueError(err_msg)
+                if deny_none:
+                    err_msg = "[%s] section, None cannot be set" % (section_name)
+                    raise ValueError(err_msg)
                 
             if not self._exists(file_path):
                 err_msg = "[%s] section, %s does not exists" % (section_name, file_path)
@@ -402,7 +413,7 @@ class Sample_conf_abc(object):
         
         return {"metadata": metadata, "metadata_src": metadata_src}
 
-    def parse_data_parameter(self, _data, section_name):
+    def parse_data_parameter(self, _data, section_name, deny_none=True):
         # fastq-dump section type fastq-dump (sample, RUNID)
         
         params = {}
@@ -411,8 +422,9 @@ class Sample_conf_abc(object):
             param = row[1] if len(row) >= 2 and row[1] not in ['', 'None'] else None
             
             if param == None:
-                err_msg = "[%s] section, None cannot be set" % (section_name)
-                raise ValueError(err_msg)
+                if deny_none:
+                    err_msg = "[%s] section, None cannot be set" % (section_name)
+                    raise ValueError(err_msg)
                 
             params[sampleID] = param
         

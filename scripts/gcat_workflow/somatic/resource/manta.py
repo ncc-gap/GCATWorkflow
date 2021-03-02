@@ -24,11 +24,18 @@ if [ -f {OUTPUT_DIR}/runWorkflow.py ]; then
     rm {OUTPUT_DIR}/runWorkflow.py
 fi
 
-python /manta/bin/configManta.py \\
-  --normalBam {INPUT_NORMAL_CRAM} \\
-  --tumorBam {INPUT_TUMOR_CRAM} \\
-  --referenceFasta {REFERENCE} \\
-  --runDir {OUTPUT_DIR} {MANTA_CONFIG_OPTION}
+if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
+    python /manta/bin/configManta.py \\
+      --normalBam {INPUT_NORMAL_CRAM} \\
+      --tumorBam {INPUT_TUMOR_CRAM} \\
+      --referenceFasta {REFERENCE} \\
+      --runDir {OUTPUT_DIR} {MANTA_CONFIG_OPTION}
+else
+    python /manta/bin/configManta.py \\
+      --tumorBam {INPUT_TUMOR_CRAM} \\
+      --referenceFasta {REFERENCE} \\
+      --runDir {OUTPUT_DIR} {MANTA_CONFIG_OPTION}
+fi
 
 python {OUTPUT_DIR}/runWorkflow.py {MANTA_WORKFLOW_OPTION}
 """
@@ -50,10 +57,14 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     for (tumor, normal) in sample_conf.manta:
         output_vcf = "%s/manta/%s/results/variants/candidateSV.vcf.gz" % (run_conf.project_root, tumor)
         output_files[tumor] = output_vcf
+        input_normal_cram = ""
+        if normal != None:
+            input_normal_cram = input_bams[normal]
+
         arguments = {
             "SAMPLE": tumor,
             "INPUT_TUMOR_CRAM": input_bams[tumor],
-            "INPUT_NORMAL_CRAM": input_bams[normal],
+            "INPUT_NORMAL_CRAM": input_normal_cram,
             "OUTPUT_DIR":  "%s/manta/%s" % (run_conf.project_root, tumor),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MANTA_CONFIG_OPTION": gcat_conf.get(CONF_SECTION, "manta_config_option"),
