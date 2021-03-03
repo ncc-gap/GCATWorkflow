@@ -57,7 +57,7 @@ gcat_workflow dna ./tests/dna_sample.csv ${output_dir} ./tests/dna_gcat.cfg
 2. `snakemake`
 ```
 cd ${output_dir}
-snakemake
+snakemake --cores 4 -k
 ```
 
 case, dry-run
