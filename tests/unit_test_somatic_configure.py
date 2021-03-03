@@ -177,6 +177,7 @@ reference = {sample_dir}/reference/XXX.fa
 [genomonsv_parse]
 qsub_option = -l s_vmem=3G,mem_req=3G
 image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
 
 [genomonsv_merge]
 qsub_option = -l s_vmem=3G,mem_req=3G
