@@ -20,7 +20,7 @@ set -o nounset
 set -o pipefail
 set -x
 
-GenomonSV parse {input_bam} {output_prefix} {param}
+GenomonSV parse {input_bam} {output_prefix} --reference {reference} {param}
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
@@ -55,9 +55,10 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "input_bam": input_bams[sample],
             "output_prefix": "%s/%s"% (output_dir, sample),
             "param": gcat_conf.get(CONF_SECTION, "params"),
+            "reference": gcat_conf.path_get(CONF_SECTION, "reference"),
         }
         
-        singularity_bind = [run_conf.project_root]
+        singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
         if sample in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[sample]
             
