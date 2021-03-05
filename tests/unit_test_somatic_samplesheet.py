@@ -66,17 +66,21 @@ class ConfigureTest(unittest.TestCase):
         ss_path = self.SAMPLE_DIR + "/" + sys._getframe().f_code.co_name + ".csv"
         data = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+A_tumor2,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq
 pool2,{sample_dir}/C1_1.fq;{sample_dir}/C1_2.fq,{sample_dir}/C2_1.fq;{sample_dir}/C2_2.fq
 
 [{bam2fq}]
 A_control,{sample_dir}/A.markdup.cram
+A_control2,{sample_dir}/A.markdup.cram
 
 [{bamimp}]
 pool3,{sample_dir}/B.markdup.cram
 
 [{htcall}]
 A_tumor,A_control
+A_control,None
+A_control2
 
 [{summary1}]
 A_tumor
@@ -86,21 +90,30 @@ A_tumor
 
 [manta]
 A_tumor,A_control
+A_control,None
+A_control2
 
 [gridss]
 A_tumor,A_control
+A_control,None
+A_control2
 
 [genomon_sv]
 A_tumor,A_control,list1
+A_tumor2,None,list1
+A_control,None
+A_control2
 
 [controlpanel]
 list1,pool1,pool2,pool3
 
 [readgroup]
 A_tumor,{sample_dir}/A.metadata.txt
+A_tumor2,{sample_dir}/A.metadata.txt
 pool1,{sample_dir}/B.metadata.txt
 pool2,{sample_dir}/C.metadata.txt
 A_control,{sample_dir}/A.metadata.txt
+A_control2,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, htcall = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         
         f = open(ss_path, "w")
@@ -110,37 +123,43 @@ A_control,{sample_dir}/A.metadata.txt
         
         self.assertEqual(sample_conf.fastq, {
             'A_tumor': [[self.SAMPLE_DIR + '/A1.fastq'], [self.SAMPLE_DIR + '/A2.fastq']], 
+            'A_tumor2': [[self.SAMPLE_DIR + '/A1.fastq'], [self.SAMPLE_DIR + '/A2.fastq']], 
             'pool1': [[self.SAMPLE_DIR + '/B1.fq'], [self.SAMPLE_DIR + '/B2.fq']], 
             'pool2': [[self.SAMPLE_DIR + '/C1_1.fq', self.SAMPLE_DIR + '/C1_2.fq'], [self.SAMPLE_DIR + '/C2_1.fq', self.SAMPLE_DIR + '/C2_2.fq']],
         })
         
         self.assertEqual(sample_conf.fastq_src, {
             'A_tumor': [[self.SAMPLE_DIR + '/A1.fastq'], [self.SAMPLE_DIR + '/A2.fastq']], 
+            'A_tumor2': [[self.SAMPLE_DIR + '/A1.fastq'], [self.SAMPLE_DIR + '/A2.fastq']], 
             'pool1': [[self.SAMPLE_DIR + '/B1.fq'], [self.SAMPLE_DIR + '/B2.fq']], 
             'pool2': [[self.SAMPLE_DIR + '/C1_1.fq', self.SAMPLE_DIR + '/C1_2.fq'], [self.SAMPLE_DIR + '/C2_1.fq', self.SAMPLE_DIR + '/C2_2.fq']],
         })
 
-        self.assertEqual(sample_conf.bam_tofastq, {'A_control': self.SAMPLE_DIR + '/A.markdup.cram'})
-        self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.markdup.cram']})
+        self.assertEqual(sample_conf.bam_tofastq, {'A_control': self.SAMPLE_DIR + '/A.markdup.cram', 'A_control2': self.SAMPLE_DIR + '/A.markdup.cram'})
+        self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.markdup.cram'], 'A_control2': [self.SAMPLE_DIR + '/A.markdup.cram']})
         self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.markdup.cram'})
         self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.markdup.cram', self.SAMPLE_DIR + '/B.markdup.crai']})
-        self.assertEqual(sample_conf.mutect_call, [('A_tumor', 'A_control')])
-        self.assertEqual(sample_conf.manta, [('A_tumor', 'A_control')])
-        self.assertEqual(sample_conf.gridss, [('A_tumor', 'A_control')])
+        self.assertEqual(sample_conf.mutect_call, [('A_tumor', 'A_control'), ('A_control', None), ('A_control2', None)])
+        self.assertEqual(sample_conf.manta, [('A_tumor', 'A_control'), ('A_control', None), ('A_control2', None)])
+        self.assertEqual(sample_conf.gridss, [('A_tumor', 'A_control'), ('A_control', None), ('A_control2', None)])
         self.assertEqual(sample_conf.wgs_metrics, ['A_tumor'])
         self.assertEqual(sample_conf.multiple_metrics, ['A_tumor'])
-        self.assertEqual(sample_conf.genomon_sv, [('A_tumor', 'A_control', 'list1')])
+        self.assertEqual(sample_conf.genomon_sv, [('A_tumor', 'A_control', 'list1'), ('A_tumor2', None, 'list1'), ('A_control', None, None), ('A_control2', None, None)])
         self.assertEqual(sample_conf.readgroup, {
             'A_tumor': self.SAMPLE_DIR + '/A.metadata.txt',
+            'A_tumor2': self.SAMPLE_DIR + '/A.metadata.txt',
             'pool1': self.SAMPLE_DIR + '/B.metadata.txt',
             'pool2': self.SAMPLE_DIR + '/C.metadata.txt',
-            'A_control': self.SAMPLE_DIR + '/A.metadata.txt'
+            'A_control': self.SAMPLE_DIR + '/A.metadata.txt',
+            'A_control2': self.SAMPLE_DIR + '/A.metadata.txt'
         })
         self.assertEqual(sample_conf.readgroup_src, {
             'A_tumor': [self.SAMPLE_DIR + '/A.metadata.txt'],
+            'A_tumor2': [self.SAMPLE_DIR + '/A.metadata.txt'],
             'pool1': [self.SAMPLE_DIR + '/B.metadata.txt'],
             'pool2': [self.SAMPLE_DIR + '/C.metadata.txt'],
-            'A_control': [self.SAMPLE_DIR + '/A.metadata.txt']
+            'A_control': [self.SAMPLE_DIR + '/A.metadata.txt'],
+            'A_control2': [self.SAMPLE_DIR + '/A.metadata.txt']
         })
 
     # --------------------------------------------------------------------

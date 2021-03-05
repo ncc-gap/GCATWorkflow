@@ -81,21 +81,27 @@ pool3,{sample_dir}/B.markdup.cram
 
 [{ht_call}]
 A_tumor, A_control
+A_control,None
 
 [{summary1}]
 A_tumor
+A_control
 
 [{summary2}]
 A_tumor
+A_control
 
 [manta]
 A_tumor, A_control
+A_control, None
 
 [gridss]
 A_tumor, A_control
+A_control, None
 
 [genomon_sv]
 A_tumor,A_control,list1
+A_control, None, None
 
 [controlpanel]
 list1,pool1,pool2,pool3
