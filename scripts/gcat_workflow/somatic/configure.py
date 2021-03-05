@@ -144,7 +144,8 @@ def main(gcat_conf, run_conf, sample_conf):
     y["genomonsv_filt_samples"] = {}
     for (tumor, normal, panel) in sample_conf.genomon_sv:
         y["genomonsv_filt_samples"][tumor] = [__to_relpath(output_genomon_parse[tumor])]
-        y["genomonsv_filt_samples"][tumor].append(__to_relpath(output_genomon_parse[normal]))
+        if normal != None:
+            y["genomonsv_filt_samples"][tumor].append(__to_relpath(output_genomon_parse[normal]))
         if panel != None:
             y["genomonsv_filt_samples"][tumor].append(__to_relpath(output_genomon_merge[panel]))
         
