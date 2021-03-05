@@ -63,7 +63,7 @@ export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
     ${{NORMAL_BAM}} ${{TUMOR_BAM}}
 
 if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
-    Rscript gridss_somatic_filter.R \
+    Rscript /opt/gridss/gridss_somatic_filter.R \
         -i {OUTPUT_VCF} \
         -o {OUTPUT_VCF_SOMATIC} \
         --normalordinal 1 --tumourordinal 2
