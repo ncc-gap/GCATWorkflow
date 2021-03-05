@@ -111,7 +111,8 @@ def main(gcat_conf, run_conf, sample_conf):
     y["mutectcaller_samples"] = {}
     for (tumor, normal) in sample_conf.mutect_call:
         y["mutectcaller_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
-        y["mutectcaller_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
+        if normal != None:
+            y["mutectcaller_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
         
     y["collect_wgs_metrics_samples"] = {}
     for sample in sample_conf.wgs_metrics:
@@ -124,12 +125,14 @@ def main(gcat_conf, run_conf, sample_conf):
     y["gridss_samples"] = {}
     for (tumor, normal) in sample_conf.gridss:
         y["gridss_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
-        y["gridss_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
+        if normal != None:
+            y["gridss_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
         
     y["manta_samples"] = {}
     for (tumor, normal) in sample_conf.manta:
         y["manta_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
-        y["manta_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
+        if normal != None:
+            y["manta_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
         
     y["genomonsv_parse_samples"] = {}
     for sample in output_genomon_parse:
