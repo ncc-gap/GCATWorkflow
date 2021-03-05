@@ -108,6 +108,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GRIDSS_OPTION": gcat_conf.get(CONF_SECTION, "gridss_option") + " " + gcat_conf.get(CONF_SECTION, "gridss_threads_option"),
             "GRIDSS_JAR": gcat_conf.get(CONF_SECTION, "gridss_jar"),
+            "GRIDSS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gridss_java_option"),
             "SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "samtools_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_threads_option")
         }
        
