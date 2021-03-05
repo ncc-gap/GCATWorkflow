@@ -51,6 +51,8 @@ else
      export NORMAL_BAM=""
 fi
 
+export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
+
 /opt/gridss/gridss.sh \\
     -o {OUTPUT_VCF}  \\
     -a ${{output_pref}}.gridss-assembly.bam \\
@@ -60,10 +62,12 @@ fi
     {GRIDSS_OPTION} \\
     ${{NORMAL_BAM}} ${{TUMOR_BAM}}
 
-Rscript gridss_somatic_filter.R \
-    -i {OUTPUT_VCF} \
-    -o {OUTPUT_VCF_SOMATIC} \
-    --normalordinal 1 --tumourordinal 2
+if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
+    Rscript gridss_somatic_filter.R \
+        -i {OUTPUT_VCF} \
+        -o {OUTPUT_VCF_SOMATIC} \
+        --normalordinal 1 --tumourordinal 2
+fi
 
 rm ${{TUMOR_BAM}}
 rm ${{TUMOR_BAM}}.bai
