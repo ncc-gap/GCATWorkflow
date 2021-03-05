@@ -66,7 +66,7 @@ if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
     Rscript /opt/gridss/gridss_somatic_filter.R \
         -i {OUTPUT_VCF} \
         -o {OUTPUT_VCF_SOMATIC} \
-        --normalordinal 1 --tumourordinal 2
+        --normalordinal 1 --tumourordinal 2 --scriptdir /opt/gridss/
 fi
 
 rm ${{TUMOR_BAM}}
