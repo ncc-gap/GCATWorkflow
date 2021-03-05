@@ -21,7 +21,7 @@ set -o pipefail
 set -x
 
 if [ -f {OUTPUT_DIR}/runWorkflow.py ]; then
-    rm {OUTPUT_DIR}/runWorkflow.py
+    rm -rf {OUTPUT_DIR}/*
 fi
 
 if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
