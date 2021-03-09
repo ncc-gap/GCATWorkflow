@@ -47,7 +47,19 @@ class ConfigureTest(unittest.TestCase):
         ]
         for p in touch_files:
             open(self.SAMPLE_DIR + p, "w").close()
-    
+        
+        link_files = [
+            ("/C1_1.fq", "/link_C1_1.fq"),
+            ("/C1_2.fq", "/link_C1_2.fq"),
+            ("/A.markdup.cram", "/link_A.markdup.cram"),
+            ("/A.markdup.crai", "/link_A.markdup.cram.crai"),
+            ("/B.markdup.cram", "/link_B.markdup.cram"),
+            ("/B.markdup.crai", "/link_B.markdup.crai"),
+            ("/A.metadata.txt", "/link_A.metadata.txt"),
+        ]
+        for s in link_files:
+            os.symlink(self.SAMPLE_DIR + s[0], self.SAMPLE_DIR + s[1])
+        
     # terminated class
     @classmethod
     def tearDownClass(self):
@@ -67,13 +79,15 @@ class ConfigureTest(unittest.TestCase):
         data = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq
-pool2,{sample_dir}/C1_1.fq;{sample_dir}/C1_2.fq,{sample_dir}/C2_1.fq;{sample_dir}/C2_2.fq
+pool2,{sample_dir}/link_C1_1.fq;{sample_dir}/link_C1_2.fq,{sample_dir}/C2_1.fq;{sample_dir}/C2_2.fq
 
 [{bam2fq}]
 A_control,{sample_dir}/A.markdup.cram
+A_control2,{sample_dir}/link_A.markdup.cram
 
 [{bamimp}]
 pool3,{sample_dir}/B.markdup.cram
+pool4,{sample_dir}/link_B.markdup.cram
 
 [{htcall}]
 A_tumor
@@ -102,6 +116,7 @@ A_tumor,{sample_dir}/A.metadata.txt
 pool1,{sample_dir}/B.metadata.txt
 pool2,{sample_dir}/C.metadata.txt
 A_control,{sample_dir}/A.metadata.txt
+A_control2,{sample_dir}/link_A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, htcall = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         
         f = open(ss_path, "w")
@@ -112,19 +127,25 @@ A_control,{sample_dir}/A.metadata.txt
         self.assertEqual(sample_conf.fastq, {
             'A_tumor': [[self.SAMPLE_DIR + '/A1.fastq'], [self.SAMPLE_DIR + '/A2.fastq']], 
             'pool1': [[self.SAMPLE_DIR + '/B1.fq'], [self.SAMPLE_DIR + '/B2.fq']], 
-            'pool2': [[self.SAMPLE_DIR + '/C1_1.fq', self.SAMPLE_DIR + '/C1_2.fq'], [self.SAMPLE_DIR + '/C2_1.fq', self.SAMPLE_DIR + '/C2_2.fq']],
+            'pool2': [[self.SAMPLE_DIR + '/link_C1_1.fq', self.SAMPLE_DIR + '/link_C1_2.fq'], [self.SAMPLE_DIR + '/C2_1.fq', self.SAMPLE_DIR + '/C2_2.fq']],
         })
         
         self.assertEqual(sample_conf.fastq_src, {
             'A_tumor': [[self.SAMPLE_DIR + '/A1.fastq'], [self.SAMPLE_DIR + '/A2.fastq']], 
             'pool1': [[self.SAMPLE_DIR + '/B1.fq'], [self.SAMPLE_DIR + '/B2.fq']], 
-            'pool2': [[self.SAMPLE_DIR + '/C1_1.fq', self.SAMPLE_DIR + '/C1_2.fq'], [self.SAMPLE_DIR + '/C2_1.fq', self.SAMPLE_DIR + '/C2_2.fq']],
+            'pool2': [[self.SAMPLE_DIR + '/link_C1_1.fq', self.SAMPLE_DIR + '/C1_1.fq', self.SAMPLE_DIR + '/link_C1_2.fq', self.SAMPLE_DIR + '/C1_2.fq'], [self.SAMPLE_DIR + '/C2_1.fq', self.SAMPLE_DIR + '/C2_2.fq']],
         })
 
-        self.assertEqual(sample_conf.bam_tofastq, {'A_control': self.SAMPLE_DIR + '/A.markdup.cram'})
-        self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.markdup.cram']})
-        self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.markdup.cram'})
-        self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.markdup.cram', self.SAMPLE_DIR + '/B.markdup.crai']})
+        self.assertEqual(sample_conf.bam_tofastq, {'A_control': self.SAMPLE_DIR + '/A.markdup.cram', 'A_control2': self.SAMPLE_DIR + '/link_A.markdup.cram'})
+        self.assertEqual(sample_conf.bam_tofastq_src, {
+            'A_control': [self.SAMPLE_DIR + '/A.markdup.cram'],
+            'A_control2': [self.SAMPLE_DIR + '/link_A.markdup.cram', self.SAMPLE_DIR + '/A.markdup.cram']
+        })
+        self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.markdup.cram', 'pool4': self.SAMPLE_DIR + '/link_B.markdup.cram'})
+        self.assertEqual(sample_conf.bam_import_src, {
+            'pool3': [self.SAMPLE_DIR + '/B.markdup.cram', self.SAMPLE_DIR + '/B.markdup.crai'],
+            'pool4': [self.SAMPLE_DIR + '/link_B.markdup.cram', self.SAMPLE_DIR + '/link_B.markdup.crai', self.SAMPLE_DIR + '/B.markdup.cram', self.SAMPLE_DIR + '/B.markdup.crai']
+        })
         self.assertEqual(sample_conf.haplotype_call, ['A_tumor','A_control','pool1','pool2','pool3'])
         self.assertEqual(sample_conf.manta, ['A_tumor'])
         self.assertEqual(sample_conf.melt, ['A_tumor'])
@@ -135,13 +156,15 @@ A_control,{sample_dir}/A.metadata.txt
             'A_tumor': self.SAMPLE_DIR + '/A.metadata.txt',
             'pool1': self.SAMPLE_DIR + '/B.metadata.txt',
             'pool2': self.SAMPLE_DIR + '/C.metadata.txt',
-            'A_control': self.SAMPLE_DIR + '/A.metadata.txt'
+            'A_control': self.SAMPLE_DIR + '/A.metadata.txt',
+            'A_control2': self.SAMPLE_DIR + '/link_A.metadata.txt'
         })
         self.assertEqual(sample_conf.readgroup_src, {
             'A_tumor': [self.SAMPLE_DIR + '/A.metadata.txt'],
             'pool1': [self.SAMPLE_DIR + '/B.metadata.txt'],
             'pool2': [self.SAMPLE_DIR + '/C.metadata.txt'],
-            'A_control': [self.SAMPLE_DIR + '/A.metadata.txt']
+            'A_control': [self.SAMPLE_DIR + '/A.metadata.txt'],
+            'A_control2': [self.SAMPLE_DIR + '/link_A.metadata.txt', self.SAMPLE_DIR + '/A.metadata.txt']
         })
 
     # --------------------------------------------------------------------

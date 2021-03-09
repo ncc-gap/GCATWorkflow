@@ -168,8 +168,18 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
         
         readgroups = open(sample_conf.readgroup[sample]).readlines()
         input_params = ""
+        bind_fastqs = []
         for i in range(len(sample_conf.fastq[sample][0])):
-            input_params += ' --in-fq %s %s "%s"' % (sample_conf.fastq[sample][0][i], sample_conf.fastq[sample][1][i], readgroups[i].rstrip())
+            fastq1 = ""
+            fastq2 = ""
+            for path in sample_conf.fastq_src[sample][i]:
+                if not os.path.islink(path):
+                    bind_fastqs.append(path)
+                    if fastq1 == "":
+                        fastq1 = path
+                    else:
+                        fastq2 = path
+            input_params += ' --in-fq %s %s "%s"' % (fastq1, fastq2, readgroups[i].rstrip())
             
         arguments = {
             "SAMPLE_NAME": sample,
@@ -184,7 +194,7 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
         singularity_bind = [
             run_conf.project_root,
             os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference")),
-        ] + sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1] + sample_conf.readgroup_src[sample]
+        ] + bind_fastqs
         
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
     return output_bams
