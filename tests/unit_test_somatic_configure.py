@@ -52,6 +52,34 @@ class ConfigureTest(unittest.TestCase):
             "/samples/C1_2.fq",
             "/samples/C2_1.fq",
             "/samples/C2_2.fq",
+            "/samples/D1_1.fq",
+            "/samples/D1_2.fq",
+            "/samples/D2_1.fq",
+            "/samples/D2_2.fq",
+            "/samples/D3_1.fq",
+            "/samples/D3_2.fq",
+            "/samples/D4_1.fq",
+            "/samples/D4_2.fq",
+            "/samples/D5_1.fq",
+            "/samples/D5_2.fq",
+            "/samples/D6_1.fq",
+            "/samples/D6_2.fq",
+            "/samples/D7_1.fq",
+            "/samples/D7_2.fq",
+            "/samples/D8_1.fq",
+            "/samples/D8_2.fq",
+            "/samples/D9_1.fq",
+            "/samples/D9_2.fq",
+            "/samples/D10_1.fq",
+            "/samples/D10_2.fq",
+            "/samples/D11_1.fq",
+            "/samples/D11_2.fq",
+            "/samples/D12_1.fq",
+            "/samples/D12_2.fq",
+            "/samples/D13_1.fq",
+            "/samples/D13_2.fq",
+            "/samples/D14_1.fq",
+            "/samples/D14_2.fq",
             "/samples/A.markdup.cram",
             "/samples/A.markdup.cram.crai",
             "/samples/B.markdup.cram",
@@ -74,15 +102,17 @@ class ConfigureTest(unittest.TestCase):
         for s in link_files:
             os.symlink(self.SAMPLE_DIR + s[0], self.SAMPLE_DIR + s[1])
         
-        for p in ["/samples/A.metadata.txt", "/samples/B.metadata.txt", "/samples/C.metadata.txt"]:
-            f = open(self.DATA_DIR + p, "w")
-            f.write("@RG:xxx\n@RG:xxx\n@RG:xxx")
+        for p in [("/samples/A.metadata.txt", "A", 1), ("/samples/B.metadata.txt", "B", 1), ("/samples/C.metadata.txt", "C", 2), ("/samples/D.metadata.txt", "D", 14)]:
+            f = open(self.DATA_DIR + p[0], "w")
+            for i in range(p[2]):
+                f.write("@RG:%s_%d\n" % (p[1], i))
             f.close()
 
         data_sample = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 pool1,{sample_dir}/B1.fq,{sample_dir}/B2.fq
-pool2,{sample_dir}/link_C1_1.fq;{sample_dir}/link_C1_1.fq,{sample_dir}/C2_1.fq;{sample_dir}/C2_2.fq
+pool2,{sample_dir}/link_C1_1.fq;{sample_dir}/link_C1_2.fq,{sample_dir}/C2_1.fq;{sample_dir}/C2_2.fq
+D_tumor,{sample_dir}/D1_1.fq;{sample_dir}/D2_1.fq;{sample_dir}/D3_1.fq;{sample_dir}/D4_1.fq;{sample_dir}/D5_1.fq;{sample_dir}/D6_1.fq;{sample_dir}/D7_1.fq;{sample_dir}/D8_1.fq;{sample_dir}/D9_1.fq;{sample_dir}/D10_1.fq;{sample_dir}/D11_1.fq;{sample_dir}/D12_1.fq;{sample_dir}/D13_1.fq;{sample_dir}/D14_1.fq,{sample_dir}/D1_2.fq;{sample_dir}/D2_2.fq;{sample_dir}/D3_2.fq;{sample_dir}/D4_2.fq;{sample_dir}/D5_2.fq;{sample_dir}/D6_2.fq;{sample_dir}/D7_2.fq;{sample_dir}/D8_2.fq;{sample_dir}/D9_2.fq;{sample_dir}/D10_2.fq;{sample_dir}/D11_2.fq;{sample_dir}/D12_2.fq;{sample_dir}/D13_2.fq;{sample_dir}/D14_2.fq
 
 [{bam2fq}]
 A_control,{sample_dir}/A.markdup.cram
@@ -125,6 +155,7 @@ pool1,{sample_dir}/B.metadata.txt
 pool2,{sample_dir}/C.metadata.txt
 A_control,{sample_dir}/A.metadata.txt
 A_control2,{sample_dir}/A.metadata.txt
+D_tumor,{sample_dir}/D.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
         
         f = open(self.DATA_DIR + self.SS_NAME, "w")

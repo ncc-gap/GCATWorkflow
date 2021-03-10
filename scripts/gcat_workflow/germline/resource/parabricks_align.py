@@ -142,6 +142,16 @@ def _compatible(gcat_conf, run_conf, sample_conf):
         stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
     return output_bams
 
+def _link_source(file_path):
+    link_dst = os.path.abspath(file_path)
+    while(1):
+        if os.path.islink(link_dst):
+            link_dst = os.path.abspath(os.readlink(link_dst))
+        else:
+            break
+
+    return link_dst
+
 def _parabricks(gcat_conf, run_conf, sample_conf):
 
     CONF_SECTION = STAGE_NAME
@@ -169,17 +179,23 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
         readgroups = open(sample_conf.readgroup[sample]).readlines()
         input_params = ""
         bind_fastqs = []
+        fastq1 = ""
+        fastq2 = ""
         for i in range(len(sample_conf.fastq[sample][0])):
-            fastq1 = ""
-            fastq2 = ""
-            for path in sample_conf.fastq_src[sample][i]:
-                if not os.path.islink(path):
-                    bind_fastqs.append(path)
-                    if fastq1 == "":
-                        fastq1 = path
-                    else:
-                        fastq2 = path
-            input_params += ' --in-fq %s %s "%s"' % (fastq1, fastq2, readgroups[i].rstrip())
+            path1 = sample_conf.fastq[sample][0][i]
+            path2 = sample_conf.fastq[sample][1][i]
+
+            fastq1 = path1
+            if os.path.islink(path1):
+                fastq1 = _link_source(path1)
+
+            fastq2 = path2
+            if os.path.islink(path2):
+                fastq2 = _link_source(path2)
+
+            bind_fastqs.append(fastq1)
+            bind_fastqs.append(fastq2)
+            input_params += '--in-fq %s %s "%s" ' % (fastq1, fastq2, readgroups[i].rstrip())
             
         arguments = {
             "SAMPLE_NAME": sample,
