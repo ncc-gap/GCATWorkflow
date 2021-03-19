@@ -99,7 +99,16 @@ class Qsub_runner(Runner):
         qsub_options = []
         if type(self.qsub_option) == type(""):
             qsub_options += self.qsub_option.split(' ')
-        returncode = subprocess.call(qsub_commands + qsub_options + [self.singularity_script])
+            if '' in qsub_options:
+                qsub_options.remove('')
+        if len(qsub_options) > 0:
+            qsub_commands += qsub_options
+
+        returncode = subprocess.call(qsub_commands + [
+            "-o", self.log_dir,
+            "-e", self.log_dir,
+            self.singularity_script
+        ])
 
         if returncode != 0: 
             raise RuntimeError("The batch job failed.")
