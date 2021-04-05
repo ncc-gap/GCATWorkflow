@@ -73,6 +73,7 @@ rule bwa:
         lambda wildcards: config["aln_samples"][wildcards.sample],
     output:
         "cram/{sample}/{sample}.markdup.bam"
+    priority: 50
     params:
         script = "script/{sample}/singularity_bwa_alignment_parabricks.sh",
         yaml = "script/{sample}/conf_bwa_alignment_parabricks.yml"
@@ -104,6 +105,7 @@ rule haplotypecaller:
         "haplotypecaller/{sample}/{sample}.chrX.male.g.vcf.gz.tbi",
         "haplotypecaller/{sample}/{sample}.chrY.male.g.vcf.gz",
         "haplotypecaller/{sample}/{sample}.chrY.male.g.vcf.gz.tbi"
+    priority: 80
     params:
         script = "script/{sample}/singularity_haplotypecaller_parabricks.sh",
         yaml = "script/{sample}/conf_haplotypecaller_parabricks.yml"
@@ -115,6 +117,7 @@ rule collectwgsmetrics:
         lambda wildcards: config["collect_wgs_metrics_samples"][wildcards.sample],
     output:
         "summary/{sample}/{sample}.collect_wgs_metrics.txt"
+    priority: 80
     params:
         script = "script/{sample}/singularity_collect_wgs_metrics.sh",
         yaml = "script/{sample}/conf_collect_wgs_metrics.yml"
@@ -130,6 +133,7 @@ rule collect_multiple_metrics:
         "summary/{sample}/{sample}.collect_multiple_metrics.insert_size_histogram.pdf",
         "summary/{sample}/{sample}.collect_multiple_metrics.quality_by_cycle.pdf",
         "summary/{sample}/{sample}.collect_multiple_metrics.quality_distribution.pdf"
+    priority: 80
     params:
         script = "script/{sample}/singularity_collect_multiple_metrics.sh",
         yaml = "script/{sample}/conf_collect_multiple_metrics.yml"
@@ -142,6 +146,7 @@ rule gridss:
     output:
         "gridss/{sample}/{sample}.gridss.vcf",
         "gridss/{sample}/{sample}.gridss.vcf.idx"
+    priority: 80
     params:
         script = "script/{sample}/singularity_gridss.sh",
         yaml = "script/{sample}/conf_gridss.yml"
@@ -154,6 +159,7 @@ rule manta:
     output:
         "manta/{sample}/results/variants/candidateSV.vcf.gz",
         "manta/{sample}/results/variants/candidateSV.vcf.gz.tbi"
+    priority: 80
     params:
         script = "script/{sample}/singularity_manta.sh",
         yaml = "script/{sample}/conf_manta.yml"
@@ -168,6 +174,7 @@ rule melt:
         "melt/{sample}/HERVK.final_comp.vcf",
         "melt/{sample}/LINE1.final_comp.vcf",
         "melt/{sample}/SVA.final_comp.vcf"
+    priority: 80
     params:
         script = "script/{sample}/singularity_melt.sh",
         yaml = "script/{sample}/conf_melt.yml"

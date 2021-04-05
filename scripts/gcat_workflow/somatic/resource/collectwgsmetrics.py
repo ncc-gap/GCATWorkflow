@@ -117,7 +117,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             input_real_path = input_bams[sample]
         else:
             for path in sample_conf.bam_import_src[sample]:
-                if not os.path.islink(path):
+                if not os.path.islink(path) and path.split(".")[-1] in ["bam", "cram"]:
                     input_real_path = path
 
         arguments = {
