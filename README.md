@@ -36,23 +36,25 @@ singularity pull docker://genomon/bwa_alignment:0.2.0
 Edit `image` options, to pulled `.simg`.  
 And edit pathes of reference files.
 ```
-vi ./tests/dna_gcat.cfg
+vi ./tests/gcat.cfg
 ```
 
 4. Edit sample.csv
 
 Edit pathes of sequence files.
 ```
-vi ./tests/dna_sample.csv
+vi ./tests/sample.csv
 ```
 
 ## How to use
 
 1. Configure
 
+case with germline mode
 ```
-gcat_workflow dna ./tests/dna_sample.csv ${output_dir} ./tests/dna_gcat.cfg
+gcat_workflow germline ./tests/sample.csv ${output_dir} ./tests/gcat.cfg
 ```
+
 
 2. `snakemake`
 ```
