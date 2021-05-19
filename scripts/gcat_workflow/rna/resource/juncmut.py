@@ -62,8 +62,10 @@ def configure(input_bams, input_sj_tabs, gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.juncmut:
         output_dir = "%s/juncmut/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)
-        output_files[sample] = "%s/%s.juncmut.filt.bam" % (output_dir, sample)
-        
+        output_files[sample] = [
+            "%s/%s.juncmut.filt.bam" % (output_dir, sample),
+            "%s/%s.juncmut.filt.bam.bai" % (output_dir, sample)
+        ]
         arguments = {
             "SAMPLE": sample,
             "INPUT_FILE": input_sj_tabs[sample],

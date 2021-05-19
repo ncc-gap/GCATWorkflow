@@ -193,7 +193,7 @@ def main(gcat_conf, run_conf, sample_conf):
         output_stars[sample] = [
             output_bams[sample],
             output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.BAI_POSTFIX),
-            output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.CHIMERIC_JUNCTION_POSTFIX),
+            #output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.CHIMERIC_JUNCTION_POSTFIX),
         ]
     __update_dic(dic_output_files, output_stars)
     __update_dic(dic_output_files, output_dumps)

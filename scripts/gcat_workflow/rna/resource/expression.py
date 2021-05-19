@@ -23,6 +23,10 @@ OUTPUT_PREF={OUTPUT_DIR}/{SAMPLE}
 rm -rf {OUTPUT_DIR}/*
 featureCounts -T 4 -p -a {GTF} -O -B -C -o ${{OUTPUT_PREF}}.txt {INPUT_BAM}
 python /tools/simple_exp/proc_fc.py ${{OUTPUT_PREF}}.txt ${{OUTPUT_PREF}}.txt.summary {GTF} > ${{OUTPUT_PREF}}.txt.fpkm
+
+gzip ${{OUTPUT_PREF}}.txt
+${{OUTPUT_PREF}}.txt
+
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
@@ -43,8 +47,11 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.expression:
         output_dir = "%s/expression/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True) 
-        output_files[sample] = "%s/%s.txt.fpkm" % (output_dir, sample)
-        
+        output_files[sample] = [
+            "%s/%s.txt.fpkm" % (output_dir, sample),
+            "%s/%s.txt.gz" % (output_dir, sample),
+            "%s/%s.txt.summary" % (output_dir, sample),
+        ]
         arguments = {
             "SAMPLE": sample,
             "INPUT_BAM": input_bams[sample],

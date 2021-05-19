@@ -25,14 +25,26 @@ set -x
 mkdir -p {OUTPUT_DIR}/temp
 cd {OUTPUT_DIR}/temp
 
-prefetch --max-size 100000000 {RUN_ID}
-#ls -l {RUN_ID}/
-fasterq-dump -v --split-files {RUN_ID}/{RUN_ID}.sra
-rm -rf {RUN_ID}
+if [ "{URL}" = "" ]; then
+    # download
+    prefetch --max-size 100000000 {RUN_ID}
+    fasterq-dump -v --split-files {RUN_ID}/{RUN_ID}.sra
+    rm -rf {RUN_ID}
 
-if [ -e {RUN_ID}.sra_1.fastq ]; then mv {RUN_ID}.sra_1.fastq 1_1.fastq; fi
-if [ -e {RUN_ID}.sra_2.fastq ]; then mv {RUN_ID}.sra_2.fastq 1_2.fastq; fi
-if [ -e {RUN_ID}.sra.fastq ]; then mv {RUN_ID}.sra.fastq 1_1.fastq; fi
+    if [ -e {RUN_ID}.sra_1.fastq ]; then mv {RUN_ID}.sra_1.fastq 1_1.fastq; fi
+    if [ -e {RUN_ID}.sra_2.fastq ]; then mv {RUN_ID}.sra_2.fastq 1_2.fastq; fi
+    if [ -e {RUN_ID}.sra.fastq ]; then mv {RUN_ID}.sra.fastq 1_1.fastq; fi
+
+else
+    # for ddbj
+    wget {URL}
+    fasterq-dump -v --split-files {RUN_ID}.sra
+    rm {RUN_ID}.sra
+
+    if [ -e {RUN_ID}_1.fastq ]; then mv {RUN_ID}_1.fastq 1_1.fastq; fi
+    if [ -e {RUN_ID}_2.fastq ]; then mv {RUN_ID}_2.fastq 1_2.fastq; fi
+    if [ -e {RUN_ID}.fastq ]; then mv {RUN_ID}.fastq 1_1.fastq; fi
+fi
 
 # squeeze
 seqtk squeeze {OUTPUT_DIR}/temp/1_1.fastq > {OUTPUT_DIR}/1_1.fastq
@@ -45,7 +57,7 @@ fi
 cd {OUTPUT_DIR}
 rm -rf {OUTPUT_DIR}/temp
 
-touch {pass_file}
+touch {PASS_FILE}
 """
 
 def configure(gcat_conf, run_conf, sample_conf):
@@ -69,10 +81,15 @@ def configure(gcat_conf, run_conf, sample_conf):
         f2_name = output_dir + "/1_2.fastq"
         output_fastqs[sample] = [[f1_name], [f2_name]]
 
+        url = sample_conf.sra_fastq_dump[sample][1]
+        if url == None:
+            url = ""
+
         arguments = {
-            "RUN_ID": sample_conf.sra_fastq_dump[sample],
+            "RUN_ID": sample_conf.sra_fastq_dump[sample][0],
             "OUTPUT_DIR": output_dir,
-            "pass_file": output_dir + '/pass.txt'
+            "PASS_FILE": output_dir + '/pass.txt',
+            "URL": url,
         }
         
         singularity_bind = [

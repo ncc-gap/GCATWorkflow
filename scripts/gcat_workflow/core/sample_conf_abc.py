@@ -414,7 +414,7 @@ class Sample_conf_abc(object):
         return {"metadata": metadata, "metadata_src": metadata_src}
 
     def parse_data_parameter(self, _data, section_name, deny_none=True):
-        # fastq-dump section type fastq-dump (sample, RUNID)
+        # fastq-dump section type fastq-dump (sample, RUNID, url)
         
         params = {}
         for row in _data:
@@ -425,8 +425,9 @@ class Sample_conf_abc(object):
                 if deny_none:
                     err_msg = "[%s] section, None cannot be set" % (section_name)
                     raise ValueError(err_msg)
-                
-            params[sampleID] = param
+            
+            param_option = row[2] if len(row) >= 3 and row[2] not in ['', 'None'] else None
+            params[sampleID] = [param, param_option]
         
         return params
 

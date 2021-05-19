@@ -56,7 +56,7 @@ class ConfigureTest(unittest.TestCase):
             "/samples/I.Aligned.sortedByCoord.out.bam.bai",
             "/samples/I.Chimeric.out.junction",
             "/samples/I.Chimeric.out.sam",
-            "/samples/I.SJ.out.tab",
+            "/samples/I.SJ.out.tab.gz",
             "/reference/XXX.fa",
             "/image/YYY.simg",
             "/reference/ZZZ.gtf",
@@ -83,7 +83,8 @@ sampleH,{sample_dir}/H.Aligned.sortedByCoord.out.bam,,,
 sampleI,{sample_dir}/I.Aligned.sortedByCoord.out.bam,,,
 [sra_fastq_dump],,,,
 sampleJ,RUNID123456
-,,,,
+sampleK,RUNID123456,http://dummy.com/data/run.sra
+
 [fusionfusion],,,,
 sampleA,list1
 sampleD,list1
@@ -91,11 +92,13 @@ sampleG,None
 sampleH,,,,
 sampleI,,,,
 sampleJ
+sampleK
 ,,,,,,,,,,,,
 [expression],,,,
 sampleA,,,,
 sampleD,,,,
 sampleJ
+sampleK
 [qc],,,,
 sampleA,,,,
 sampleB,
@@ -107,6 +110,7 @@ sampleG,,,,
 sampleH,,,,
 sampleI,,,,
 sampleJ
+sampleK
 ,,,,
 [star_fusion],,,,
 sampleA,,,,
@@ -115,6 +119,7 @@ sampleG,,,,
 sampleH,,,,
 sampleI,,,,
 sampleJ
+sampleK
 [iravnet],,,,
 sampleA,,,,
 sampleB,,,,
@@ -126,6 +131,7 @@ sampleG,,,,
 sampleH,,,,
 sampleI,,,,
 sampleJ
+sampleK
 [juncmut],,,,
 sampleA,,,,
 sampleB,,,,
@@ -137,6 +143,7 @@ sampleG,,,,
 sampleH,,,,
 sampleI,,,,
 sampleJ
+sampleK
 [intron_retention],,,,
 sampleA,,,,
 sampleD,,,,
@@ -151,6 +158,7 @@ sampleG,,,,
 sampleH,,,,
 sampleI,,,,
 sampleJ
+sampleK
 ,,,,
 [controlpanel]
 list1,sampleB,sampleC,sampleE,sampleF

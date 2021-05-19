@@ -6,7 +6,7 @@ BAM_POSTFIX = ".Aligned.sortedByCoord.out.bam"
 BAI_POSTFIX = ".Aligned.sortedByCoord.out.bam.bai"
 CHIMERIC_JUNCTION_POSTFIX = ".Chimeric.out.junction"
 CHIMERIC_SAM_POSTFIX = ".Chimeric.out.sam"
-SJ_TAB_POSTFIX = ".SJ.out.tab"
+SJ_TAB_POSTFIX = ".SJ.out.tab.gz"
 
 OUTPUT_BAM_FORMAT = "star/{sample}/{sample}" + BAM_POSTFIX
 OUTPUT_CHIMERIC_JUNCTION_FORMAT = "star/{sample}/{sample}" + CHIMERIC_JUNCTION_POSTFIX
@@ -50,6 +50,9 @@ else
     --outFileNamePrefix ${{OUTPUT_PREF}}. \
     {STAR_OPTION}
 fi
+
+gzip ${{OUTPUT_PREF}}.SJ.out.tab
+rm ${{OUTPUT_PREF}}.SJ.out.tab
 
 # sort
 /usr/local/bin/samtools sort \

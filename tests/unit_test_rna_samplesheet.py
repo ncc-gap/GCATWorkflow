@@ -70,6 +70,7 @@ pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
 ,,,,
 [sra_fastq_dump],,,,
 pool4,RUNID123456
+pool5,RUNID123456,http://dummy.com/data/run.sra
 
 [fusionfusion],,,,
 A_tumor,list1,,
@@ -127,7 +128,7 @@ list1,pool1,pool2,pool3,pool4
             'pool2_s': [[self.SAMPLE_DIR + '/C1_1.fq', self.SAMPLE_DIR + '/C1_2.fq'], []],
         })
 
-        self.assertEqual(sample_conf.sra_fastq_dump, {'pool4': 'RUNID123456'})
+        self.assertEqual(sample_conf.sra_fastq_dump, {'pool4': ['RUNID123456', None], 'pool5': ['RUNID123456', "http://dummy.com/data/run.sra"]})
         self.assertEqual(sample_conf.bam_tofastq, {'A_control': self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam'})
         self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam']})
         self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam'})

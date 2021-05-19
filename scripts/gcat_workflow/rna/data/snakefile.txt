@@ -55,14 +55,15 @@ rule bam_import:
     output:
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam",
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
-        "star/{sample}/{sample}.Chimeric.out.sam",
         "star/{sample}/{sample}.Chimeric.out.junction",
-        "star/{sample}/{sample}.SJ.out.tab",
+        "star/{sample}/{sample}.Chimeric.out.sam",
+        "star/{sample}/{sample}.SJ.out.tab.gz",
     run:
         bam_postfix = ".Aligned.sortedByCoord.out.bam"
         bai_postfix = ".Aligned.sortedByCoord.out.bam.bai"
         sam_postfix = ".Chimeric.out.sam"
         junction_postfix = ".Chimeric.out.junction"
+        sj_tabs_postfix = ".SJ.out.tab.gz"
         subdir = "star"
         
         import os
@@ -79,6 +80,7 @@ rule bam_import:
         linked_bai = link_dir +'/'+ sample + bai_postfix
         linked_sam = link_dir +'/'+ sample + sam_postfix
         linked_junction = link_dir +'/'+ sample + junction_postfix
+        linked_sj_tabs = link_dir +'/'+ sample + sj_tabs_postfix
         
         if not os.path.exists(linked_bam):
             os.symlink(bam, linked_bam)
@@ -91,6 +93,8 @@ rule bam_import:
             os.symlink(bam.replace(bam_postfix, sam_postfix), linked_sam)
         if not os.path.exists(linked_junction):
             os.symlink(bam.replace(bam_postfix, junction_postfix), linked_junction)
+        if not os.path.exists(linked_sj_tabs):
+            os.symlink(bam.replace(bam_postfix, sj_tabs_postfix), linked_sj_tabs)
 
 rule star:
     input:
@@ -100,7 +104,7 @@ rule star:
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
         "star/{sample}/{sample}.Chimeric.out.junction",
         "star/{sample}/{sample}.Chimeric.out.sam",
-        "star/{sample}/{sample}.SJ.out.tab",
+        "star/{sample}/{sample}.SJ.out.tab.gz",
     priority: 50
     params:
         script = "script/{sample}/singularity_star_alignment.sh",
@@ -156,7 +160,9 @@ rule expression:
     input:
         lambda wildcards: config["expression_samples"][wildcards.sample],
     output:
-        "expression/{sample}/{sample}.txt.fpkm"
+        "expression/{sample}/{sample}.txt.fpkm",
+        "expression/{sample}/{sample}.txt.gz",
+        "expression/{sample}/{sample}.txt.summary",
     priority: 80
     params:
         script = "script/{sample}/singularity_expression.sh",
@@ -168,7 +174,8 @@ rule intron_retention:
     input:
         lambda wildcards: config["ir_count_samples"][wildcards.sample],
     output:
-        "ir_count/{sample}/{sample}.ir_simple_count.txt.gz.tbi"
+        "ir_count/{sample}/{sample}.ir_simple_count.txt.gz",
+        "ir_count/{sample}/{sample}.ir_simple_count.txt.gz.tbi",
     priority: 80
     params:
         script = "script/{sample}/singularity_intron_retention.sh",
@@ -180,7 +187,8 @@ rule iravnet:
     input:
         lambda wildcards: config["iravnet_samples"][wildcards.sample],
     output:
-        "iravnet/{sample}/{sample}.iravnet.filt.bam"
+        "iravnet/{sample}/{sample}.iravnet.filt.bam",
+        "iravnet/{sample}/{sample}.iravnet.filt.bam.bai",
     priority: 80
     params:
         script = "script/{sample}/singularity_iravnet.sh",
@@ -192,7 +200,8 @@ rule juncmut:
     input:
         lambda wildcards: config["juncmut_samples"][wildcards.sample],
     output:
-        "juncmut/{sample}/{sample}.juncmut.filt.bam"
+        "juncmut/{sample}/{sample}.juncmut.filt.bam",
+        "juncmut/{sample}/{sample}.juncmut.filt.bam.bai",
     priority: 80
     params:
         script = "script/{sample}/singularity_juncmut.sh",
