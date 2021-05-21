@@ -139,7 +139,7 @@ def _compatible(gcat_conf, run_conf, sample_conf):
             os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference")),
         ] + sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1] + sample_conf.readgroup_src[sample]
         
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
     return output_bams
 
 def _link_source(file_path):
@@ -212,7 +212,7 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
             os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference")),
         ] + bind_fastqs
         
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
     return output_bams
 
 def configure(gcat_conf, run_conf, sample_conf):

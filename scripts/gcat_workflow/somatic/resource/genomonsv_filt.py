@@ -74,6 +74,6 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
         if normal != None and normal in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[normal]
         
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = tumor)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = tumor)
     
     return output_files

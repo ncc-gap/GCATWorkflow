@@ -136,6 +136,6 @@ def configure(gcat_conf, run_conf, sample_conf):
         if sample in sample_conf.fastq_src:
             singularity_bind += sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1]
         
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
 
     return output_files

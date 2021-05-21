@@ -90,7 +90,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
         if tumor in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[tumor]
             
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = tumor)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = tumor)
     
     return output_files
 
@@ -155,7 +155,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
         if tumor in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[tumor]
             
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = tumor)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = tumor)
     
     return output_files
 

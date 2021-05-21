@@ -52,7 +52,6 @@ else
 fi
 
 gzip ${{OUTPUT_PREF}}.SJ.out.tab
-rm ${{OUTPUT_PREF}}.SJ.out.tab
 
 # sort
 /usr/local/bin/samtools sort \
@@ -142,5 +141,5 @@ def configure(gcat_conf, run_conf, sample_conf):
             gcat_conf.get(SECTION_NAME, "star_genome"),
         ] + sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1]
         
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
     return output_bams

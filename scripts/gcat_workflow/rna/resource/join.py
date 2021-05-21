@@ -71,6 +71,6 @@ def configure(samples, fastq_files, bam_files, gcat_conf, run_conf, sample_conf)
     
         singularity_bind = [run_conf.project_root]
     
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
 
     return output_files

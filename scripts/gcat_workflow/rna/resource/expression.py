@@ -64,6 +64,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             singularity_bind += sample_conf.bam_import_src[sample]
         
         singularity_bind.append(os.path.dirname(gcat_conf.path_get(SECTION_NAME, "gtf")))
-        stage_class.write_script(arguments, singularity_bind, run_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
 
     return output_files

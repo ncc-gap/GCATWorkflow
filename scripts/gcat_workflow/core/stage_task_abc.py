@@ -37,7 +37,7 @@ date                    # print date
 set -xv
 set -o pipefail
 
-singularity exec {option} {bind} {image} /bin/bash {script}
+{singularity} exec {option} {bind} {image} /bin/bash {script}
 """
         self.bash_script_template = """#!/bin/bash
 #
@@ -54,7 +54,7 @@ set -o pipefail
 /bin/bash {script}
 """
         
-    def write_script(self, arguments, singularity_bind, run_conf, sample = "", max_task = 0):
+    def write_script(self, arguments, singularity_bind, run_conf, gcat_conf, sample = "", max_task = 0):
         output_dir = self.script_dir
         log_dir = self.log_dir
         if sample != "":
@@ -73,6 +73,7 @@ set -o pipefail
                 bind = "--bind " + ",".join(list(set(singularity_bind)))
                 
             open(singurality_script_path, "w").write(self.singurality_script_template.format(
+                singularity = gcat_conf.get("general", "singularity_path"),
                 option = self.singularity_option,
                 bind = bind,
                 image = self.image,
