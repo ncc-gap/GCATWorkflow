@@ -25,7 +25,7 @@ set -x
 mkdir -p {OUTPUT_DIR}/temp
 cd {OUTPUT_DIR}/temp
 
-if [ "{URL}" = "" ]; then
+if [ "{SRA_PATH}" = "" ]; then
     # download
     prefetch --max-size 100000000 {RUN_ID}
     fasterq-dump -v --split-files {RUN_ID}/{RUN_ID}.sra
@@ -37,10 +37,13 @@ if [ "{URL}" = "" ]; then
 
 else
     # for ddbj
-    wget {URL}
-    fasterq-dump -v --split-files {RUN_ID}.sra
-    rm {RUN_ID}.sra
-
+    if [ "{WGET}" = "T" ]; then
+        wget {SRA_PATH}
+        fasterq-dump -v --split-files {RUN_ID}.sra
+        rm {RUN_ID}.sra
+    else
+        fasterq-dump -v --split-files {SRA_PATH}
+    fi
     if [ -e {RUN_ID}_1.fastq ]; then mv {RUN_ID}_1.fastq 1_1.fastq; fi
     if [ -e {RUN_ID}_2.fastq ]; then mv {RUN_ID}_2.fastq 1_2.fastq; fi
     if [ -e {RUN_ID}.fastq ]; then mv {RUN_ID}.fastq 1_1.fastq; fi
@@ -81,20 +84,28 @@ def configure(gcat_conf, run_conf, sample_conf):
         f2_name = output_dir + "/1_2.fastq"
         output_fastqs[sample] = [[f1_name], [f2_name]]
 
-        url = sample_conf.sra_fastq_dump[sample][1]
-        if url == None:
-            url = ""
-
+        sra_path = sample_conf.sra_fastq_dump[sample][1]
+        download = "F"
+        singularity_bind = [
+            run_conf.project_root,
+        ]
+        if sra_path == None:
+            # prefetch from SRA
+            sra_path = ""
+        elif ":" in sra_path:
+            # wget from ddbj
+            download = "T"
+        else:
+            # direct access in ddbj
+            singularity_bind.append(os.path.dirname(sra_path))
+	
         arguments = {
             "RUN_ID": sample_conf.sra_fastq_dump[sample][0],
             "OUTPUT_DIR": output_dir,
             "PASS_FILE": output_dir + '/pass.txt',
-            "URL": url,
+            "SRA_PATH": sra_path,
+            "WGET": download
         }
-        
-        singularity_bind = [
-            run_conf.project_root,
-        ]
         
         stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
     return output_fastqs

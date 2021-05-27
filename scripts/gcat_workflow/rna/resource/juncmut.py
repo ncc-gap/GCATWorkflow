@@ -19,6 +19,8 @@ set -o nounset
 set -o pipefail
 set -x
 
+rm -rf {OUTPUT_DIR}/*
+{DECOMPRESS_CMD}
 juncmut get \
 -input_file {INPUT_FILE} \
 -output_file {OUTPUT_DIR}/{OUTPUT_FILE} \
@@ -28,6 +30,7 @@ juncmut get \
 -control_file {CONTROL_FILE1} {CONTROL_FILE2} \
 -genecode_gene_file {GENE_FILE}  \
 {JUNCMUT_PRAM} -gnomad {GNOMAD}
+{RM_CMD}
 """
 
 def configure(input_bams, input_sj_tabs, gcat_conf, run_conf, sample_conf):
@@ -66,9 +69,20 @@ def configure(input_bams, input_sj_tabs, gcat_conf, run_conf, sample_conf):
             "%s/%s.juncmut.filt.bam" % (output_dir, sample),
             "%s/%s.juncmut.filt.bam.bai" % (output_dir, sample)
         ]
+        decomp = ""
+        remove = ""
+        sjtab = input_sj_tabs[sample]
+        if input_sj_tabs[sample].endswith(".gz"):
+            sjtab_comp = "%s/%s" % (output_dir, os.path.basename(input_sj_tabs[sample]))
+            (sjtab, ext) = os.path.splitext(sjtab_comp)
+            decomp = "cp {input} {sjtab}\ngunzip {sjtab}".format(
+                input = input_sj_tabs[sample],
+                sjtab = sjtab_comp
+            )
+            remove = "rm %s" % (sjtab)
         arguments = {
             "SAMPLE": sample,
-            "INPUT_FILE": input_sj_tabs[sample],
+            "INPUT_FILE": sjtab,
             "INPUT_BAM": input_bams[sample],
             "OUTPUT_DIR": output_dir,
             "OUTPUT_FILE": "%s.juncmut.txt" % (sample),
@@ -78,7 +92,9 @@ def configure(input_bams, input_sj_tabs, gcat_conf, run_conf, sample_conf):
             "CONTROL_FILE2": gcat_conf.get(SECTION_NAME, "control_file2"),
             "GENE_FILE": gcat_conf.get(SECTION_NAME, "genecode_gene_file"),
             "GNOMAD": gcat_conf.get(SECTION_NAME, "gnomad"),
-            "JUNCMUT_PRAM": gcat_conf.get(SECTION_NAME, "juncmut_pram")
+            "JUNCMUT_PRAM": gcat_conf.get(SECTION_NAME, "juncmut_pram"),
+            "DECOMPRESS_CMD": decomp,
+            "RM_CMD": remove
         }
        
         singularity_bind = [run_conf.project_root]
