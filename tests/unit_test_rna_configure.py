@@ -213,7 +213,6 @@ qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
 reference = {sample_dir}/reference/XXX.fa
 clinvar_db = {sample_dir}/reference/ZZZ.vcf.gz
-target_file = {sample_dir}/reference/ZZZ.bed
 
 [juncmut]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7

@@ -26,7 +26,7 @@ bcftools norm {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.tmp1 -f {REF} > {OUTPUT_DIR}/{SA
 iravnet annotate {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.tmp2 {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf --gnomad_exome {GNOMAD_EXOME} --gnomad_genome {GNOMAD_GENOME} --clinvar {CLINVAR_DB}
 bgzip -c {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf > {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.gz
 tabix -p vcf {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.gz
-bcftools filter -e "INFO/GNOMAD_GENOME[0] > 0.01 | INFO/GNOMAD_EXOME[0] > 0.01 | IR_MT / (SJ_WT + IR_MT) < 0.1 | IR_MT_MOH < 25" -R {TARGET_FILE} {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.gz > {OUTPUT_DIR}/{SAMPLE}.iravnet.filt.vcf
+bcftools filter -e "INFO/GNOMAD_GENOME[0] > 0.01 | INFO/GNOMAD_EXOME[0] > 0.01 | IR_MT / (SJ_WT + IR_MT) < 0.1 | IR_MT_MOH < 25"  ${OUTPUT_DIR}/${SAMPLE}.iravnet.vcf.gz > ${OUTPUT_DIR}/${SAMPLE}.iravnet.filt.vcf
 
 iravnet filt_bam {OUTPUT_DIR}/{SAMPLE}.iravnet.filt.vcf {INPUT_BAM} {OUTPUT_DIR}/{SAMPLE}.iravnet.filt.bam
 
@@ -54,7 +54,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = {}
     dbs = [
-        (SECTION_NAME, "target_file"),
         (SECTION_NAME, "reference"),
         (SECTION_NAME, "clinvar_db"),
         (SECTION_NAME, "gnomad_exome"),
@@ -77,7 +76,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "SAMPLE": sample,
             "INPUT_BAM": input_bams[sample],
             "OUTPUT_DIR": output_dir,
-            "TARGET_FILE": gcat_conf.path_get(SECTION_NAME, "target_file"),
             "REF": gcat_conf.path_get(SECTION_NAME, "reference"),
             "CLINVAR_DB": gcat_conf.path_get(SECTION_NAME, "clinvar_db"),
             "GNOMAD_EXOME": gcat_conf.get(SECTION_NAME, "gnomad_exome"),
