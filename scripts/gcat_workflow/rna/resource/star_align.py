@@ -51,7 +51,7 @@ else
     {STAR_OPTION}
 fi
 
-gzip ${{OUTPUT_PREF}}.SJ.out.tab
+gzip -f ${{OUTPUT_PREF}}.SJ.out.tab
 
 # sort
 /usr/local/bin/samtools sort \
