@@ -26,7 +26,7 @@ bcftools norm {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.tmp1 -f {REF} > {OUTPUT_DIR}/{SA
 iravnet annotate {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.tmp2 {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf --gnomad_exome {GNOMAD_EXOME} --gnomad_genome {GNOMAD_GENOME} --clinvar {CLINVAR_DB}
 bgzip -c {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf > {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.gz
 tabix -f -p vcf {OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.gz
-bcftools filter -e "INFO/GNOMAD_GENOME[0] > 0.01 | INFO/GNOMAD_EXOME[0] > 0.01 | IR_MT / (SJ_WT + IR_MT) < 0.1 | IR_MT_MOH < 25"  ${OUTPUT_DIR}/${SAMPLE}.iravnet.vcf.gz > ${OUTPUT_DIR}/${SAMPLE}.iravnet.filt.vcf
+bcftools filter -e "INFO/GNOMAD_GENOME[0] > 0.01 | INFO/GNOMAD_EXOME[0] > 0.01 | IR_MT / (SJ_WT + IR_MT) < 0.1 | IR_MT_MOH < 25"  ${OUTPUT_DIR}/{SAMPLE}.iravnet.vcf.gz > ${OUTPUT_DIR}/{SAMPLE}.iravnet.filt.vcf
 
 iravnet filt_bam {OUTPUT_DIR}/{SAMPLE}.iravnet.filt.vcf {INPUT_BAM} {OUTPUT_DIR}/{SAMPLE}.iravnet.filt.bam
 
