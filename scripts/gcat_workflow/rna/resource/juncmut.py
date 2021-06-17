@@ -31,10 +31,10 @@ juncmut get \
 -genecode_gene_file {GENE_FILE}  \
 {JUNCMUT_PRAM} -gnomad {GNOMAD}
 
-if [ ! -e {OUTPUT_DIR}/{OUTPUT_BAM} ]; then
-  samtools view -H -b {INPUT_BAM} > {OUTPUT_DIR}/{OUTPUT_BAM}
-  samtools index {OUTPUT_DIR}/{OUTPUT_BAM}
-fi
+#if [ ! -e {OUTPUT_DIR}/{OUTPUT_BAM} ]; then
+#  samtools view -H -b {INPUT_BAM} > {OUTPUT_DIR}/{OUTPUT_BAM}
+#  samtools index {OUTPUT_DIR}/{OUTPUT_BAM}
+#fi
 
 {RM_CMD}
 """
