@@ -6,6 +6,7 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_BAM_IMPORT = "bam_import"
     SECTION_BAM_TOFASTQ = "bam_tofastq"
     SECTION_MTCALL = "mutectcaller_parabricks"
+    SECTION_GENOMON_MUTATION = "genomon_mutation_call"
     SECTION_WGS_METRICS = "collect_wgs_metrics"
     SECTION_MULTIPLE_METRICS = "collect_multiple_metrics"
     SECTION_GRIDSS = "gridss"
@@ -24,6 +25,7 @@ class Sample_conf(abc.Sample_conf_abc):
         self.bam_import_src = {}
         self.control_panel = {}
         self.mutect_call = []
+        self.genomon_mutation_call = []
         self.wgs_metrics = []
         self.multiple_metrics = []
         self.gridss = []
@@ -40,6 +42,7 @@ class Sample_conf(abc.Sample_conf_abc):
         input_sections = [self.SECTION_FASTQ, self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ]
         analysis_sections = [
             self.SECTION_MTCALL, 
+            self.SECTION_GENOMON_MUTATION,
             self.SECTION_WGS_METRICS, 
             self.SECTION_MULTIPLE_METRICS, 
             self.SECTION_GRIDSS, 
@@ -75,6 +78,9 @@ class Sample_conf(abc.Sample_conf_abc):
         if self.SECTION_MTCALL in splited:
             self.mutect_call += self.parse_data_tumor_normal(splited[self.SECTION_MTCALL], sample_ids, self.SECTION_MTCALL)
         
+        if self.SECTION_GENOMON_MUTATION in splited:
+            self.genomon_mutation_call += self.parse_data_tumor_normal(splited[self.SECTION_GENOMON_MUTATION], sample_ids, self.SECTION_GENOMON_MUTATION)
+
         if self.SECTION_WGS_METRICS in splited:
             self.wgs_metrics += self.parse_data_general(splited[self.SECTION_WGS_METRICS])
 

@@ -103,6 +103,18 @@ rule mutectcaller:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
+rule genomon_mutation_call:
+    input:
+        lambda wildcards: config["genomon_mutation_call_samples"][wildcards.sample],
+    output:
+        "genomon_mutation/{sample}/{sample}.genomon_mutation.txt"
+    priority: 80
+    params:
+        script = "script/{sample}/singularity_genomon_mutation_call.sh",
+        yaml = "script/{sample}/conf_genomon_mutation_call.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
 rule collect_wgs_metrics:
     input:
         lambda wildcards: config["collect_wgs_metrics_samples"][wildcards.sample],

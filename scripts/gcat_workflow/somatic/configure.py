@@ -55,6 +55,10 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.somatic.resource.mutectcaller as rs_mutation
     output_mutations = rs_mutation.configure(output_bams, gcat_conf, run_conf, sample_conf)
     
+    # genomon-mutation
+    import gcat_workflow.somatic.resource.genomon_mutation_call as rs_genomon_mutation
+    output_genomon_mutations = rs_genomon_mutation.configure(output_bams, gcat_conf, run_conf, sample_conf)
+
     # wgs summary
     import gcat_workflow.somatic.resource.collectwgsmetrics as rs_wgs_summary
     output_wgs_metrics = rs_wgs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
@@ -98,6 +102,7 @@ def main(gcat_conf, run_conf, sample_conf):
         return values
 
     y["output_files"].extend(__dic_values(output_mutations))
+    y["output_files"].extend(__dic_values(output_genomon_mutations))
     y["output_files"].extend(__dic_values(output_wgs_metrics))
     y["output_files"].extend(__dic_values(output_multiple_metrics))
     y["output_files"].extend(__dic_values(output_gridss))
@@ -113,6 +118,13 @@ def main(gcat_conf, run_conf, sample_conf):
         y["mutectcaller_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
         if normal != None:
             y["mutectcaller_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
+
+    y["genomon_mutation_call_samples"] = {}
+    for (tumor, normal) in sample_conf.genomon_mutation_call:
+        y["genomon_mutation_call_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
+        if normal != None:
+            y["genomon_mutation_call_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
+        
         
     y["collect_wgs_metrics_samples"] = {}
     for sample in sample_conf.wgs_metrics:
