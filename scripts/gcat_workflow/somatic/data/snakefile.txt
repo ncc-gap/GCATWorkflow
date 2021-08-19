@@ -107,7 +107,7 @@ rule genomon_mutation_call:
     input:
         lambda wildcards: config["genomon_mutation_call_samples"][wildcards.sample],
     output:
-        "genomon_mutation/{sample}/{sample}.genomon_mutation.txt"
+        "genomon_mutation/{sample}/{sample}.genomon_mutation.result.vcf"
     priority: 80
     params:
         script = "script/{sample}/singularity_genomon_mutation_call.sh",
