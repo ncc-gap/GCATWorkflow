@@ -39,13 +39,13 @@ fi
 if [ _{SAMPLE2} = "_None" ]; then
 
   # Fisher's Exact Test
-  fisher single -o {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} --ref_fa {REFERENCE} -a {SAMPLE1} -1 {INPUT_BAM1} --samtools_path ${{SAMTOOLS}} {FISHER_SINGLE_OPTION} ${{interval_option}} --samtools_params "{FISHER_SAMTOOLS_OPTION}"
+  time fisher single -o {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} --ref_fa {REFERENCE} -a {SAMPLE1} -1 {INPUT_BAM1} --samtools_path ${{SAMTOOLS}} {FISHER_SINGLE_OPTION} ${{interval_option}} --samtools_params "{FISHER_SAMTOOLS_OPTION}"
 
   # Local realignment using edlib. The candidate mutations are varidated.
-  mutfilter realignment --target_mutation_file {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -1 {INPUT_BAM1} --output {OUTPUT_PREF}.realignment_mutations.${{ext}} --ref_genome {REFERENCE}  {REALIGNMENT_OPTION}
+  time mutfilter realignment --target_mutation_file {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -1 {INPUT_BAM1} --output {OUTPUT_PREF}.realignment_mutations.${{ext}} --ref_genome {REFERENCE}  {REALIGNMENT_OPTION}
 
   # Annotation if the candidate is on the simplerepeat. 
-  mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.realignment_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz
+  time mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.realignment_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz
 
   # header
   if [ _{OUTPUT_FORMAT} != "_vcf" ]; then
@@ -61,19 +61,19 @@ if [ _{SAMPLE2} = "_None" ]; then
 
 else
   # Fisher's Exact Test
-  # fisher comparison -o {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} --ref_fa {REFERENCE} -a {SAMPLE1} -b {SAMPLE2} -1 {INPUT_BAM1} -2 {INPUT_BAM2} --samtools_path ${{SAMTOOLS}} {FISHER_PAIR_OPTION} ${{interval_option}} --samtools_params "{FISHER_SAMTOOLS_OPTION}"
+  time fisher comparison -o {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} --ref_fa {REFERENCE} -a {SAMPLE1} -b {SAMPLE2} -1 {INPUT_BAM1} -2 {INPUT_BAM2} --samtools_path ${{SAMTOOLS}} {FISHER_PAIR_OPTION} ${{interval_option}} --samtools_params "{FISHER_SAMTOOLS_OPTION}"
 
   # Local realignment using blat. The candidate mutations are varidated.
-  mutfilter realignment --target_mutation_file {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -1 {INPUT_BAM1} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.realignment_mutations.${{ext}} --ref_genome {REFERENCE} {REALIGNMENT_OPTION}
+  time mutfilter realignment --target_mutation_file {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -1 {INPUT_BAM1} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.realignment_mutations.${{ext}} --ref_genome {REFERENCE} {REALIGNMENT_OPTION}
 
   # Annotation if the candidate is near Indel. 
-  mutfilter indel --target_mutation_file {OUTPUT_PREF}.realignment_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.indel_mutations.${{ext}} --ref_genome {REFERENCE} --samtools_path ${{SAMTOOLS}} {INDEL_OPTION} --samtools_params "{INDEL_SAMTOOLS_OPTION}"
+  time mutfilter indel --target_mutation_file {OUTPUT_PREF}.realignment_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.indel_mutations.${{ext}} --ref_genome {REFERENCE} --samtools_path ${{SAMTOOLS}} {INDEL_OPTION} --samtools_params "{INDEL_SAMTOOLS_OPTION}"
 
   # Annotation if the candidate is near the breakpoint. 
-  mutfilter breakpoint --target_mutation_file {OUTPUT_PREF}.indel_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.breakpoint_mutations.${{ext}} --ref_genome {REFERENCE} {BREAKPOINT_OPTION}
+  time mutfilter breakpoint --target_mutation_file {OUTPUT_PREF}.indel_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.breakpoint_mutations.${{ext}} --ref_genome {REFERENCE} {BREAKPOINT_OPTION}
 
   # Annotation if the candidate is on the simplerepeat. 
-  mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.breakpoint_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz 
+  time mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.breakpoint_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz 
 
   # header
   if [ _{OUTPUT_FORMAT} != "_vcf" ]; then
