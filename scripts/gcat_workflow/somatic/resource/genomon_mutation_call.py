@@ -128,7 +128,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "FISHER_SINGLE_OPTION": gcat_conf.get(CONF_SECTION, "fisher_single_option"),
             "FISHER_SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "fisher_samtools_option"),
             "REALIGNMENT_OPTION": gcat_conf.get(CONF_SECTION, "realignment_option")+ " " + gcat_conf.get(CONF_SECTION, "realignment_threads_option"),
-            "INDEL_OPTION": gcat_conf.get(CONF_SECTION, "indel_option"),
+            "INDEL_OPTION": gcat_conf.get(CONF_SECTION, "indel_option") + " " + gcat_conf.get(CONF_SECTION, "indel_threads_option"),
             "INDEL_SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "indel_samtools_option"),
             "BREAKPOINT_OPTION": gcat_conf.get(CONF_SECTION, "breakpoint_option"),
             "SIMPLE_REPEAT_OPTION": gcat_conf.get(CONF_SECTION, "simple_repeat_option"),
