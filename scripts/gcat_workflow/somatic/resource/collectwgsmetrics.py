@@ -47,6 +47,7 @@ set -o nounset
 set -o pipefail
 set -x
 
+mkdir -p $(dirname {OUTPUT_FILE})
 {PBRUN} bammetrics \\
   --ref {REFERENCE} \\
   --bam {INPUT_CRAM} \\

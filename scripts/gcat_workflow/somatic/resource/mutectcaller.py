@@ -49,6 +49,7 @@ set -o nounset
 set -o pipefail
 set -x
 
+mkdir -p $(dirname {OUTPUT_VCF})
 {PBRUN} mutectcaller \
   --ref {REFERENCE} {MUTECT_OPTION} \\
   --in-tumor-bam {INPUT_TUMOR_CRAM} {INPUT_NORMAL_CRAM} \\

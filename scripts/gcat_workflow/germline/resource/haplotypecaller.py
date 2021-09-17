@@ -99,6 +99,7 @@ set -o nounset
 set -o pipefail
 set -x
 
+mkdir -p $(dirname {OUTPUT_AUTOSOME_GVCF})
 {PBRUN} haplotypecaller \\
   --ref {REFERENCE} \\
   --in-bam {INPUT_CRAM} \\
@@ -183,6 +184,7 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
         output_files[sample].append(output_chrX_male_gvcf+".gz.tbi")
         output_files[sample].append(output_chrY_male_gvcf+".gz")
         output_files[sample].append(output_chrY_male_gvcf+".gz.tbi")
+        haplotype_option = " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option") + " " + gcat_conf.get(CONF_SECTION, "haplotype_option")
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_bams[sample],
@@ -199,11 +201,11 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
             "INTERVAL_CHRY": gcat_conf.path_get(CONF_SECTION, "interval_chry"),
             "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
             "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
-            "HAPLOTYPE_OPTION_AUTOSOME": gcat_conf.get(CONF_SECTION, "haplotype_option_autosome") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
-            "HAPLOTYPE_OPTION_PAR": gcat_conf.get(CONF_SECTION, "haplotype_option_par") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
-            "HAPLOTYPE_OPTION_CHRX_FEMALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_female") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
-            "HAPLOTYPE_OPTION_CHRX_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_male") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
-            "HAPLOTYPE_OPTION_CHRY_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chry_male") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
+            "HAPLOTYPE_OPTION_AUTOSOME": gcat_conf.get(CONF_SECTION, "haplotype_option_autosome") + haplotype_option,
+            "HAPLOTYPE_OPTION_PAR": gcat_conf.get(CONF_SECTION, "haplotype_option_par") + haplotype_option,
+            "HAPLOTYPE_OPTION_CHRX_FEMALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_female") + haplotype_option,
+            "HAPLOTYPE_OPTION_CHRX_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_male") + haplotype_option,
+            "HAPLOTYPE_OPTION_CHRY_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chry_male") + haplotype_option,
             "HAPLOTYPE_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "haplotype_java_option")
         }
        
@@ -265,6 +267,7 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
                 if not os.path.islink(path) and path.split(".")[-1] in ["bam", "cram"]:
                     input_real_path = path
 
+        haplotype_option = " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option") + " " + gcat_conf.get(CONF_SECTION, "haplotype_option")
         arguments = {
             "SAMPLE": sample,
             "INPUT_CRAM": input_real_path,
@@ -280,11 +283,11 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "INTERVAL_CHRY": gcat_conf.path_get(CONF_SECTION, "interval_chry"),
             "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
             "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
-            "HAPLOTYPE_OPTION_AUTOSOME": gcat_conf.get(CONF_SECTION, "haplotype_option_autosome") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
-            "HAPLOTYPE_OPTION_PAR": gcat_conf.get(CONF_SECTION, "haplotype_option_par") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
-            "HAPLOTYPE_OPTION_CHRX_FEMALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_female") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
-            "HAPLOTYPE_OPTION_CHRX_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_male") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
-            "HAPLOTYPE_OPTION_CHRY_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chry_male") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
+            "HAPLOTYPE_OPTION_AUTOSOME": gcat_conf.get(CONF_SECTION, "haplotype_option_autosome") + haplotype_option,
+            "HAPLOTYPE_OPTION_PAR": gcat_conf.get(CONF_SECTION, "haplotype_option_par") + haplotype_option,
+            "HAPLOTYPE_OPTION_CHRX_FEMALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_female") + haplotype_option,
+            "HAPLOTYPE_OPTION_CHRX_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_male") + haplotype_option,
+            "HAPLOTYPE_OPTION_CHRY_MALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chry_male") + haplotype_option,
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
         }
        

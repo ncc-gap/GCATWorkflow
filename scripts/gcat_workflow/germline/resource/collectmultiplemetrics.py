@@ -55,6 +55,7 @@ set -o nounset
 set -o pipefail
 set -x
 
+mkdir -p $(dirname {OUTPUT_FILE_PREFIX})
 {PBRUN} collectmultiplemetrics \\
     --ref {REFERENCE} \\
     --bam {INPUT_CRAM} \\
