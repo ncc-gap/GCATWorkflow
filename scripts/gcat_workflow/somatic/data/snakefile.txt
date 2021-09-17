@@ -95,7 +95,8 @@ rule mutectcaller:
     input:
         lambda wildcards: config["mutectcaller_samples"][wildcards.sample],
     output:
-        "mutectcaller/{sample}/{sample}.mutectcaller.vcf"
+        "mutectcaller/{sample}/{sample}.mutectcaller.vcf.gz",
+        "mutectcaller/{sample}/{sample}.mutectcaller.vcf.gz.tbi"
     priority: 80
     params:
         script = "script/{sample}/singularity_mutectcaller_parabricks.sh",
@@ -107,7 +108,8 @@ rule genomon_mutation_call:
     input:
         lambda wildcards: config["genomon_mutation_call_samples"][wildcards.sample],
     output:
-        "genomon_mutation/{sample}/{sample}.genomon_mutation.result.vcf"
+        "genomon_mutation/{sample}/{sample}.genomon_mutation.result.vcf.gz",
+        "genomon_mutation/{sample}/{sample}.genomon_mutation.result.vcf.gz.tbi"
     priority: 80
     params:
         script = "script/{sample}/singularity_genomon_mutation_call.sh",
@@ -143,7 +145,8 @@ rule gridss:
     input:
         lambda wildcards: config["gridss_samples"][wildcards.sample],
     output:
-        "gridss/{sample}/{sample}.gridss.vcf"
+        "gridss/{sample}/{sample}.gridss.vcf.gz",
+        "gridss/{sample}/{sample}.gridss.vcf.gz.tbi"
     priority: 80
     params:
         script = "script/{sample}/singularity_gridss.sh",
@@ -155,7 +158,8 @@ rule manta:
     input:
         lambda wildcards: config["manta_samples"][wildcards.sample],
     output:
-        "manta/{sample}/results/variants/candidateSV.vcf.gz"
+        "manta/{sample}/results/variants/candidateSV.vcf.gz",
+        "manta/{sample}/results/variants/candidateSV.vcf.gz.tbi"
     priority: 80
     params:
         script = "script/{sample}/singularity_manta.sh",
@@ -189,7 +193,7 @@ rule genomonsv_filt:
     input:
         lambda wildcards: config["genomonsv_filt_samples"][wildcards.sample],
     output:
-        "genomonsv/{sample}/{sample}.genomonSV.result.filt.txt"
+        "genomonsv/{sample}/{sample}.genomonSV.result.filt.txt.gz"
     priority: 80
     params:
         script = "script/{sample}/singularity_genomonsv_filt.sh",

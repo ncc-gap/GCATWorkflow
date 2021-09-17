@@ -88,6 +88,12 @@ else
   mutil filter -i {OUTPUT_PREF}.genomon_mutation.result.${{ext}} -O {OUTPUT_FORMAT} -o {OUTPUT_PREF}.genomon_mutation.result.filt.${{ext}} {FILTER_PAIR_OPTION}
 fi 
 
+bgzip {BGZIP_OPTION} {OUTPUT_PREF}.genomon_mutation.result.${{ext}}
+tabix {TABIX_OPTION} {OUTPUT_PREF}.genomon_mutation.result.${{ext}}.gz
+
+bgzip {BGZIP_OPTION} {OUTPUT_PREF}.genomon_mutation.result.filt.${{ext}}
+tabix {TABIX_OPTION} {OUTPUT_PREF}.genomon_mutation.result.filt.${{ext}}.gz
+
 rm -f {OUTPUT_PREF}.fisher_mutations.${{ext}}
 rm -f {OUTPUT_PREF}.realignment_mutations.${{ext}}
 rm -f {OUTPUT_PREF}.indel_mutations.${{ext}}
@@ -113,8 +119,10 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     for (tumor, normal) in sample_conf.genomon_mutation_call:
         output_dir = "%s/genomon_mutation/%s" % (run_conf.project_root, tumor)
         os.makedirs(output_dir, exist_ok=True)
-        output_file = "%s/%s.genomon_mutation.result.vcf" % (output_dir, tumor)
-        output_files[tumor] = output_file
+        output_file = "%s/%s.genomon_mutation.result.vcf.gz" % (output_dir, tumor)
+        output_files[tumor] = [
+            output_file, output_file + ".tbi"
+        ]
         input_normal_cram = ""
         if normal != None:
             input_normal_cram = input_bams[normal]
@@ -139,6 +147,8 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_FORMAT": gcat_conf.get(CONF_SECTION, "output_format"),
             "FILTER_PAIR_OPTION": gcat_conf.get(CONF_SECTION, "filter_pair_option"),
             "FILTER_SINGLE_OPTION": gcat_conf.get(CONF_SECTION, "filter_single_option"),
+            "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
+            "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

@@ -67,14 +67,25 @@ if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
         -i {OUTPUT_VCF} \
         -o {OUTPUT_VCF_SOMATIC} \
         --normalordinal 1 --tumourordinal 2 --scriptdir /opt/gridss/
+    
+    bgzip {BGZIP_OPTION} {OUTPUT_VCF_SOMATIC} 
+    tabix {TABIX_OPTION} {OUTPUT_VCF_SOMATIC}.gz
 fi
+
+bgzip {BGZIP_OPTION} {OUTPUT_VCF}
+tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
+rm -f {OUTPUT_VCF}.idx
 
 rm ${{TUMOR_BAM}}
 rm ${{TUMOR_BAM}}.bai
+rm ${{output_pref}}.gridss-assembly.bam
+rm -rf ${{output_pref}}.temp.bam.gridss.working/
+
 if [ "${{NORMAL_BAM}}" != "" ]; then
     rm -f ${{NORMAL_BAM}}
     rm -f ${{NORMAL_BAM}}.bai
 fi
+
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
@@ -94,7 +105,10 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     for (tumor, normal) in sample_conf.gridss:
         output_vcf = "%s/gridss/%s/%s.gridss.vcf" % (run_conf.project_root, tumor, tumor)
         output_somatic_vcf = "%s/gridss/%s/%s.gridss.somatic.vcf" % (run_conf.project_root, tumor, tumor)
-        output_files[tumor] = output_vcf
+        output_files[tumor] = []
+        output_files[tumor].append(output_vcf + ".gz")
+        output_files[tumor].append(output_vcf + ".gz.tbi")
+
         input_normal_cram = ""
         if normal != None:
             input_normal_cram = input_bams[normal]
@@ -109,7 +123,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "GRIDSS_OPTION": gcat_conf.get(CONF_SECTION, "gridss_option") + " " + gcat_conf.get(CONF_SECTION, "gridss_threads_option"),
             "GRIDSS_JAR": gcat_conf.get(CONF_SECTION, "gridss_jar"),
             "GRIDSS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gridss_java_option"),
-            "SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "samtools_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_threads_option")
+            "SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "samtools_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_threads_option"),
+            "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
+            "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

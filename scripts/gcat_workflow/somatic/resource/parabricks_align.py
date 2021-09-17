@@ -90,8 +90,7 @@ rm -rf {OUTPUT_DIR}/*
   --ref {REFERENCE} \\
   {INPUT} \\
   --bwa-options "{BWA_OPTION}" \\
-  --out-bam {OUTPUT_BAM} \\
-  --tmp-dir {OUTPUT_DIR}/tmp
+  --out-bam {OUTPUT_BAM} {FQ2BAM_OPTION}
 """
 
 STAGE_NAME = "bwa_alignment_parabricks"
@@ -205,6 +204,7 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option") + " " + gcat_conf.get(CONF_SECTION, "bwa_threads_option"),
+            "FQ2BAM_OPTION": gcat_conf.get(CONF_SECTION, "fq2bam_option"),
         }
         
         singularity_bind = [

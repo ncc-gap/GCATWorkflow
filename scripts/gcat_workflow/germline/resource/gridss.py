@@ -46,8 +46,14 @@ export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
     {GRIDSS_OPTION} \\
     ${{output_pref}}.temp.bam
 
+bgzip {BGZIP_OPTION} {OUTPUT_VCF}
+tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
+rm -f {OUTPUT_VCF}.idx
+
 rm ${{output_pref}}.temp.bam
 rm ${{output_pref}}.temp.bam.bai
+rm ${{output_pref}}.gridss-assembly.bam
+rm -rf ${{output_pref}}.temp.bam.gridss.working/
 
 """
 
@@ -67,10 +73,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = {}
     for sample in sample_conf.gridss:
         output_vcf = "%s/gridss/%s/%s.gridss.vcf" % (run_conf.project_root, sample, sample)
-        output_vcf_idx = "%s/gridss/%s/%s.gridss.vcf.idx" % (run_conf.project_root, sample, sample)
-        output_files[sample] = []        
-        output_files[sample].append(output_vcf)
-        output_files[sample].append(output_vcf_idx)
+        output_files[sample] = []
+        output_files[sample].append(output_vcf + ".gz")
+        output_files[sample].append(output_vcf + ".gz.tbi")
 
         arguments = {
             "SAMPLE": sample,
@@ -80,7 +85,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "GRIDSS_OPTION": gcat_conf.get(CONF_SECTION, "gridss_option") + " " + gcat_conf.get(CONF_SECTION, "gridss_threads_option"),
             "GRIDSS_JAR": gcat_conf.get(CONF_SECTION, "gridss_jar"),
             "GRIDSS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gridss_java_option"),
-            "SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "samtools_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_threads_option")
+            "SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "samtools_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_threads_option"),
+            "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
+            "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

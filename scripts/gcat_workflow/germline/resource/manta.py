@@ -31,6 +31,7 @@ python /manta/bin/configManta.py \\
 
 python {OUTPUT_DIR}/runWorkflow.py {MANTA_WORKFLOW_OPTION}
 
+rm -rf {OUTPUT_DIR}/workspace/
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):

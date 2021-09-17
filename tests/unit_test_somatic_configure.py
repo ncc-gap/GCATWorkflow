@@ -86,7 +86,8 @@ class ConfigureTest(unittest.TestCase):
             "/samples/B.markdup.crai",
             "/reference/XXX.fa",
             "/image/YYY.simg",
-            "/parabricks/pbrun"
+            "/parabricks/pbrun",
+            "/reference/simple_repeat.txt.gz",
         ]
         for p in touch_files:
             open(self.DATA_DIR + p, "w").close()
@@ -143,6 +144,10 @@ A_tumor, A_control
 A_control, None
 
 [genomon_sv]
+A_tumor,A_control,list1
+A_control, None, None
+
+[genomon_mutation_call]
 A_tumor,A_control,list1
 A_control, None, None
 
@@ -235,6 +240,12 @@ qsub_option = -l s_vmem=3G,mem_req=3G
 image = {sample_dir}/image/YYY.simg
 
 [genomonsv_filt]
+qsub_option = -l s_vmem=3G,mem_req=3G
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+simple_repeat_file = {sample_dir}/reference/simple_repeat.txt.gz
+
+[genomon_mutation_call]
 qsub_option = -l s_vmem=3G,mem_req=3G
 image = {sample_dir}/image/YYY.simg
 reference = {sample_dir}/reference/XXX.fa
@@ -383,6 +394,9 @@ A_tumor, A_control
 A_tumor, A_control
 
 [genomon_sv]
+A_tumor,A_control,list1
+
+[genomon_mutation_call]
 A_tumor,A_control,list1
 
 [controlpanel]

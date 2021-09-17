@@ -26,6 +26,10 @@ set -x
   -I={INPUT_TUMOR_CRAM} -tumor {SAMPLE} {INPUT_NORMAL_CRAM} \\
   -O={OUTPUT_VCF} \\
   -R={REFERENCE} {MUTECT_OPTION}
+
+bgzip {BGZIP_OPTION} {OUTPUT_VCF}
+tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
+rm -f {OUTPUT_VCF}.idx
 """
 
 class Parabricks(stage_task.Stage_task):
@@ -49,8 +53,11 @@ set -x
   --ref {REFERENCE} {MUTECT_OPTION} \\
   --in-tumor-bam {INPUT_TUMOR_CRAM} {INPUT_NORMAL_CRAM} \\
   --tumor-name {SAMPLE} \\
-  --out-vcf {OUTPUT_VCF} \\
-  --tmp-dir /tmp/
+  --out-vcf {OUTPUT_VCF}
+
+bgzip {BGZIP_OPTION} {OUTPUT_VCF}
+tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
+rm -f {OUTPUT_VCF}.idx
 """
 
 STAGE_NAME = "mutectcaller_parabricks"
@@ -70,7 +77,9 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = {}
     for (tumor, normal) in sample_conf.mutect_call:
         output_vcf = "%s/mutectcaller/%s/%s.mutectcaller.vcf" % (run_conf.project_root, tumor, tumor)
-        output_files[tumor] = output_vcf
+        output_files[tumor] = [
+            output_vcf + ".gz", output_vcf + ".gz.tbi"
+        ]
         input_normal_cram = ""
         if normal != None:
             input_normal_cram = "-I %s -normal %s" % (input_bams[normal], normal)
@@ -83,7 +92,9 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
             "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option") + " " + gcat_conf.get(CONF_SECTION, "mutect_threads_option"),
-            "MUTECT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "mutect_java_option")
+            "MUTECT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "mutect_java_option"),
+            "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
+            "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
@@ -120,7 +131,9 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
         output_dir = "%s/mutectcaller/%s" % (run_conf.project_root, tumor) 
         os.makedirs(output_dir, exist_ok = True)
         output_vcf = "%s/%s.mutectcaller.vcf" % (output_dir, tumor)
-        output_files[tumor] = output_vcf
+        output_files[tumor] = [
+            output_vcf + ".gz", output_vcf + ".gz.tbi"
+        ]
         
         input_real_path = ""
         if not os.path.islink(input_bams[tumor]):
@@ -149,6 +162,8 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option") + " " + gcat_conf.get(CONF_SECTION, "mutect_threads_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
+            "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
+            "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

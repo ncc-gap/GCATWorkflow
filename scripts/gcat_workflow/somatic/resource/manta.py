@@ -38,6 +38,8 @@ else
 fi
 
 python {OUTPUT_DIR}/runWorkflow.py {MANTA_WORKFLOW_OPTION}
+
+rm -rf {OUTPUT_DIR}/workspace/
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
@@ -55,8 +57,12 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
     output_files = {}
     for (tumor, normal) in sample_conf.manta:
-        output_vcf = "%s/manta/%s/results/variants/candidateSV.vcf.gz" % (run_conf.project_root, tumor)
-        output_files[tumor] = output_vcf
+        output_dir = "%s/manta/%s" % (run_conf.project_root, tumor)
+        
+        output_files[tumor] = []
+        output_files[tumor].append(output_dir + "/results/variants/candidateSV.vcf.gz")
+        output_files[tumor].append(output_dir + "/results/variants/candidateSV.vcf.gz.tbi")
+        
         input_normal_cram = ""
         if normal != None:
             input_normal_cram = input_bams[normal]

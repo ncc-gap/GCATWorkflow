@@ -25,9 +25,12 @@ mv {output_prefix}.genomonSV.result.txt {output_prefix}.genomonSV.result.txt.tmp
 echo -e "{meta_info}" > {output_prefix}.genomonSV.result.txt
 cat {output_prefix}.genomonSV.result.txt.tmp >> {output_prefix}.genomonSV.result.txt
 rm -rf {output_prefix}.genomonSV.result.txt.tmp
-sv_utils filter {output_prefix}.genomonSV.result.txt {output_prefix}.genomonSV.result.filt.txt.tmp {sv_utils_param}
+sv_utils filter {output_prefix}.genomonSV.result.txt {output_prefix}.genomonSV.result.filt.txt.tmp {simple_repeat_file} {sv_utils_param} 
 
 mv {output_prefix}.genomonSV.result.filt.txt.tmp {output_prefix}.genomonSV.result.filt.txt
+
+bgzip {BGZIP_OPTION} {output_prefix}.genomonSV.result.txt
+bgzip {BGZIP_OPTION} {output_prefix}.genomonSV.result.filt.txt
 """
 
 def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
@@ -46,7 +49,7 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
     output_files = {}
     for (tumor, normal, panel) in sample_conf.genomon_sv:
         output_prefix = "{root}/genomonsv/{sample}/{sample}".format(root = run_conf.project_root, sample=tumor)
-        output_files[tumor] = output_prefix + ".genomonSV.result.filt.txt"
+        output_files[tumor] = output_prefix + ".genomonSV.result.filt.txt.gz"
 
         filt_param = ""
         if normal != None:
@@ -58,6 +61,11 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
                 filt_param = filt_param + " --matched_control_label " + normal
 
         filt_param = filt_param.lstrip(' ') + ' ' + gcat_conf.get(CONF_SECTION, "params")
+        
+        simple_repeat_file_path =  gcat_conf.path_get(CONF_SECTION, "simple_repeat_file")
+        simple_repeat_file = ""
+        if simple_repeat_file_path != "":
+            simple_repeat_file = "--simple_repeat_file " + simple_repeat_file_path
 
         arguments = {
             "input_bam": input_bams[tumor],
@@ -66,6 +74,8 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
             "reference_genome": gcat_conf.path_get(CONF_SECTION, "reference"),
             "param": filt_param,
             "sv_utils_param": gcat_conf.get(CONF_SECTION, "sv_utils_params"),
+            "simple_repeat_file": simple_repeat_file,
+            "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
@@ -73,7 +83,9 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
             singularity_bind += sample_conf.bam_import_src[tumor]
         if normal != None and normal in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[normal]
-        
+        if simple_repeat_file_path != "":
+            singularity_bind.append(simple_repeat_file_path)
+
         stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = tumor)
     
     return output_files

@@ -30,7 +30,7 @@ set -x
 
 bgzip {BGZIP_OPTION} {OUTPUT_AUTOSOME_GVCF}
 tabix {TABIX_OPTION} {OUTPUT_AUTOSOME_GVCF}.gz
-rm {OUTPUT_AUTOSOME_GVCF}.idx
+rm -f {OUTPUT_AUTOSOME_GVCF}.idx
 
 /usr/bin/java \\
   {HAPLOTYPE_JAVA_OPTION} \\
@@ -42,7 +42,7 @@ rm {OUTPUT_AUTOSOME_GVCF}.idx
 
 bgzip {BGZIP_OPTION} {OUTPUT_PAR_GVCF}
 tabix {TABIX_OPTION} {OUTPUT_PAR_GVCF}.gz
-rm {OUTPUT_PAR_GVCF}.idx
+rm -f {OUTPUT_PAR_GVCF}.idx
 
 /usr/bin/java \\
   {HAPLOTYPE_JAVA_OPTION} \\
@@ -54,7 +54,7 @@ rm {OUTPUT_PAR_GVCF}.idx
 
 bgzip {BGZIP_OPTION} {OUTPUT_CHRX_FEMALE_GVCF}
 tabix {TABIX_OPTION} {OUTPUT_CHRX_FEMALE_GVCF}.gz
-rm {OUTPUT_CHRX_FEMALE_GVCF}.idx
+rm -f {OUTPUT_CHRX_FEMALE_GVCF}.idx
 
 /usr/bin/java \\
   {HAPLOTYPE_JAVA_OPTION} \\
@@ -66,7 +66,7 @@ rm {OUTPUT_CHRX_FEMALE_GVCF}.idx
 
 bgzip {BGZIP_OPTION} {OUTPUT_CHRX_MALE_GVCF}
 tabix {TABIX_OPTION} {OUTPUT_CHRX_MALE_GVCF}.gz
-rm {OUTPUT_CHRX_MALE_GVCF}.idx
+rm -f {OUTPUT_CHRX_MALE_GVCF}.idx
 
 /usr/bin/java \\
   {HAPLOTYPE_JAVA_OPTION} \\
@@ -78,7 +78,7 @@ rm {OUTPUT_CHRX_MALE_GVCF}.idx
 
 bgzip {BGZIP_OPTION} {OUTPUT_CHRY_MALE_GVCF}
 tabix {TABIX_OPTION} {OUTPUT_CHRY_MALE_GVCF}.gz
-rm {OUTPUT_CHRY_MALE_GVCF}.idx
+rm -f {OUTPUT_CHRY_MALE_GVCF}.idx
 
 """
 
@@ -103,36 +103,51 @@ set -x
   --ref {REFERENCE} \\
   --in-bam {INPUT_CRAM} \\
   --out-variants {OUTPUT_AUTOSOME_GVCF} \\
-  --interval-file {INTERVAL_AUTOSOME} \\
-  {HAPLOTYPE_OPTION_AUTOSOME} --tmp-dir /tmp/
+  --interval-file {INTERVAL_AUTOSOME} {HAPLOTYPE_OPTION_AUTOSOME}
+
+bgzip {BGZIP_OPTION} {OUTPUT_AUTOSOME_GVCF}
+tabix {TABIX_OPTION} {OUTPUT_AUTOSOME_GVCF}.gz
+rm -f {OUTPUT_AUTOSOME_GVCF}.idx
 
 {PBRUN} haplotypecaller \\
   --ref {REFERENCE} \\
   --in-bam {INPUT_CRAM} \\
   --out-variants {OUTPUT_PAR_GVCF} \\
-  --interval-file {INTERVAL_PAR} \\
-  {HAPLOTYPE_OPTION_PAR} --tmp-dir /tmp/
+  --interval-file {INTERVAL_PAR} {HAPLOTYPE_OPTION_PAR}
+
+bgzip {BGZIP_OPTION} {OUTPUT_PAR_GVCF}
+tabix {TABIX_OPTION} {OUTPUT_PAR_GVCF}.gz
+rm -f {OUTPUT_PAR_GVCF}.idx
 
 {PBRUN} haplotypecaller \\
   --ref {REFERENCE} \\
   --in-bam {INPUT_CRAM} \\
   --out-variants {OUTPUT_CHRX_FEMALE_GVCF} \\
-  --interval-file {INTERVAL_CHRX} \\
-  {HAPLOTYPE_OPTION_CHRX_FEMALE} --tmp-dir /tmp/
+  --interval-file {INTERVAL_CHRX} {HAPLOTYPE_OPTION_CHRX_FEMALE}
+
+bgzip {BGZIP_OPTION} {OUTPUT_CHRX_FEMALE_GVCF}
+tabix {TABIX_OPTION} {OUTPUT_CHRX_FEMALE_GVCF}.gz
+rm -f {OUTPUT_CHRX_FEMALE_GVCF}.idx
 
 {PBRUN} haplotypecaller \\
   --ref {REFERENCE} \\
   --in-bam {INPUT_CRAM} \\
   --out-variants {OUTPUT_CHRX_MALE_GVCF} \\
-  --interval-file {INTERVAL_CHRX} \\
-  {HAPLOTYPE_OPTION_CHRX_MALE} --tmp-dir /tmp/
+  --interval-file {INTERVAL_CHRX} {HAPLOTYPE_OPTION_CHRX_MALE}
+
+bgzip {BGZIP_OPTION} {OUTPUT_CHRX_MALE_GVCF}
+tabix {TABIX_OPTION} {OUTPUT_CHRX_MALE_GVCF}.gz
+rm -f {OUTPUT_CHRX_MALE_GVCF}.idx
 
 {PBRUN} haplotypecaller \\
   --ref {REFERENCE} \\
   --in-bam {INPUT_CRAM} \\
   --out-variants {OUTPUT_CHRY_MALE_GVCF} \\
-  --interval-file {INTERVAL_CHRY} \\
-  {HAPLOTYPE_OPTION_CHRY_MALE} --tmp-dir /tmp/
+  --interval-file {INTERVAL_CHRY} {HAPLOTYPE_OPTION_CHRY_MALE}
+
+bgzip {BGZIP_OPTION} {OUTPUT_CHRY_MALE_GVCF}
+tabix {TABIX_OPTION} {OUTPUT_CHRY_MALE_GVCF}.gz
+rm -f {OUTPUT_CHRY_MALE_GVCF}.idx
 """
 
 STAGE_NAME = "haplotypecaller_parabricks"
@@ -263,6 +278,8 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "INTERVAL_PAR": gcat_conf.path_get(CONF_SECTION, "interval_par"),
             "INTERVAL_CHRX": gcat_conf.path_get(CONF_SECTION, "interval_chrx"),
             "INTERVAL_CHRY": gcat_conf.path_get(CONF_SECTION, "interval_chry"),
+            "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
+            "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
             "HAPLOTYPE_OPTION_AUTOSOME": gcat_conf.get(CONF_SECTION, "haplotype_option_autosome") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
             "HAPLOTYPE_OPTION_PAR": gcat_conf.get(CONF_SECTION, "haplotype_option_par") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),
             "HAPLOTYPE_OPTION_CHRX_FEMALE": gcat_conf.get(CONF_SECTION, "haplotype_option_chrx_female") + " " + gcat_conf.get(CONF_SECTION, "haplotype_threads_option"),

@@ -144,8 +144,8 @@ rule gridss:
     input:
         lambda wildcards: config["gridss_samples"][wildcards.sample],
     output:
-        "gridss/{sample}/{sample}.gridss.vcf",
-        "gridss/{sample}/{sample}.gridss.vcf.idx"
+        "gridss/{sample}/{sample}.gridss.vcf.gz",
+        "gridss/{sample}/{sample}.gridss.vcf.gz.tbi"
     priority: 80
     params:
         script = "script/{sample}/singularity_gridss.sh",
