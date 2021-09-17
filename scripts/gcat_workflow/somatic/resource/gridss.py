@@ -67,9 +67,6 @@ if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
         -i {OUTPUT_VCF} \
         -o {OUTPUT_VCF_SOMATIC} \
         --normalordinal 1 --tumourordinal 2 --scriptdir /opt/gridss/
-    
-    bgzip {BGZIP_OPTION} {OUTPUT_VCF_SOMATIC} 
-    tabix {TABIX_OPTION} {OUTPUT_VCF_SOMATIC}.gz
 fi
 
 bgzip {BGZIP_OPTION} {OUTPUT_VCF}
