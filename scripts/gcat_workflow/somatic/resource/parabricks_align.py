@@ -85,7 +85,7 @@ set -o pipefail
 set -x
 
 rm -rf {OUTPUT_DIR}/*
-mkdir -p {WORK_DIR}
+mkdir -p {OUTPUT_DIR}
 
 {PBRUN} fq2bam \\
   --ref {REFERENCE} \\
