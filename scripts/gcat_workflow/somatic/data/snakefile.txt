@@ -193,7 +193,7 @@ rule genomonsv_filt:
     input:
         lambda wildcards: config["genomonsv_filt_samples"][wildcards.sample],
     output:
-        "genomonsv/{sample}/{sample}.genomonSV.result.filt.txt.gz"
+        "genomonsv/{sample}/{sample}.genomonSV.result.filt.txt"
     priority: 80
     params:
         script = "script/{sample}/singularity_genomonsv_filt.sh",
