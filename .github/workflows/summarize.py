@@ -13,3 +13,10 @@ for l in log:
 
 import json
 json.dump(summary, open(output, "w"), sort_keys=True, indent=4, separators=(',', ': '))
+print("""The message type can be:
+[I]nformational messages that Pylint emits (do not contribute to your analysis score)
+[R]efactor for a "good practice" metric violation
+[C]onvention for coding standard violation
+[W]arning for stylistic problems, or minor programming issues
+[E]rror for important programming issues (i.e. most probably bug)
+[F]atal for errors which prevented further processing""")
