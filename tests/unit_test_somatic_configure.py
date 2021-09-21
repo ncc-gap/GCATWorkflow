@@ -249,6 +249,7 @@ simple_repeat_file = {sample_dir}/reference/simple_repeat.txt.gz
 qsub_option = -l s_vmem=3G,mem_req=3G
 image = {sample_dir}/image/YYY.simg
 reference = {sample_dir}/reference/XXX.fa
+annotation_db = {sample_dir}/reference/
 """
         # Not parabricks
         data_conf = conf_template.format(
