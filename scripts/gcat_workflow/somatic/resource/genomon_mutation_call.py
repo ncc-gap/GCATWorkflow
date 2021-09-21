@@ -45,7 +45,7 @@ if [ _{SAMPLE2} = "_None" ]; then
   time mutfilter realignment --target_mutation_file {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -1 {INPUT_BAM1} --output {OUTPUT_PREF}.realignment_mutations.${{ext}} --ref_genome {REFERENCE}  {REALIGNMENT_OPTION}
 
   # Annotation if the candidate is on the simplerepeat. 
-  time mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.realignment_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz
+  time mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.realignment_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz {SIMPLE_REPEAT_OPTION}
 
   # header
   if [ _{OUTPUT_FORMAT} != "_vcf" ]; then
@@ -73,7 +73,7 @@ else
   time mutfilter breakpoint --target_mutation_file {OUTPUT_PREF}.indel_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.breakpoint_mutations.${{ext}} --ref_genome {REFERENCE} {BREAKPOINT_OPTION}
 
   # Annotation if the candidate is on the simplerepeat. 
-  time mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.breakpoint_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz 
+  time mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.breakpoint_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz {SIMPLE_REPEAT_OPTION}
 
   # header
   if [ _{OUTPUT_FORMAT} != "_vcf" ]; then
@@ -143,7 +143,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_PREF": "%s/%s" % (output_dir, tumor),
             "SAMPLE1": tumor,
             "SAMPLE2": normal,
-            "ANNOTATION_DB": gcat_conf.get(CONF_SECTION, "annotation_db"),
+            "ANNOTATION_DB": gcat_conf.path_get(CONF_SECTION, "annotation_db"),
             "OUTPUT_FORMAT": gcat_conf.get(CONF_SECTION, "output_format"),
             "FILTER_PAIR_OPTION": gcat_conf.get(CONF_SECTION, "filter_pair_option"),
             "FILTER_SINGLE_OPTION": gcat_conf.get(CONF_SECTION, "filter_single_option"),
@@ -155,7 +155,9 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         if tumor in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[tumor]
         if gcat_conf.path_get(CONF_SECTION, "filter_interval_list") != "":
-            singularity_bind += [gcat_conf.path_get(CONF_SECTION, "filter_interval_list")]
+            singularity_bind.append(gcat_conf.path_get(CONF_SECTION, "filter_interval_list"))
+        singularity_bind.append(gcat_conf.path_get(CONF_SECTION, "annotation_db"))
+
         stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = tumor)
     
     return output_files
