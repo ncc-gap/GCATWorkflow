@@ -131,7 +131,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "INPUT_BAM1": input_bams[tumor],
             "INPUT_BAM2": input_normal_cram,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "FISHER_INTERVAL_LIST": gcat_conf.get(CONF_SECTION, "filter_interval_list"),
+            "FISHER_INTERVAL_LIST": gcat_conf.path_get(CONF_SECTION, "filter_interval_list"),
             "FISHER_PAIR_OPTION": gcat_conf.get(CONF_SECTION, "fisher_pair_option"),
             "FISHER_SINGLE_OPTION": gcat_conf.get(CONF_SECTION, "fisher_single_option"),
             "FISHER_SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "fisher_samtools_option"),
@@ -154,7 +154,8 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
         if tumor in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[tumor]
-            
+        if gcat_conf.path_get(CONF_SECTION, "filter_interval_list") != "":
+            singularity_bind += gcat_conf.path_get(CONF_SECTION, "filter_interval_list")
         stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = tumor)
     
     return output_files
