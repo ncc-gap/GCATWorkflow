@@ -76,7 +76,10 @@ rm -f {OUTPUT_VCF}.idx
 rm -f ${{TUMOR_BAM}}
 rm -f ${{TUMOR_BAM}}.bai
 rm -f ${{output_pref}}.gridss-assembly.bam
-rm -rf ${{output_pref}}.temp.bam.gridss.working/
+rm -rf ${{output_pref}}.gridss-assembly.bam.gridss.working/
+rm -rf ${{output_pref}}.gridss.vcf.gridss.working/
+rm -rf ${{output_pref}}.normal.temp.bam.gridss.working/
+rm -rf ${{output_pref}}.tumor.temp.bam.gridss.working/
 
 if [ "${{NORMAL_BAM}}" != "" ]; then
     rm -f ${{NORMAL_BAM}}

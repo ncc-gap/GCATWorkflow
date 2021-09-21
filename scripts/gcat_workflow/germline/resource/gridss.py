@@ -54,7 +54,8 @@ rm -f ${{output_pref}}.temp.bam
 rm -f ${{output_pref}}.temp.bam.bai
 rm -f ${{output_pref}}.gridss-assembly.bam
 rm -rf ${{output_pref}}.temp.bam.gridss.working/
-
+rm -rf ${{output_pref}}.gridss-assembly.bam.gridss.working/
+rm -rf ${{output_pref}}.gridss.vcf.gridss.working/
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
