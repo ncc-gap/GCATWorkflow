@@ -19,4 +19,4 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint `find scripts -name "*.py"`
+        pylint `find scripts -name "*.py"` --disable='duplicate-code,trailing-whitespace,missing-module-docstring,missing-class-docstring,missing-function-docstring'
