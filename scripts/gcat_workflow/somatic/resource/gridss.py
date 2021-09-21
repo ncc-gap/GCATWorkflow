@@ -73,9 +73,9 @@ bgzip {BGZIP_OPTION} {OUTPUT_VCF}
 tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
 rm -f {OUTPUT_VCF}.idx
 
-rm ${{TUMOR_BAM}}
-rm ${{TUMOR_BAM}}.bai
-rm ${{output_pref}}.gridss-assembly.bam
+rm -f ${{TUMOR_BAM}}
+rm -f ${{TUMOR_BAM}}.bai
+rm -f ${{output_pref}}.gridss-assembly.bam
 rm -rf ${{output_pref}}.temp.bam.gridss.working/
 
 if [ "${{NORMAL_BAM}}" != "" ]; then

@@ -50,9 +50,9 @@ bgzip {BGZIP_OPTION} {OUTPUT_VCF}
 tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
 rm -f {OUTPUT_VCF}.idx
 
-rm ${{output_pref}}.temp.bam
-rm ${{output_pref}}.temp.bam.bai
-rm ${{output_pref}}.gridss-assembly.bam
+rm -f ${{output_pref}}.temp.bam
+rm -f ${{output_pref}}.temp.bam.bai
+rm -f ${{output_pref}}.gridss-assembly.bam
 rm -rf ${{output_pref}}.temp.bam.gridss.working/
 
 """
