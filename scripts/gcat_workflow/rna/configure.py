@@ -41,7 +41,10 @@ def main(gcat_conf, run_conf, sample_conf):
         rs_align.OUTPUT_BAM_FORMAT,
         gcat_conf.get("join", "remove_bam").lower() == "true"
     )
-    
+
+    #import json
+    #print(json.dumps(y, indent=4, sort_keys=True, separators=(',', ': ')))
+
     # link fastq
     linked_fastqs = setup.link_input_fastq(run_conf, sample_conf.fastq, sample_conf.fastq_src)
     
@@ -54,12 +57,13 @@ def main(gcat_conf, run_conf, sample_conf):
     )
     
     # link files attached bam
-    link_import_attached_files(
-        run_conf, sample_conf.bam_import,
-        rs_align.BAM_POSTFIX, 
-        rs_align.CHIMERIC_JUNCTION_POSTFIX, 
-        rs_align.OUTPUT_BAM_FORMAT.split("/")[0]
-    )
+    #link_import_attached_files(
+    #    run_conf, 
+    #    sample_conf.bam_import, 
+    #    rs_align.BAM_POSTFIX, 
+    #    rs_align.CHIMERIC_JUNCTION_POSTFIX, 
+    #    rs_align.OUTPUT_BAM_FORMAT.split("/")[0]
+    #)
     link_import_attached_files(
         run_conf, sample_conf.bam_import,
         rs_align.BAM_POSTFIX, 
@@ -84,6 +88,11 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.rna.resource.sra_fastq_dump as rs_sra_fastq_dump
     output_sra_fastq_dump = rs_sra_fastq_dump.configure(gcat_conf, run_conf, sample_conf)
     output_fastqs.update(output_sra_fastq_dump)
+    
+    # cram to bam
+    import gcat_workflow.rna.resource.cram_tobam as rs_cramtobam
+    cramto_bams = rs_cramtobam.configure(gcat_conf, run_conf, sample_conf)
+    output_bams.update(cramto_bams)
 
     # star
     for sample in output_fastqs:
@@ -107,7 +116,7 @@ def main(gcat_conf, run_conf, sample_conf):
     
     import gcat_workflow.rna.resource.fusionfusion_merge as rs_fusionfusion_merge
     output_fusionfusion_merges = rs_fusionfusion_merge.configure(gcat_conf, run_conf, sample_conf)
-    
+
     import gcat_workflow.rna.resource.fusionfusion as rs_fusionfusion
     output_fusionfusions = rs_fusionfusion.configure(output_bam_sams, output_fusionfusion_merges, gcat_conf, run_conf, sample_conf)
     
@@ -145,7 +154,16 @@ def main(gcat_conf, run_conf, sample_conf):
     
     # join
     import gcat_workflow.rna.resource.join as rs_join
-    output_joins = rs_join.configure(output_bams.keys(), output_fastqs, align_bams, gcat_conf, run_conf, sample_conf)
+    bams = {}
+    bams.update(cramto_bams)
+    bams.update(align_bams)
+    output_joins = rs_join.configure(
+        output_bams.keys(), 
+        list(sample_conf.bam_import.keys()) + list(sample_conf.cram_import.keys()), 
+        output_fastqs, 
+        bams, 
+        gcat_conf, run_conf, sample_conf
+    )
 
     # ######################
     # dump conf.yaml
@@ -179,7 +197,11 @@ def main(gcat_conf, run_conf, sample_conf):
         y["sra_fastq_dump"][sample] = "sra_fastq_dump/%s/%s.txt" % (sample, sample)
         y["aln_samples"][sample] = "fastq/%s/pass.txt" % (sample)
         output_dumps[sample] = rs_align.OUTPUT_BAM_FORMAT.format(sample=sample)
-        
+
+    y["cram_tobam"] = {}
+    for sample in sample_conf.cram_import:
+        y["cram_tobam"][sample] = sample_conf.cram_import[sample]
+
     output_files = y.pop("output_files")
     dic_output_files = {}
     for path in output_files:
@@ -189,14 +211,29 @@ def main(gcat_conf, run_conf, sample_conf):
         dic_output_files[sample].append(path)
 
     output_stars = {}
+    output_cramto_bams = {}
     for sample in output_bams:
-        output_stars[sample] = [
+        outputs = [
             output_bams[sample],
             output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.BAI_POSTFIX),
             #output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.CHIMERIC_JUNCTION_POSTFIX),
+            output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.CHIMERIC_SAM_POSTFIX),
+            output_bams[sample].replace(rs_align.BAM_POSTFIX, rs_align.SJ_TAB_POSTFIX),
         ]
+        if sample in sample_conf.cram_import:
+            output_cramto_bams[sample] = outputs
+        else:
+            output_stars[sample] = outputs
+
+    output_fusionfusion_merges_sample = {}
+    for panel in output_fusionfusion_merges:
+        for sample in sample_conf.control_panel[panel]:
+            output_fusionfusion_merges_sample[sample] = output_fusionfusion_merges[panel]
+
     __update_dic(dic_output_files, output_stars)
+    __update_dic(dic_output_files, output_cramto_bams)
     __update_dic(dic_output_files, output_dumps)
+    __update_dic(dic_output_files, output_fusionfusion_merges_sample)
     __update_dic(dic_output_files, output_fusionfusions)
     __update_dic(dic_output_files, output_star_fusions)
     __update_dic(dic_output_files, output_ir_counts)

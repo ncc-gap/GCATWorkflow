@@ -34,6 +34,11 @@ class ConfigureTest(unittest.TestCase):
             "/A.Aligned.sortedByCoord.out.bam.bai",
             "/B.Aligned.sortedByCoord.out.bam",
             "/B.Aligned.sortedByCoord.out.bai",
+            "/D.Aligned.sortedByCoord.out.cram",
+            "/D.Aligned.sortedByCoord.out.cram.crai",
+            "/E.Aligned.sortedByCoord.out.cram",
+            "/E.Aligned.sortedByCoord.out.crai",
+            "/run.sra",
         ]
         for p in touch_files:
             open(self.SAMPLE_DIR + p, "w").close()
@@ -66,11 +71,15 @@ pool2_s,{sample_dir}/C1_1.fq;{sample_dir}/C1_2.fq,,,,
 A_control,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
 
 [bam_import],,,,
-pool3,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
-,,,,
+pool3,{sample_dir}/A.Aligned.sortedByCoord.out.bam,,,
+pool7,{sample_dir}/B.Aligned.sortedByCoord.out.bam,,,
+pool8,{sample_dir}/D.Aligned.sortedByCoord.out.cram,,,
+pool9,{sample_dir}/E.Aligned.sortedByCoord.out.cram,,,
+
 [sra_fastq_dump],,,,
 pool4,RUNID123456
 pool5,RUNID123456,http://dummy.com/data/run.sra
+pool6,RUNID123456,{sample_dir}/run.sra
 
 [fusionfusion],,,,
 A_tumor,list1,,
@@ -101,9 +110,15 @@ A_control,,,,
 pool1,,,,
 pool2,,,,
 pool3,,,,
+pool4,,,,
+pool5,,,,
+pool6,,,,
+pool7,,,,
+pool8,,,,
+pool9,,,,
 ,,,,
 [controlpanel]
-list1,pool1,pool2,pool3,pool4
+list1,pool1,pool2,pool3,pool4,pool5,pool6,pool7,pool8,pool9
 """.format(sample_dir = self.SAMPLE_DIR)
         
         f = open(ss_path, "w")
@@ -128,15 +143,29 @@ list1,pool1,pool2,pool3,pool4
             'pool2_s': [[self.SAMPLE_DIR + '/C1_1.fq', self.SAMPLE_DIR + '/C1_2.fq'], []],
         })
 
-        self.assertEqual(sample_conf.sra_fastq_dump, {'pool4': ['RUNID123456', None], 'pool5': ['RUNID123456', "http://dummy.com/data/run.sra"]})
+        self.assertEqual(sample_conf.sra_fastq_dump, {'pool4': ['RUNID123456', None], 'pool5': ['RUNID123456', "http://dummy.com/data/run.sra"], 'pool6': ['RUNID123456', self.SAMPLE_DIR + '/run.sra']})
         self.assertEqual(sample_conf.bam_tofastq, {'A_control': self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam'})
         self.assertEqual(sample_conf.bam_tofastq_src, {'A_control': [self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam']})
-        self.assertEqual(sample_conf.bam_import, {'pool3': self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam'})
-        self.assertEqual(sample_conf.bam_import_src, {'pool3': [self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam', self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bai']})
+        self.assertEqual(sample_conf.bam_import, {
+            'pool3': self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam',
+            'pool7': self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam',
+        })
+        self.assertEqual(sample_conf.bam_import_src, {
+            'pool3': [self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam', self.SAMPLE_DIR + '/A.Aligned.sortedByCoord.out.bam.bai'],
+            'pool7': [self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bam', self.SAMPLE_DIR + '/B.Aligned.sortedByCoord.out.bai'],
+        })
+        self.assertEqual(sample_conf.cram_import, {
+            'pool8': self.SAMPLE_DIR + '/D.Aligned.sortedByCoord.out.cram',
+            'pool9': self.SAMPLE_DIR + '/E.Aligned.sortedByCoord.out.cram'
+        })
+        self.assertEqual(sample_conf.cram_import_src, {
+            'pool8': [self.SAMPLE_DIR + '/D.Aligned.sortedByCoord.out.cram', self.SAMPLE_DIR + '/D.Aligned.sortedByCoord.out.cram.crai'],
+            'pool9': [self.SAMPLE_DIR + '/E.Aligned.sortedByCoord.out.cram', self.SAMPLE_DIR + '/E.Aligned.sortedByCoord.out.crai']
+        })
         self.assertEqual(sample_conf.fusionfusion, [('A_tumor', 'list1'), ('A_control', None)])
         self.assertEqual(sample_conf.expression, ['A_tumor', 'A_tumor_s'])
-        self.assertEqual(sample_conf.qc, ['A_tumor', 'A_control', 'pool1', 'pool2', 'pool3'])
-        self.assertEqual(sample_conf.control_panel, {'list1': ['pool1', 'pool2', 'pool3', 'pool4']})
+        self.assertEqual(sample_conf.qc, ['A_tumor', 'A_control', 'pool1', 'pool2', 'pool3', 'pool4', 'pool5', 'pool6', 'pool7', 'pool8', 'pool9'])
+        self.assertEqual(sample_conf.control_panel, {'list1': ['pool1', 'pool2', 'pool3', 'pool4', 'pool5', 'pool6', 'pool7', 'pool8', 'pool9']})
         self.assertEqual(sample_conf.star_fusion, ['A_tumor'])
         self.assertEqual(sample_conf.ir_count, ['A_tumor'])
         self.assertEqual(sample_conf.iravnet, ['A_tumor'])

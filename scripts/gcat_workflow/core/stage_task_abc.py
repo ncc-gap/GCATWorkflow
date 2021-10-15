@@ -70,7 +70,19 @@ set -o pipefail
         if self.image != "":
             bind = ""
             if len(singularity_bind) > 0:
-                bind = "--bind " + ",".join(list(set(singularity_bind)))
+                binds_temp = []
+                for path in sorted(singularity_bind):
+                    if path == "": continue
+                    if os.path.isfile(path):
+                        path = os.path.dirname(path)
+                    if not path in binds_temp:
+                        binds_temp.append(path)
+
+                binds = []
+                for path in binds_temp:
+                    if len(binds) == 0 or not path.startswith(binds[-1]):
+                        binds.append(path)
+                bind = "--bind " + ",".join(binds)
                 
             open(singurality_script_path, "w").write(self.singurality_script_template.format(
                 singularity = gcat_conf.get("general", "singularity_path"),

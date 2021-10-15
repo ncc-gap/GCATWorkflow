@@ -49,20 +49,33 @@ rule fastq:
                 os.symlink(target_fastq, link)
         open(output[0], "w").close()
 
+rule cram_tobam:
+    input:
+        lambda wildcards: config["cram_tobam"][wildcards.sample],
+    output:
+        "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam",
+        "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
+        "star/{sample}/{sample}.Chimeric.out.sam",
+        "star/{sample}/{sample}.SJ.out.tab.gz",
+    priority: 40
+    params:
+        script = "script/{sample}/singularity_cram_tobam.sh",
+        yaml = "script/{sample}/conf_cram_tobam.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
 rule bam_import:
     input:
         lambda wildcards: config["bam_import"][wildcards.sample]
     output:
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam",
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
-        "star/{sample}/{sample}.Chimeric.out.junction",
         "star/{sample}/{sample}.Chimeric.out.sam",
         "star/{sample}/{sample}.SJ.out.tab.gz",
     run:
         bam_postfix = ".Aligned.sortedByCoord.out.bam"
         bai_postfix = ".Aligned.sortedByCoord.out.bam.bai"
         sam_postfix = ".Chimeric.out.sam"
-        junction_postfix = ".Chimeric.out.junction"
         sj_tabs_postfix = ".SJ.out.tab.gz"
         subdir = "star"
         
@@ -74,12 +87,9 @@ rule bam_import:
         prefix, ext = os.path.splitext(bam)
         if ext == ".bam":
             bai = ".bai"
-        elif ext == ".cram":
-            bai = ".crai"
         linked_bam = link_dir +'/'+ sample + bam_postfix
         linked_bai = link_dir +'/'+ sample + bai_postfix
         linked_sam = link_dir +'/'+ sample + sam_postfix
-        linked_junction = link_dir +'/'+ sample + junction_postfix
         linked_sj_tabs = link_dir +'/'+ sample + sj_tabs_postfix
         
         if not os.path.exists(linked_bam):
@@ -91,8 +101,6 @@ rule bam_import:
                 os.symlink(prefix + bai, linked_bai)
         if not os.path.exists(linked_sam):
             os.symlink(bam.replace(bam_postfix, sam_postfix), linked_sam)
-        if not os.path.exists(linked_junction):
-            os.symlink(bam.replace(bam_postfix, junction_postfix), linked_junction)
         if not os.path.exists(linked_sj_tabs):
             os.symlink(bam.replace(bam_postfix, sj_tabs_postfix), linked_sj_tabs)
 
@@ -102,24 +110,12 @@ rule star:
     output:
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam",
         "star/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai",
-        "star/{sample}/{sample}.Chimeric.out.junction",
         "star/{sample}/{sample}.Chimeric.out.sam",
         "star/{sample}/{sample}.SJ.out.tab.gz",
     priority: 50
     params:
         script = "script/{sample}/singularity_star_alignment.sh",
         yaml = "script/{sample}/conf_star_alignment.yml"
-    shell:
-        "gcat_runner {params.script} {params.yaml}"
-
-rule star_fusion:
-    input:
-        lambda wildcards: config["star_fusion_samples"][wildcards.sample],
-    output:
-        "star_fusion/{sample}/star-fusion.fusion_predictions.abridged.tsv"
-    params:
-        script = "script/{sample}/singularity_star_fusion.sh",
-        yaml = "script/{sample}/conf_star_fusion.yml"
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
@@ -220,7 +216,7 @@ rule kallisto:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
-rule join_sample:
+rule cleanup:
     input:
         lambda wildcards: config["output_files"][wildcards.sample],
     output:

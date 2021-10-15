@@ -74,13 +74,15 @@ def configure(gcat_conf, run_conf, sample_conf):
         bam_tofastq_command = SCRIPT_HEADER
         cat_fastq_command = ""
         remove_command = ""
-        if sample in sample_conf.bam_import:
+        if sample in sample_conf.cram_import:
+            raise Exception("cram to fastq is not yet supported.")
+        elif sample in sample_conf.bam_import:
             f1_name = "%s/1_1_temp.fastq" % (output_dir)
             f2_name = "%s/2_1_temp.fastq" % (output_dir)
             
             bam_tofastq_command = bamtofastq_class.shell_script_template.format(
                 param = gcat_conf.get("bam_tofastq", "params"),
-                input_bam = ";".join(sample_conf.bam_import[sample]),
+                input_bam = sample_conf.bam_import[sample],
                 f1_name = f1_name,
                 f2_name = f2_name,
                 o1_name = output_dir + '/unmatched_first_output.txt',
@@ -135,6 +137,9 @@ def configure(gcat_conf, run_conf, sample_conf):
         ]
         if sample in sample_conf.fastq_src:
             singularity_bind += sample_conf.fastq_src[sample][0] + sample_conf.fastq_src[sample][1]
+
+        elif sample in sample_conf.bam_import:
+            singularity_bind += sample_conf.bam_import_src[sample]
         
         stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
 

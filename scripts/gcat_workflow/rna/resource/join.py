@@ -19,12 +19,17 @@ set -o nounset
 set -o pipefail
 set -x
 
-{RM_FASTQS}
+if [ "{BAM_TOCRAM}" = "T" ]
+then
+  samtools view -C {OPTION} -T {REFERENCE} {INPUT_BAM} -o {OUTPUT_CRAM}
+  samtools index {OUTPUT_CRAM}
+done
+
 {RM_BAMS}
 touch {JOIN_FILE}
 """
 
-def configure(samples, fastq_files, bam_files, gcat_conf, run_conf, sample_conf):
+def configure(samples, import_samples, fastq_files, bam_files, gcat_conf, run_conf, sample_conf):
     import os
     
     STAGE_NAME = "join"
@@ -37,23 +42,15 @@ def configure(samples, fastq_files, bam_files, gcat_conf, run_conf, sample_conf)
         "singularity_option": ""
     }
     stage_class = Join(params)
-    remove_fastq = gcat_conf.get(SECTION_NAME, "remove_fastq").lower() == "true"
     remove_bam = gcat_conf.get(SECTION_NAME, "remove_bam").lower() == "true" 
-    #print([remove_fastq,remove_bam])
+    bam_tocram = gcat_conf.get(SECTION_NAME, "bam_tocram").lower() == "true" 
+
     output_files = {}
     for sample in samples:
         output_dir = "%s/join/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)
         output_file = "%s/join.txt" % (output_dir)
         output_files[sample] = output_file
-
-        list_fastq = []
-        if sample in fastq_files:
-            for li in fastq_files[sample]:
-                list_fastq.extend(li)
-        rm_fastqs = ""
-        if remove_fastq and len(list_fastq) > 0:
-            rm_fastqs = "rm -f " +  " ".join(list_fastq)
 
         list_bam = []
         if sample in bam_files:
@@ -63,13 +60,32 @@ def configure(samples, fastq_files, bam_files, gcat_conf, run_conf, sample_conf)
         if remove_bam and len(list_bam) > 0:
             rm_bams = "rm -f " +  " ".join(list_bam)
 
+        flg_bamtocram = "F"
+        reference  = gcat_conf.path_get(SECTION_NAME, "reference")
+        input_bam = ""
+        output_cram = ""
+        if bam_tocram and sample in bam_files and not sample in import_samples:
+            flg_bamtocram = "T"
+            output_dir = "%s/cram/%s" % (run_conf.project_root, sample)
+            os.makedirs(output_dir, exist_ok=True)
+            input_bam = bam_files[sample]
+            (basename, ext) = os.path.splitext(os.path.basename(input_bam))
+            output_cram = "%s/%s.cram" % (output_dir, basename)
+
         arguments = {
-            "RM_FASTQS": rm_fastqs,
+            "BAM_TOCRAM": flg_bamtocram,
+            "INPUT_BAM": input_bam,
+            "OUTPUT_CRAM": output_cram,
+            "REFERENCE": reference,
+            "OPTION": " ".join([
+                gcat_conf.get(SECTION_NAME, "samtools_option"),
+                gcat_conf.get(SECTION_NAME, "samtools_threads_option"),
+            ]),
             "RM_BAMS": rm_bams,
             "JOIN_FILE": output_file
         }
     
-        singularity_bind = [run_conf.project_root]
+        singularity_bind = [run_conf.project_root, reference]
     
         stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
 

@@ -23,6 +23,8 @@ class Sample_conf(abc.Sample_conf_abc):
         self.bam_tofastq_src = {}
         self.bam_import = {}
         self.bam_import_src = {}
+        self.cram_import = {}
+        self.cram_import_src = {}
         self.control_panel = {}
         self.fusionfusion = []
         self.expression = []
@@ -59,8 +61,13 @@ class Sample_conf(abc.Sample_conf_abc):
         
         if self.SECTION_BAM_IMPORT in splited:
             parsed_bam_import = self.parse_data_bam_import(splited[self.SECTION_BAM_IMPORT])
-            self.bam_import.update(parsed_bam_import["bam_import"])
-            self.bam_import_src.update(parsed_bam_import["bam_import_src"])
+            for sample in parsed_bam_import["bam_import"]:
+                if parsed_bam_import["bam_import"][sample].endswith("bam"):
+                    self.bam_import[sample] = parsed_bam_import["bam_import"][sample]
+                    self.bam_import_src[sample] = parsed_bam_import["bam_import_src"][sample]
+                else:
+                    self.cram_import[sample] = parsed_bam_import["bam_import"][sample]
+                    self.cram_import_src[sample] = parsed_bam_import["bam_import_src"][sample]
         
         if self.SECTION_SRA_FASTQ_DUMP in splited:
             self.sra_fastq_dump = self.parse_data_parameter(splited[self.SECTION_SRA_FASTQ_DUMP], self.SECTION_SRA_FASTQ_DUMP)
