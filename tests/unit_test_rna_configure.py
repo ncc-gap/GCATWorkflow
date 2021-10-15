@@ -261,7 +261,6 @@ annotation_gtf = {sample_dir}/reference/ZZZ.gtf
 [join]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 image = {sample_dir}/image/YYY.simg
-remove_fastq = True
 remove_bam = True
 bam_tocram = True
 reference = {sample_dir}/reference/XXX.fa

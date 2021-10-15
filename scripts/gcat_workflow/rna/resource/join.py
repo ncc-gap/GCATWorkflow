@@ -37,9 +37,9 @@ def configure(samples, import_samples, fastq_files, bam_files, gcat_conf, run_co
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
-        "image": "",
+        "image": gcat_conf.path_get(SECTION_NAME, "image"),
         "qsub_option": gcat_conf.get(SECTION_NAME, "qsub_option"),
-        "singularity_option": ""
+        "singularity_option": gcat_conf.get(SECTION_NAME, "singularity_option")
     }
     stage_class = Join(params)
     remove_bam = gcat_conf.get(SECTION_NAME, "remove_bam").lower() == "true" 
