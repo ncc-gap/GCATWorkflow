@@ -45,10 +45,10 @@ def configure(gcat_conf, run_conf, sample_conf):
     output_bams = {}
     for sample in sample_conf.cram_import:
         input_dir = os.path.dirname(sample_conf.cram_import[sample])
-        input_chimeric_sam = "%s/%s%s" % (input_dir, sample, CHIMERIC_SAM_POSTFIX)
+        input_chimeric_sam = sample_conf.cram_import[sample].replace(BAM_POSTFIX, CHIMERIC_SAM_POSTFIX)
         if not os.path.exists(input_chimeric_sam):
             raise ValueError("Not exist junction file: %s" % (input_chimeric_sam))
-        input_sj_tab =  "%s/%s%s" % (input_dir, sample, SJ_TAB_POSTFIX)
+        input_sj_tab =  sample_conf.cram_import[sample].replace(BAM_POSTFIX, SJ_TAB_POSTFIX)
         if not os.path.exists(input_sj_tab):
             raise ValueError("Not exist junction file: %s" % (input_sj_tab))
         
