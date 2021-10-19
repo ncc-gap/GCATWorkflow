@@ -44,10 +44,14 @@ def configure(gcat_conf, run_conf, sample_conf):
     
     output_bams = {}
     for sample in sample_conf.cram_import:
-        ext = sample_conf.cram_import[sample].split(".")[-1]
-        if ext.lower() == "bam":
-            continue
-
+        input_dir = os.path.dirname(sample_conf.cram_import[sample])
+        input_chimeric_sam = "%s/%s%s" % (input_dir, sample, CHIMERIC_SAM_POSTFIX)
+        if not os.path.exists(input_chimeric_sam):
+            raise ValueError("Not exist junction file: %s" % (input_chimeric_sam))
+        input_sj_tab =  "%s/%s%s" % (input_dir, sample, SJ_TAB_POSTFIX)
+        if not os.path.exists(input_sj_tab):
+            raise ValueError("Not exist junction file: %s" % (input_sj_tab))
+        
         output_dir = "%s/star/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)
 
@@ -57,11 +61,10 @@ def configure(gcat_conf, run_conf, sample_conf):
 
         output_bams[sample] = output_bam
  
-        input_dir = os.path.dirname(sample_conf.cram_import[sample])
         arguments = {
             "INPUT_CRAM": sample_conf.cram_import[sample],
-            "INPUT_CHIMERIC_SAM": "%s/%s%s" % (input_dir, sample, CHIMERIC_SAM_POSTFIX),
-            "INPUT_SJ_TAB": "%s/%s%s" % (input_dir, sample, SJ_TAB_POSTFIX),
+            "INPUT_CHIMERIC_SAM": input_chimeric_sam,
+            "INPUT_SJ_TAB": input_sj_tab,
             "OUTPUT_DIR": output_dir,
             "OUTPUT_BAM": output_bam,
             "OUTPUT_CHIMERIC_SAM": output_sam,

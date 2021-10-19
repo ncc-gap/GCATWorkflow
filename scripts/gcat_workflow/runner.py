@@ -143,7 +143,10 @@ class Slurm_runner(Runner):
 def main(args):
     import yaml
     conf = yaml.safe_load(open(args.conf))
-    
+    if args.interval > 0:
+        import time
+        import random
+        time.sleep(int(args.interval*random.random())) 
     if conf["runner"] == "qsub":
         runner = Qsub_runner(args.script, conf["qsub_option"], conf["log_dir"], conf["max_task"], conf["retry_count"])
     elif conf["runner"] == "slurm":

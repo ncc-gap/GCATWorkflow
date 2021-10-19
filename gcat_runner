@@ -10,6 +10,7 @@ parser.add_argument("--version", action = "version", version = "gcat_runner-" + 
 
 parser.add_argument('script', metavar = "/path/to/singularity_bwa.sh", type = str, help = "input singularity script")
 parser.add_argument("conf", metavar = "/path/to/sample.conf.yml", type = str, help = "input sample list flie [YAML]")
+parser.add_argument("--interval", metavar = "1", type = int, help = "Maximum waiting time (sec) to submit", default = 3)
 parser.set_defaults(handler=gcat_workflow.runner.main)
 
 args = parser.parse_args()
