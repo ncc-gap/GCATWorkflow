@@ -2,7 +2,7 @@
 
 import gcat_workflow.core.stage_task_abc as stage_task
 
-OUTPUT_FORMAT = "fusionfusion/{sample}/{sample}.merged.Chimeric.count"
+OUTPUT_FORMAT = "fusionfusion/control_panel/{sample}.merged.Chimeric.count"
 
 class Fusionfusion_merge(stage_task.Stage_task):
     def __init__(self, params):
@@ -44,7 +44,7 @@ def configure(gcat_conf, run_conf, sample_conf):
     stage_class = Fusionfusion_merge(params)
     
     output_files = {}
-    for (sample, panel) in sample_conf.fusionfusion:
+    for (sample_dummy, panel) in sample_conf.fusionfusion:
         if panel == None:
             continue 
         if panel in output_files:
@@ -65,9 +65,10 @@ def configure(gcat_conf, run_conf, sample_conf):
         }
         
         singularity_bind = [run_conf.project_root]
-        if sample in sample_conf.bam_import_src:
-            singularity_bind += sample_conf.bam_import_src[sample]
+        for sample in sample_conf.control_panel[panel]:
+            if sample in sample_conf.bam_import_src:
+                singularity_bind += sample_conf.bam_import_src[sample]
             
-        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)
+        stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = panel)
 
     return output_files

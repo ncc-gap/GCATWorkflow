@@ -27,22 +27,25 @@ cd {OUTPUT_DIR}/temp
 
 if [ "{SRA_PATH}" = "" ]; then
     # download
-    prefetch --max-size 100000000 {RUN_ID}
-    fasterq-dump -v --split-files {RUN_ID}/{RUN_ID}.sra
+    prefetch --max-size 100000000 {PREFETCH_OPTION} {RUN_ID}
+    fasterq-dump -v --split-files {DUMP_OPTION} {RUN_ID}/{RUN_ID}.sra
     rm -rf {RUN_ID}
 
     if [ -e {RUN_ID}.sra_1.fastq ]; then mv {RUN_ID}.sra_1.fastq 1_1.fastq; fi
     if [ -e {RUN_ID}.sra_2.fastq ]; then mv {RUN_ID}.sra_2.fastq 1_2.fastq; fi
     if [ -e {RUN_ID}.sra.fastq ]; then mv {RUN_ID}.sra.fastq 1_1.fastq; fi
+    if [ -e {RUN_ID}.1.fastq ]; then mv {RUN_ID}_1.fastq 1_1.fastq; fi
+    if [ -e {RUN_ID}.2.fastq ]; then mv {RUN_ID}_2.fastq 1_2.fastq; fi
+    if [ -e {RUN_ID}.fastq ]; then mv {RUN_ID}.fastq 1_1.fastq; fi
 
 else
     # for ddbj
     if [ "{WGET}" = "T" ]; then
         wget {SRA_PATH}
-        fasterq-dump -v --split-files {RUN_ID}.sra
+        fasterq-dump -v --split-files {DUMP_OPTION} {RUN_ID}.sra
         rm {RUN_ID}.sra
     else
-        fasterq-dump -v --split-files {SRA_PATH}
+        fasterq-dump -v --split-files {DUMP_OPTION} {SRA_PATH}
     fi
     if [ -e {RUN_ID}_1.fastq ]; then mv {RUN_ID}_1.fastq 1_1.fastq; fi
     if [ -e {RUN_ID}_2.fastq ]; then mv {RUN_ID}_2.fastq 1_2.fastq; fi
@@ -104,7 +107,9 @@ def configure(gcat_conf, run_conf, sample_conf):
             "OUTPUT_DIR": output_dir,
             "PASS_FILE": output_dir + '/pass.txt',
             "SRA_PATH": sra_path,
-            "WGET": download
+            "WGET": download,
+            "PREFETCH_OPTION": gcat_conf.get(CONF_SECTION, "prefetch_option"),
+            "DUMP_OPTION": gcat_conf.get(CONF_SECTION, "dump_option"),
         }
         
         stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = sample)

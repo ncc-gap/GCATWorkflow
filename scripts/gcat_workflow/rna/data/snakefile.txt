@@ -134,7 +134,7 @@ rule fusionfusion_merge:
     input:
         lambda wildcards: config["fusionfusion_merge_samples"][wildcards.sample],
     output:
-        "fusionfusion/{sample}/{sample}.merged.Chimeric.count"
+        "fusionfusion/control_panel/{sample}.merged.Chimeric.count"
     params:
         script = "script/{sample}/singularity_fusionfusion_merge.sh",
         yaml = "script/{sample}/conf_fusionfusion_merge.yml"

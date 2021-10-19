@@ -23,7 +23,7 @@ if [ "{BAM_TOCRAM}" = "T" ]
 then
   samtools view -C {OPTION} -T {REFERENCE} {INPUT_BAM} -o {OUTPUT_CRAM}
   samtools index {OUTPUT_CRAM}
-done
+fi
 
 {RM_BAMS}
 touch {JOIN_FILE}
