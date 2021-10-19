@@ -4,6 +4,7 @@ import gcat_workflow.core.stage_task_abc as stage_task
 
 BAM_POSTFIX = ".Aligned.sortedByCoord.out.bam"
 BAI_POSTFIX = ".Aligned.sortedByCoord.out.bam.bai"
+CRAM_POSTFIX = ".Aligned.sortedByCoord.out.cram"
 CHIMERIC_JUNCTION_POSTFIX = ".Chimeric.out.junction"
 CHIMERIC_SAM_POSTFIX = ".Chimeric.out.sam"
 SJ_TAB_POSTFIX = ".SJ.out.tab.gz"
@@ -45,10 +46,10 @@ def configure(gcat_conf, run_conf, sample_conf):
     output_bams = {}
     for sample in sample_conf.cram_import:
         input_dir = os.path.dirname(sample_conf.cram_import[sample])
-        input_chimeric_sam = sample_conf.cram_import[sample].replace(BAM_POSTFIX, CHIMERIC_SAM_POSTFIX)
+        input_chimeric_sam = sample_conf.cram_import[sample].replace(CRAM_POSTFIX, CHIMERIC_SAM_POSTFIX)
         if not os.path.exists(input_chimeric_sam):
             raise ValueError("Not exist junction file: %s" % (input_chimeric_sam))
-        input_sj_tab =  sample_conf.cram_import[sample].replace(BAM_POSTFIX, SJ_TAB_POSTFIX)
+        input_sj_tab =  sample_conf.cram_import[sample].replace(CRAM_POSTFIX, SJ_TAB_POSTFIX)
         if not os.path.exists(input_sj_tab):
             raise ValueError("Not exist junction file: %s" % (input_sj_tab))
         
