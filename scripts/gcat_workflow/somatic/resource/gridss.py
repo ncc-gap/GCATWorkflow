@@ -25,32 +25,6 @@ mkdir -p ${{output_dir}}
 
 output_pref=${{output_dir}}/{SAMPLE}
 
-export TUMOR_BAM=${{output_pref}}.tumor.temp.bam
-samtools view \\
-    -T {REFERENCE} \\
-    -h \\
-    -b \\
-    {SAMTOOLS_OPTION} \\
-    {INPUT_TUMOR_CRAM} > ${{TUMOR_BAM}}
-
-samtools index \\
-    ${{TUMOR_BAM}}
-
-if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
-    export NORMAL_BAM=${{output_pref}}.normal.temp.bam
-    samtools view \\
-        -T {REFERENCE} \\
-        -h \\
-        -b \\
-        {SAMTOOLS_OPTION} \\
-        {INPUT_NORMAL_CRAM} > ${{NORMAL_BAM}}
-        
-    samtools index \\
-        ${{NORMAL_BAM}}
-else
-     export NORMAL_BAM=""
-fi
-
 export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
 
 /opt/gridss/gridss \\
@@ -60,7 +34,7 @@ export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
     -j /opt/gridss/{GRIDSS_JAR} \\
     -w ${{output_dir}} \\
     {GRIDSS_OPTION} \\
-    ${{NORMAL_BAM}} ${{TUMOR_BAM}}
+    {INPUT_NORMAL_CRAM} {INPUT_TUMOR_CRAM}
 
 if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
     Rscript /opt/gridss/gridss_somatic_filter \
@@ -73,18 +47,11 @@ bgzip {BGZIP_OPTION} {OUTPUT_VCF}
 tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
 rm -f {OUTPUT_VCF}.idx
 
-rm -f ${{TUMOR_BAM}}
-rm -f ${{TUMOR_BAM}}.bai
 rm -f ${{output_pref}}.gridss-assembly.bam
 rm -rf ${{output_pref}}.gridss-assembly.bam.gridss.working/
 rm -rf ${{output_pref}}.gridss.vcf.gridss.working/
 rm -rf ${{output_pref}}.normal.temp.bam.gridss.working/
 rm -rf ${{output_pref}}.tumor.temp.bam.gridss.working/
-
-if [ "${{NORMAL_BAM}}" != "" ]; then
-    rm -f ${{NORMAL_BAM}}
-    rm -f ${{NORMAL_BAM}}.bai
-fi
 
 """
 
@@ -101,16 +68,11 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Gridss(params)
     
-    gridss_option = gcat_conf.get(CONF_SECTION, "gridss_option") + " " + gcat_conf.get(CONF_SECTION, "gridss_threads_option")
-    if gcat_conf.safe_get(CONF_SECTION, "gridss_fulloutput_option", "False").lower() == "true":
-        gridss_option += " --fulloutput %s/%s%s" % (
-            output_dir, sample, gcat_conf.get(CONF_SECTION, "gridss_fulloutput_postfix")
-        )
-
     output_files = {}
     for (tumor, normal) in sample_conf.gridss:
-        output_vcf = "%s/gridss/%s/%s.gridss.vcf" % (run_conf.project_root, tumor, tumor)
-        output_somatic_vcf = "%s/gridss/%s/%s.gridss.somatic.vcf" % (run_conf.project_root, tumor, tumor)
+        output_dir = "%s/gridss/%s" % (run_conf.project_root, tumor)
+        output_vcf = "%s/%s.gridss.vcf" % (output_dir, tumor)
+        output_somatic_vcf = "%s/%s.gridss.somatic.vcf" % (output_dir, tumor)
         output_files[tumor] = []
         output_files[tumor].append(output_vcf + ".gz")
         output_files[tumor].append(output_vcf + ".gz.tbi")
@@ -118,6 +80,12 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         input_normal_cram = ""
         if normal != None:
             input_normal_cram = input_bams[normal]
+
+        gridss_option = gcat_conf.get(CONF_SECTION, "gridss_option") + " " + gcat_conf.get(CONF_SECTION, "gridss_threads_option")
+        if gcat_conf.safe_get(CONF_SECTION, "gridss_fulloutput_option", "False").lower() == "true":
+            gridss_option += " --fulloutput %s/%s%s" % (
+                output_dir, tumor, gcat_conf.get(CONF_SECTION, "gridss_fulloutput_postfix")
+            )
 
         arguments = {
             "SAMPLE": tumor,

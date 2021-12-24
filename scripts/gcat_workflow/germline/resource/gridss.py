@@ -25,16 +25,6 @@ mkdir -p ${{output_dir}}
 
 output_pref=${{output_dir}}/{SAMPLE}
 
-samtools view \\
-    -T {REFERENCE} \\
-    -h \\
-    -b \\
-    {SAMTOOLS_OPTION} \\
-    {INPUT_CRAM} > ${{output_pref}}.temp.bam
-
-samtools index \\
-    ${{output_pref}}.temp.bam
-
 export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
 
 /opt/gridss/gridss \\
@@ -44,14 +34,12 @@ export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
     -j /opt/gridss/{GRIDSS_JAR} \\
     -w ${{output_dir}} \\
     {GRIDSS_OPTION} \\
-    ${{output_pref}}.temp.bam
+    {INPUT_CRAM}
 
 bgzip {BGZIP_OPTION} {OUTPUT_VCF}
 tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
 rm -f {OUTPUT_VCF}.idx
 
-rm -f ${{output_pref}}.temp.bam
-rm -f ${{output_pref}}.temp.bam.bai
 rm -f ${{output_pref}}.gridss-assembly.bam
 rm -rf ${{output_pref}}.temp.bam.gridss.working/
 rm -rf ${{output_pref}}.gridss-assembly.bam.gridss.working/

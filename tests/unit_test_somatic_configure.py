@@ -243,6 +243,7 @@ reference = {sample_dir}/reference/XXX.fa
 qsub_option = -l s_vmem=4G,mem_req=4G -pe def_slot 8
 image = {sample_dir}/image/YYY.simg
 reference = {sample_dir}/reference/XXX.fa
+gridss_fulloutput_option = True
 
 [manta]
 qsub_option = -l s_vmem=2G,mem_req=2G -pe def_slot 8
