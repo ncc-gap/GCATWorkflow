@@ -187,16 +187,6 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
         "singularity_option": singularity_option
     }
 
-    fq2bam_option = gcat_conf.get(CONF_SECTION, "fq2bam_option")
-    if gcat_conf.safe_get(CONF_SECTION, "fq2bam_markdup_metrics", "False").lower() == "true":
-        fq2bam_option += " --out-duplicate-metrics %s/%s%s" % (
-            output_dir, sample, gcat_conf.get(CONF_SECTION, "fq2bam_markdup_metrics_postfix")
-        )
-    if gcat_conf.safe_get(CONF_SECTION, "fq2bam_recal", "False").lower() == "true":
-        fq2bam_option += " --out-recal-file %s/%s%s" % (
-            output_dir, sample, gcat_conf.get(CONF_SECTION, "fq2bam_recal_postfix")
-        )
-
     stage_class = Parabricks(params)
     output_bams = {}
     for sample in sample_conf.fastq:
@@ -224,7 +214,17 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
             bind_fastqs.append(fastq1)
             bind_fastqs.append(fastq2)
             input_params += '--in-fq %s %s "%s" ' % (fastq1, fastq2, readgroups[i].rstrip())
-            
+        
+        fq2bam_option = gcat_conf.get(CONF_SECTION, "fq2bam_option")
+        if gcat_conf.safe_get(CONF_SECTION, "fq2bam_markdup_metrics", "False").lower() == "true":
+            fq2bam_option += " --out-duplicate-metrics %s/%s%s" % (
+                output_dir, sample, gcat_conf.get(CONF_SECTION, "fq2bam_markdup_metrics_postfix")
+            )
+        if gcat_conf.safe_get(CONF_SECTION, "fq2bam_recal", "False").lower() == "true":
+            fq2bam_option += " --out-recal-file %s/%s%s" % (
+                output_dir, sample, gcat_conf.get(CONF_SECTION, "fq2bam_out_recal_postfix")
+            )
+
         arguments = {
             "SAMPLE_NAME": sample,
             "INPUT": input_params,

@@ -191,12 +191,15 @@ image = {sample_dir}/image/YYY.simg
 qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
 image = {sample_dir}/image/YYY.simg
 reference = {sample_dir}/reference/XXX.fa
+gatk_recal = True
 
 [{aln}]
 gpu_support = {gpu_support}
 pbrun = {sample_dir}/parabricks/pbrun
 qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
 reference = {sample_dir}/reference/XXX.fa
+fq2bam_markdup_metrics = True
+fq2bam_recal = True
 
 [post_{aln}]
 qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
