@@ -65,6 +65,15 @@ done
 
 rm -f {WORK_DIR}/{SAMPLE_NAME}.bam
 rm -f $REMOVE_BAMS
+
+if [ "{RECAL}" = "T"];
+  /usr/bin/java \\
+    {GATK_RECAL_JAVA_OPTION} \\
+    -jar {GATK_JAR} BaseRecalibrator \\
+    -I={OUTPUT_BAM} \\
+    -R={REFERENCE} \\
+    -O={OUTPUT_RECAL_FILE} {GATK_RECAL_OPTION}
+fi
 """
 
 class Parabricks(stage_task.Stage_task):
@@ -108,6 +117,10 @@ def _compatible(gcat_conf, run_conf, sample_conf):
     }
     stage_class = Compatible(params)
     
+    recal_flg = "F"
+    if gcat_conf.safe_get(CONF_SECTION, "gatk_recal", "False").lower() == "true":
+        recal_flg = "T"
+
     output_bams = {}
     for sample in sample_conf.fastq:
         output_dir = "%s/cram/%s" % (run_conf.project_root, sample)
@@ -122,7 +135,8 @@ def _compatible(gcat_conf, run_conf, sample_conf):
         arguments = {
             "SAMPLE_NAME": sample,
             "OUTPUT_BAM": output_bams[sample],
-            "OUTPUT_MARKDUP_METRICS": "%s/%s.markdup.metrics" % (output_dir, sample),
+            "OUTPUT_MARKDUP_METRICS": "%s/%s%s" % (output_dir, sample, gcat_conf.get(CONF_SECTION, "gath_markdup_postfix")),
+            "OUTPUT_RECAL_FILE": "%s/%s%s" % (output_dir, sample, gcat_conf.get(CONF_SECTION, "gatk_out_recal_postfix")),
             "WORK_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option") + " " + gcat_conf.get(CONF_SECTION, "bwa_threads_option"),
@@ -131,6 +145,9 @@ def _compatible(gcat_conf, run_conf, sample_conf):
             "GATK_SORT_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gatk_sort_java_option"),
             "GATK_MARKDUP_OPTION": gcat_conf.get(CONF_SECTION, "gatk_markdup_option"),
             "GATK_MARKDUP_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gatk_markdup_java_option"),
+            "GATK_RECAL_OPTION": gcat_conf.get(CONF_SECTION, "gatk_recal_option"),
+            "GATK_RECAL_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gatk_recal_java_option"),
+            "RECAL": recal_flg,
             "ARRAYS": arrays
         }
         
@@ -169,6 +186,17 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
         "qsub_option": gcat_conf.get(CONF_SECTION, "qsub_option"),
         "singularity_option": singularity_option
     }
+
+    fq2bam_option = gcat_conf.get(CONF_SECTION, "fq2bam_option")
+    if gcat_conf.safe_get(CONF_SECTION, "fq2bam_markdup_metrics", "False").lower() == "true":
+        fq2bam_option += " --out-duplicate-metrics %s/%s%s" % (
+            output_dir, sample, gcat_conf.get(CONF_SECTION, "fq2bam_markdup_metrics_postfix")
+        )
+    if gcat_conf.safe_get(CONF_SECTION, "fq2bam_recal", "False").lower() == "true":
+        fq2bam_option += " --out-recal-file %s/%s%s" % (
+            output_dir, sample, gcat_conf.get(CONF_SECTION, "fq2bam_recal_postfix")
+        )
+
     stage_class = Parabricks(params)
     output_bams = {}
     for sample in sample_conf.fastq:
@@ -205,7 +233,7 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option") + " " + gcat_conf.get(CONF_SECTION, "bwa_threads_option"),
-            "FQ2BAM_OPTION": gcat_conf.get(CONF_SECTION, "fq2bam_option"),
+            "FQ2BAM_OPTION": fq2bam_option,
         }
         
         singularity_bind = [
@@ -220,4 +248,3 @@ def configure(gcat_conf, run_conf, sample_conf):
     if gcat_conf.safe_get(STAGE_NAME, "gpu_support", "False").lower() == "true":
         return _parabricks(gcat_conf, run_conf, sample_conf)
     return _compatible(gcat_conf, run_conf, sample_conf)
-
