@@ -95,6 +95,7 @@ def main(gcat_conf, run_conf, sample_conf):
     output_bams.update(cramto_bams)
 
     # star
+    org_fastq_samples = list(sample_conf.fastq.keys())
     for sample in output_fastqs:
         sample_conf.fastq[sample] = output_fastqs[sample]
         sample_conf.fastq_src[sample] = [[], []]
@@ -103,7 +104,7 @@ def main(gcat_conf, run_conf, sample_conf):
         sample_conf.fastq[sample] = linked_fastqs[sample]["fastq"]
         sample_conf.fastq_src[sample] = linked_fastqs[sample]["src"]
 
-    align_bams = rs_align.configure(gcat_conf, run_conf, sample_conf)
+    align_bams = rs_align.configure(gcat_conf, run_conf, sample_conf, org_fastq_samples)
     output_bams.update(align_bams)
 
     # fusion-fusion

@@ -120,36 +120,52 @@ A_control,{sample_dir}/A.markdup.cram
 A_control2,{sample_dir}/link_A.markdup.cram
 
 [{bamimp}]
+B_tumor,{sample_dir}/A.markdup.cram
+B_control,{sample_dir}/link_B.markdup.cram
 pool3,{sample_dir}/A.markdup.cram
 pool4,{sample_dir}/link_B.markdup.cram
 
 [{ht_call}]
 A_tumor, A_control
 A_control,None
+B_tumor, B_control
+B_control,None
 
 [{summary1}]
 A_tumor
 A_control
+B_tumor
+B_control
 
 [{summary2}]
 A_tumor
 A_control
+B_tumor
+B_control
 
 [manta]
 A_tumor, A_control
 A_control, None
+B_tumor, B_control
+B_control,None
 
 [gridss]
 A_tumor, A_control
 A_control, None
+B_tumor, B_control
+B_control,None
 
 [genomon_sv]
 A_tumor,A_control,list1
 A_control, None, None
+B_tumor, B_control
+B_control,None
 
 [genomon_mutation_call]
 A_tumor,A_control,list1
 A_control, None, None
+B_tumor, B_control
+B_control,None
 
 [controlpanel]
 list1,pool1,pool2,pool3
@@ -563,6 +579,84 @@ normal,{sample_dir}/A.metadata.txt
             ss_path,
             wdir,
             self.DATA_DIR + self.GC_NAME,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test4_04_htc_limited(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+A_normal,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+[{ht_call}]
+A_tumor,A_normal
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
+A_normal,{sample_dir}/A.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR, ht_call = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "somatic",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC_NAME_P,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test4_05_htc_limited(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bam2fq}]
+tumor,{sample_dir}/A.markdup.cram
+normal,{sample_dir}/B.markdup.cram
+[{ht_call}]
+tumor,normal
+[readgroup]
+tumor,{sample_dir}/A.metadata.txt
+normal,{sample_dir}/A.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, ht_call = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "somatic",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC_NAME_P,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test4_06_htc_limited(self):
+        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+tumor,{sample_dir}/A.markdup.cram
+normal,{sample_dir}/B.markdup.cram
+[{ht_call}]
+tumor,normal
+[readgroup]
+tumor,{sample_dir}/A.metadata.txt
+normal,{sample_dir}/A.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP, ht_call = HT_CALL)
+        
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+        options = [
+            "somatic",
+            ss_path,
+            wdir,
+            self.DATA_DIR + self.GC_NAME_P,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)

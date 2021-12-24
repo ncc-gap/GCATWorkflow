@@ -26,26 +26,26 @@ mkdir -p ${{output_dir}}
 output_pref=${{output_dir}}/{SAMPLE}
 
 export TUMOR_BAM=${{output_pref}}.tumor.temp.bam
-/tools/samtools-1.9/samtools view \\
+samtools view \\
     -T {REFERENCE} \\
     -h \\
     -b \\
     {SAMTOOLS_OPTION} \\
     {INPUT_TUMOR_CRAM} > ${{TUMOR_BAM}}
 
-/tools/samtools-1.9/samtools index \\
+samtools index \\
     ${{TUMOR_BAM}}
 
 if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
     export NORMAL_BAM=${{output_pref}}.normal.temp.bam
-    /tools/samtools-1.9/samtools view \\
+    samtools view \\
         -T {REFERENCE} \\
         -h \\
         -b \\
         {SAMTOOLS_OPTION} \\
         {INPUT_NORMAL_CRAM} > ${{NORMAL_BAM}}
         
-    /tools/samtools-1.9/samtools index \\
+    samtools index \\
         ${{NORMAL_BAM}}
 else
      export NORMAL_BAM=""
@@ -53,7 +53,7 @@ fi
 
 export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
 
-/opt/gridss/gridss.sh \\
+/opt/gridss/gridss \\
     -o {OUTPUT_VCF}  \\
     -a ${{output_pref}}.gridss-assembly.bam \\
     -r {REFERENCE}  \\
@@ -63,7 +63,7 @@ export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
     ${{NORMAL_BAM}} ${{TUMOR_BAM}}
 
 if [ "{INPUT_NORMAL_CRAM}" != "" ]; then
-    Rscript /opt/gridss/gridss_somatic_filter.R \
+    Rscript /opt/gridss/gridss_somatic_filter \
         -i {OUTPUT_VCF} \
         -o {OUTPUT_VCF_SOMATIC} \
         --normalordinal 1 --tumourordinal 2 --scriptdir /opt/gridss/
@@ -101,6 +101,12 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Gridss(params)
     
+    gridss_option = gcat_conf.get(CONF_SECTION, "gridss_option") + " " + gcat_conf.get(CONF_SECTION, "gridss_threads_option")
+    if gcat_conf.safe_get(CONF_SECTION, "gridss_fulloutput_option", "False").lower() == "true":
+        gridss_option += " --fulloutput %s/%s%s" % (
+            output_dir, sample, gcat_conf.get(CONF_SECTION, "gridss_fulloutput_postfix")
+        )
+
     output_files = {}
     for (tumor, normal) in sample_conf.gridss:
         output_vcf = "%s/gridss/%s/%s.gridss.vcf" % (run_conf.project_root, tumor, tumor)
@@ -120,7 +126,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "OUTPUT_VCF":  output_vcf,
             "OUTPUT_VCF_SOMATIC":  output_somatic_vcf,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
-            "GRIDSS_OPTION": gcat_conf.get(CONF_SECTION, "gridss_option") + " " + gcat_conf.get(CONF_SECTION, "gridss_threads_option"),
+            "GRIDSS_OPTION": gridss_option,
             "GRIDSS_JAR": gcat_conf.get(CONF_SECTION, "gridss_jar"),
             "GRIDSS_JAVA_OPTION": gcat_conf.get(CONF_SECTION, "gridss_java_option"),
             "SAMTOOLS_OPTION": gcat_conf.get(CONF_SECTION, "samtools_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_threads_option"),

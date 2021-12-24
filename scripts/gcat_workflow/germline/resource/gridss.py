@@ -25,19 +25,19 @@ mkdir -p ${{output_dir}}
 
 output_pref=${{output_dir}}/{SAMPLE}
 
-/tools/samtools-1.9/samtools view \\
+samtools view \\
     -T {REFERENCE} \\
     -h \\
     -b \\
     {SAMTOOLS_OPTION} \\
     {INPUT_CRAM} > ${{output_pref}}.temp.bam
 
-/tools/samtools-1.9/samtools index \\
+samtools index \\
     ${{output_pref}}.temp.bam
 
 export JAVA_TOOL_OPTIONS="{GRIDSS_JAVA_OPTION}"
 
-/opt/gridss/gridss.sh \\
+/opt/gridss/gridss \\
     -o {OUTPUT_VCF}  \\
     -a ${{output_pref}}.gridss-assembly.bam \\
     -r {REFERENCE}  \\

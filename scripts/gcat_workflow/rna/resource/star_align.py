@@ -70,7 +70,7 @@ rm ${{OUTPUT_PREF}}.Aligned.out.bam
 {remove_fastq}
 """
 
-def configure(gcat_conf, run_conf, sample_conf):
+def configure(gcat_conf, run_conf, sample_conf, org_fastq_samples):
     import os
     
     STAGE_NAME = "star_alignment"
@@ -115,7 +115,7 @@ def configure(gcat_conf, run_conf, sample_conf):
                 fastq2 = "{OUTPUT_DIR}/2_1_temp.fastq".format(OUTPUT_DIR = output_dir)
                 remove_fastq += "rm -f %s\n" %(fastq2)
 
-        if gcat_conf.get(SECTION_NAME, "remove_fastq").lower() == "true":
+        if gcat_conf.get(SECTION_NAME, "remove_fastq").lower() == "true" and not sample in org_fastq_samples:
             rfastq = " ".join(sample_conf.fastq[sample][0])
             if paired:
                 rfastq += " " + " ".join(sample_conf.fastq[sample][1])

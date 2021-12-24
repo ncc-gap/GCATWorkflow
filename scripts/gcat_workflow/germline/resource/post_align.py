@@ -24,14 +24,14 @@ set -o nounset
 set -o pipefail
 set -x
 
-/tools/samtools-1.9/samtools view \\
+samtools view \\
   {SAMTOOLS_VIEW_OPTION} \\
   -C \\
   -T {REFERENCE} \\
   -o {OUTPUT_CRAM} \\
   {INPUT_BAM}
 
-/tools/samtools-1.9/samtools index \\
+samtools index \\
   {SAMTOOLS_INDEX_OPTION} \\
   {OUTPUT_CRAM}
   
