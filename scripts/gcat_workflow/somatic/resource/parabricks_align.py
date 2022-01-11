@@ -135,7 +135,7 @@ def _compatible(gcat_conf, run_conf, sample_conf):
         arguments = {
             "SAMPLE_NAME": sample,
             "OUTPUT_BAM": output_bams[sample],
-            "OUTPUT_MARKDUP_METRICS": "%s/%s%s" % (output_dir, sample, gcat_conf.get(CONF_SECTION, "gath_markdup_postfix")),
+            "OUTPUT_MARKDUP_METRICS": "%s/%s%s" % (output_dir, sample, gcat_conf.get(CONF_SECTION, "gatk_markdup_metrics_postfix")),
             "OUTPUT_RECAL_FILE": "%s/%s%s" % (output_dir, sample, gcat_conf.get(CONF_SECTION, "gatk_out_recal_postfix")),
             "WORK_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
@@ -221,8 +221,8 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
                 output_dir, sample, gcat_conf.get(CONF_SECTION, "fq2bam_markdup_metrics_postfix")
             )
         if gcat_conf.safe_get(CONF_SECTION, "fq2bam_recal", "False").lower() == "true":
-            fq2bam_option += " --out-recal-file %s/%s%s" % (
-                output_dir, sample, gcat_conf.get(CONF_SECTION, "fq2bam_out_recal_postfix")
+            fq2bam_option += " --out-recal-file %s/%s%s %s" % (
+                output_dir, sample, gcat_conf.get(CONF_SECTION, "fq2bam_out_recal_postfix"), gcat_conf.get(CONF_SECTION, "fq2bam_recal_option")
             )
 
         arguments = {
