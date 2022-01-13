@@ -29,6 +29,7 @@ class ConfigureTest(unittest.TestCase):
     
     DATA_DIR = "/tmp/temp-test/gcat_test_somatic_configure"
     SAMPLE_DIR = DATA_DIR + "/samples"
+    SAMPLE_DIR2 = DATA_DIR + "/samples2"
     REMOVE = False
     SS_NAME = "/test.csv"
     GC_NAME = "/gcat.cfg"
@@ -40,6 +41,7 @@ class ConfigureTest(unittest.TestCase):
         if os.path.exists(self.DATA_DIR):
             shutil.rmtree(self.DATA_DIR)
         os.makedirs(self.SAMPLE_DIR, exist_ok = True)
+        os.makedirs(self.SAMPLE_DIR2, exist_ok = True)
         os.makedirs(self.DATA_DIR + "/reference", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/image", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/parabricks", exist_ok = True)
@@ -84,6 +86,8 @@ class ConfigureTest(unittest.TestCase):
             "/samples/A.markdup.cram.crai",
             "/samples/B.markdup.cram",
             "/samples/B.markdup.crai",
+            "/samples2/C.markdup.cram",
+            "/samples2/C.markdup.cram.crai",
             "/reference/XXX.fa",
             "/image/YYY.simg",
             "/parabricks/pbrun",
@@ -93,15 +97,17 @@ class ConfigureTest(unittest.TestCase):
             open(self.DATA_DIR + p, "w").close()
         
         link_files = [
-            ("/C1_1.fq", "/link_C1_1.fq"),
-            ("/C1_2.fq", "/link_C1_2.fq"),
-            ("/A.markdup.cram", "/link_A.markdup.cram"),
-            ("/A.markdup.crai", "/link_A.markdup.cram.crai"),
-            ("/B.markdup.cram", "/link_B.markdup.cram"),
-            ("/B.markdup.crai", "/link_B.markdup.crai"),
+            ("/samples/C1_1.fq", "/samples/link_C1_1.fq"),
+            ("/samples/C1_2.fq", "/samples/link_C1_2.fq"),
+            ("/samples/A.markdup.cram", "/samples/link_A.markdup.cram"),
+            ("/samples/A.markdup.crai", "/samples/link_A.markdup.cram.crai"),
+            ("/samples/B.markdup.cram", "/samples/link_B.markdup.cram"),
+            ("/samples/B.markdup.crai", "/samples/link_B.markdup.crai"),
+            ("/samples2/C.markdup.cram", "/samples/link_C.markdup.cram"),
+            ("/samples2/C.markdup.cram.crai", "/samples/link_C.markdup.crai"),
         ]
         for s in link_files:
-            os.symlink(self.SAMPLE_DIR + s[0], self.SAMPLE_DIR + s[1])
+            os.symlink(self.DATA_DIR + s[0], self.DATA_DIR + s[1])
         
         for p in [("/samples/A.metadata.txt", "A", 1), ("/samples/B.metadata.txt", "B", 1), ("/samples/C.metadata.txt", "C", 2), ("/samples/D.metadata.txt", "D", 14)]:
             f = open(self.DATA_DIR + p[0], "w")
@@ -121,7 +127,7 @@ A_control2,{sample_dir}/link_A.markdup.cram
 
 [{bamimp}]
 B_tumor,{sample_dir}/A.markdup.cram
-B_control,{sample_dir}/link_B.markdup.cram
+B_control,{sample_dir}/link_C.markdup.cram
 pool3,{sample_dir}/A.markdup.cram
 pool4,{sample_dir}/link_B.markdup.cram
 

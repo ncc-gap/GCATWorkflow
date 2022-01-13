@@ -76,11 +76,11 @@ set -o pipefail
                     if os.path.isfile(path):
                         path = os.path.dirname(path)
                     if not path in binds_temp:
-                        binds_temp.append(path)
-
+                        binds_temp.append(path.rstrip("/"))
+                
                 binds = []
                 for path in binds_temp:
-                    if len(binds) == 0 or not path.startswith(binds[-1]):
+                    if len(binds) == 0 or not path.startswith(binds[-1] + "/"):
                         binds.append(path)
                 bind = "--bind " + ",".join(binds)
                 

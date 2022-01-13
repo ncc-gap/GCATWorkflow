@@ -154,10 +154,12 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
         if tumor in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[tumor]
+        if normal in sample_conf.bam_import_src:
+            singularity_bind += sample_conf.bam_import_src[normal]
         if gcat_conf.get(CONF_SECTION, "filter_interval_list") != "":
             singularity_bind.append(gcat_conf.path_get(CONF_SECTION, "filter_interval_list"))
         singularity_bind.append(gcat_conf.path_get(CONF_SECTION, "annotation_db"))
-
+        
         stage_class.write_script(arguments, singularity_bind, run_conf, gcat_conf, sample = tumor)
     
     return output_files
