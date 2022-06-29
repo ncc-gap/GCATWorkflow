@@ -6,7 +6,8 @@ matrix:
       python: 3.7
 
 script:
-  - pip install --upgrade setuptools
+  - pip install setuptools==62.1.0
+  - pip install importlib-metadata==0.20
   - python setup.py build install
   - python setup.py test
 
