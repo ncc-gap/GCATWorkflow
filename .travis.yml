@@ -2,10 +2,11 @@ language: python
 
 matrix:
   include:
-    - name: "Python 3.9"
-      python: 3.9
+    - name: "Python 3.7"
+      python: 3.7
 
 script:
+  - pip install --upgrade setuptools
   - python setup.py build install
   - python setup.py test
 
