@@ -2,7 +2,7 @@
 
 import gcat_workflow.core.stage_task_abc as stage_task
 
-OUTPUT_FORMAT = "fusionfusion/{sample}/{sample}.genomonFusion.result.filt.txt"
+OUTPUT_FORMAT = "fusionfusion/{sample}/{sample}.genomonFusion.result.txt"
 
 class Fusionfusion(stage_task.Stage_task):
     def __init__(self, params):
@@ -28,10 +28,6 @@ fi
 
 mv {OUTPUT_DIR}/star.fusion.result.txt {OUTPUT_DIR}/{SAMPLE}.star.fusion.result.txt
 mv {OUTPUT_DIR}/fusion_fusion.result.txt {OUTPUT_DIR}/{SAMPLE}.genomonFusion.result.txt
-
-/usr/local/bin/fusion_utils filt {OUTPUT_DIR}/{SAMPLE}.genomonFusion.result.txt {OUTPUT_DIR}/{SAMPLE}.fusion_fusion.result.filt.txt {FILT_OPTION}
-
-mv {OUTPUT_DIR}/{SAMPLE}.fusion_fusion.result.filt.txt {OUTPUT_DIR}/{SAMPLE}.genomonFusion.result.filt.txt
 """
 
 def configure(input_counts, input_merges, gcat_conf, run_conf, sample_conf):
@@ -62,7 +58,6 @@ def configure(input_counts, input_merges, gcat_conf, run_conf, sample_conf):
             "INPUT": "%s" % (input_counts[sample]),
             "OUTPUT_DIR": output_dir,
             "OPTION": gcat_conf.get(SECTION_NAME, "fusionfusion_option"),
-            "FILT_OPTION": gcat_conf.get(SECTION_NAME, "filt_option"),
             "REFERENCE": gcat_conf.get(SECTION_NAME, "reference"),
             "MERGED_COUNT": merged_count
         }

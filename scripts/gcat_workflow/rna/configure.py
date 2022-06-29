@@ -247,7 +247,7 @@ def main(gcat_conf, run_conf, sample_conf):
 
     y["fusionfusion_count_samples"] = {}
     for [sample, panel] in sample_conf.fusionfusion:
-        y["fusionfusion_count_samples"][sample] = rs_align.OUTPUT_CHIMERIC_SAM_FORMAT.format(sample=sample)
+        #y["fusionfusion_count_samples"][sample] = rs_align.OUTPUT_CHIMERIC_SAM_FORMAT.format(sample=sample)
         if panel == None:
             continue
         for i in sample_conf.control_panel[panel]:

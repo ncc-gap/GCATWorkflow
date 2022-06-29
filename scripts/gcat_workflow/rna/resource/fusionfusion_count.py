@@ -40,7 +40,7 @@ def configure(input_files, gcat_conf, run_conf, sample_conf):
     
     samples = []
     for (sample, panel) in sample_conf.fusionfusion:
-        samples.append(sample)
+        #samples.append(sample)
         if panel == None:
             continue
         for i in sample_conf.control_panel[panel]:

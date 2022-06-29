@@ -145,7 +145,7 @@ rule fusionfusion:
     input:
         lambda wildcards: config["fusionfusion_samples"][wildcards.sample],
     output:
-        "fusionfusion/{sample}/{sample}.genomonFusion.result.filt.txt"
+        "fusionfusion/{sample}/{sample}.genomonFusion.result.txt"
     params:
         script = "script/{sample}/singularity_fusionfusion.sh",
         yaml = "script/{sample}/conf_fusionfusion.yml"
