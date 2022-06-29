@@ -6,8 +6,7 @@ matrix:
       python: 3.9
 
 script:
-  - pip install setuptools==62.1.0
-  - pip install importlib-metadata==0.20
+  - pip install -U importlib_metadata
   - python setup.py build install
   - python setup.py test
 
