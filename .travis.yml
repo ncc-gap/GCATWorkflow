@@ -6,7 +6,7 @@ matrix:
       python: 3.9
 
 script:
-  - pip install -U importlib_metadata
+  - pip install Cython
   - python setup.py build install
   - python setup.py test
 
