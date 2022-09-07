@@ -107,7 +107,7 @@ def configure(gcat_conf, run_conf, sample_conf, org_fastq_samples):
             remove_fastq += "rm -f %s\n" %(fastq1)
             if paired:
                 cat_fastq += "if [ -e {FASTQ2_1} ]; then".format(FASTQ2_1=sample_conf.fastq[sample][1][0])
-                cat_fastq += "cat {FASTQ2s} > {OUTPUT_DIR}/2_1_temp.fastq\n".format(
+                cat_fastq += " cat {FASTQ2s} > {OUTPUT_DIR}/2_1_temp.fastq\n".format(
                     FASTQ2s = " ".join(sample_conf.fastq[sample][1]),
                     OUTPUT_DIR = output_dir
                 )
