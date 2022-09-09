@@ -112,6 +112,7 @@ class Qsub_runner(Runner):
         if returncode != 0: 
             raise RuntimeError("The batch job failed.")
 
+# non-support array job
 class Slurm_runner(Runner):
     def task_exec(self):
         qsub_commands = ['sbatch', '--wait']
@@ -140,6 +141,29 @@ class Slurm_runner(Runner):
         if returncode != 0: 
             raise RuntimeError("The batch job failed.")
 
+# non-support array job
+class Bash_runner(Runner):
+    def task_exec(self):
+        bash_commands = ['bash']
+
+        qsub_options = []
+        #if type(self.qsub_option) == type(""):
+        #    qsub_options += self.qsub_option.split(' ')
+        #    if '' in qsub_options:
+        #        qsub_options.remove('')
+
+        if len(qsub_options) > 0:
+            bash_commands = bash_commands + qsub_options
+
+        log_file = self.log_dir + "/" + os.path.splitext(os.path.basename(self.singularity_script))[0] + ".log"
+        returncode = -1
+        with open(log_file, "w") as f:
+            returncode = subprocess.call(bash_commands + [
+                self.singularity_script
+            ], stdout=f, stderr=f)
+        if returncode != 0: 
+            raise RuntimeError("The batch job failed.")
+
 def main(args):
     import yaml
     conf = yaml.safe_load(open(args.conf))
@@ -151,6 +175,8 @@ def main(args):
         runner = Qsub_runner(args.script, conf["qsub_option"], conf["log_dir"], conf["max_task"], conf["retry_count"])
     elif conf["runner"] == "slurm":
         runner = Slurm_runner(args.script, conf["qsub_option"], conf["log_dir"], conf["max_task"], conf["retry_count"])
+    elif conf["runner"] == "bash":
+        runner = Bash_runner(args.script, conf["qsub_option"], conf["log_dir"], conf["max_task"], conf["retry_count"])
     else: 
         runner = Drmaa_runner(args.script, conf["qsub_option"], conf["log_dir"], conf["max_task"], conf["retry_count"])
     runner.task_exec()

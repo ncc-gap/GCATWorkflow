@@ -14,7 +14,7 @@ parser.add_argument("project_root", metavar = "project_root_dir", type = str, he
 parser.add_argument("gcat_conf_file", metavar = "gcat.cfg", type = str, help = "config file for gcat workflow")
 
 parser.add_argument("--param_check", help = "only param check", action='store_true')
-parser.add_argument('--runner', choices=['drmaa', 'qsub', 'slurm'], help = "choice runner", default='drmaa')
+parser.add_argument('--runner', choices=['drmaa', 'qsub', 'slurm', 'bash'], help = "choice runner", default='drmaa')
 parser.add_argument("--multiprocess", help = "use ruffus multiprocess", default='100', type=int)
 parser.add_argument("--verbose", help = "write messages to STDERR", default='3', type=int)
 parser.add_argument("--retry_count", help = "retry count", type = int, default=0)
