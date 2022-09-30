@@ -27,21 +27,22 @@ python setup.py install
 
 2. Pull container images
 
+For example,
 ```
 singularity pull docker://genomon/bwa_alignment:0.2.0
 ```
 
 3. Edit config file
 
-Edit `image` options, to pulled `.simg`.  
-And edit pathes of reference files.
+Edit `image` options, to pulled `.sif`.  
+And edit paths of reference files.
 ```
 vi ./tests/gcat.cfg
 ```
 
 4. Edit sample.csv
 
-Edit pathes of sequence files.
+Edit paths of sequence files.
 ```
 vi ./tests/sample.csv
 ```
