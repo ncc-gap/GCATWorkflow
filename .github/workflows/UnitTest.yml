@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python 3.9
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: 3.9
     - name: Install dependencies
@@ -20,10 +20,10 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint `find scripts -name "*.py"` --reports=y --disable='duplicate-code,trailing-whitespace,missing-module-docstring,missing-class-docstring,missing-function-docstring' | tee pylint.log
-        python -m unittest tests.unit_test_germline_configure.py
-        python -m unittest tests.unit_test_germline_samplesheet.py
-        python -m unittest tests.unit_test_rna_configure.py
-        python -m unittest tests.unit_test_rna_samplesheet.py
-        python -m unittest tests.unit_test_somatic_configure.py
-        python -m unittest tests.unit_test_somatic_samplesheet.py
+        python -m unittest tests.unit_test_germline_configure
+        python -m unittest tests.unit_test_germline_samplesheet
+        python -m unittest tests.unit_test_rna_configure
+        python -m unittest tests.unit_test_rna_samplesheet
+        python -m unittest tests.unit_test_somatic_configure
+        python -m unittest tests.unit_test_somatic_samplesheet
         
