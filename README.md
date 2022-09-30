@@ -4,7 +4,7 @@
 
 G-CAT Workflow
 ===============
-G-CAT Workflow, a cancer genome and RNA sequencing data analysis pipeline, efficiently detects of genomic variants and transcriptomic changes. Users can run G-CAT Workflow with ease of use in the HGC supercomputer and also can run it in other high performance computers.
+G-CAT Workflow is a cancer genome and RNA sequencing data analysis pipeline that efficiently detects genomic variants and transcriptomic changes. Users can run G-CAT Workflow with ease of use in the supercomputer and also can run it on other high-performance computers.
 
 ## Manual
 https://github.com/ncc-ccat-gap/GCATWorkflow
