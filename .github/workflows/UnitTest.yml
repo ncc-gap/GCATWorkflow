@@ -1,4 +1,4 @@
-name: Pylint
+name: UnitTest
 
 on: [push]
 
@@ -20,5 +20,10 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint `find scripts -name "*.py"` --reports=y --disable='duplicate-code,trailing-whitespace,missing-module-docstring,missing-class-docstring,missing-function-docstring' | tee pylint.log
-        
+        python -m unittest tests.unit_test_germline_configure.py
+        python -m unittest tests.unit_test_germline_samplesheet.py
+        python -m unittest tests.unit_test_rna_configure.py
+        python -m unittest tests.unit_test_rna_samplesheet.py
+        python -m unittest tests.unit_test_somatic_configure.py
+        python -m unittest tests.unit_test_somatic_samplesheet.py
         
