@@ -93,7 +93,7 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
         temp_bam = input_bams[tumor]
         if gcat_conf.getboolean(CONF_SECTION, "use_bam"):
             use_bam = "T"
-            temp_bam = "%s/%s.bam" % (output_dir, sample)
+            temp_bam = output_prefix + ".bam"
 
         arguments = {
             "input_cram": input_bams[tumor],
