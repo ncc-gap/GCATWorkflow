@@ -20,12 +20,36 @@ set -o nounset
 set -o pipefail
 set -x
 
-GenomonSV filt {input_bam} {output_prefix} {reference_genome} {param}
+INPUT_BAM={input_cram}
+
+if [ "{use_bam}" = "T" ]
+then
+  samtools view \\
+    {samtools_view_option} \\
+    -b \\
+    -T {reference} \\
+    -o {temp_bam} \\
+    {input_cram}
+
+  samtools index \\
+    {samtools_index_option} \\
+    {temp_bam}
+
+  INPUT_BAM={temp_bam}
+fi
+
+GenomonSV filt ${{INPUT_BAM}} {output_prefix} {reference_genome} {param}
 mv {output_prefix}.genomonSV.result.txt {output_prefix}.genomonSV.result.txt.tmp
 echo -e "{meta_info}" > {output_prefix}.genomonSV.result.txt
 cat {output_prefix}.genomonSV.result.txt.tmp >> {output_prefix}.genomonSV.result.txt
 rm -rf {output_prefix}.genomonSV.result.txt.tmp
 sv_utils filter {output_prefix}.genomonSV.result.txt {output_prefix}.genomonSV.result.filt.txt.tmp {simple_repeat_file} {sv_utils_param} 
+
+if [ "{use_bam}" = "T" ]
+then
+  rm {temp_bam}.bai
+  rm {temp_bam}
+fi
 
 mv {output_prefix}.genomonSV.result.filt.txt.tmp {output_prefix}.genomonSV.result.filt.txt
 """
@@ -34,6 +58,7 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
     
     STAGE_NAME = "genomonsv_filt"
     CONF_SECTION = STAGE_NAME
+    CONF_SECTION_PARSE = "genomonsv_parse"
     params = {
         "work_dir": run_conf.project_root,
         "stage_name": STAGE_NAME,
@@ -64,14 +89,25 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
         if simple_repeat_file_path != "":
             simple_repeat_file = "--simple_repeat_file " + simple_repeat_file_path
 
+        use_bam = "F"
+        temp_bam = input_bams[tumor]
+        if gcat_conf.getboolean(CONF_SECTION, "use_bam"):
+            use_bam = "T"
+            temp_bam = "%s/%s.bam" % (output_dir, sample)
+
         arguments = {
-            "input_bam": input_bams[tumor],
+            "input_cram": input_bams[tumor],
             "output_prefix": output_prefix,
             "meta_info": "# genomon_sv: %s" % (gcat_conf.path_get(CONF_SECTION, "image")),
             "reference_genome": gcat_conf.path_get(CONF_SECTION, "reference"),
             "param": filt_param,
             "sv_utils_param": gcat_conf.get(CONF_SECTION, "sv_utils_params"),
             "simple_repeat_file": simple_repeat_file,
+            "use_bam": use_bam,
+            "temp_bam": temp_bam,
+            "samtools_view_option": gcat_conf.get(CONF_SECTION, "samtools_view_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_view_threads_option"),
+            "samtools_index_option": gcat_conf.get(CONF_SECTION, "samtools_index_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_index_threads_option"),
+            "reference": gcat_conf.path_get(CONF_SECTION, "reference"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

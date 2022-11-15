@@ -36,13 +36,30 @@ if [ _{OUTPUT_FORMAT} = "_vcf" ]; then
    ext=vcf
 fi
 
+INPUT_BAM1={INPUT_CRAM1}
+
+if [ "{USE_BAM}" = "T" ]
+then
+  samtools view \\
+    {SAMTOOLS_VIEW_OPTION} \\
+    -b \\
+    -T {REFERENCE} \\
+    -o {TEMP_BAM1} \\
+    {INPUT_CRAM1}
+
+  samtools index \\
+    {SAMTOOLS_INDEX_OPTION} \\
+    {TEMP_BAM1}
+  INPUT_BAM1={TEMP_BAM1}
+fi
+
 if [ _{SAMPLE2} = "_None" ]; then
 
   # Fisher's Exact Test
-  time fisher single -o {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} --ref_fa {REFERENCE} -a {SAMPLE1} -1 {INPUT_BAM1} --samtools_path ${{SAMTOOLS}} {FISHER_SINGLE_OPTION} ${{interval_option}} --samtools_params "{FISHER_SAMTOOLS_OPTION}"
+  time fisher single -o {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} --ref_fa {REFERENCE} -a {SAMPLE1} -1 ${{INPUT_BAM1}} --samtools_path ${{SAMTOOLS}} {FISHER_SINGLE_OPTION} ${{interval_option}} --samtools_params "{FISHER_SAMTOOLS_OPTION}"
 
   # Local realignment using edlib. The candidate mutations are varidated.
-  time mutfilter realignment --target_mutation_file {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -1 {INPUT_BAM1} --output {OUTPUT_PREF}.realignment_mutations.${{ext}} --ref_genome {REFERENCE}  {REALIGNMENT_OPTION}
+  time mutfilter realignment --target_mutation_file {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -1 ${{INPUT_BAM1}} --output {OUTPUT_PREF}.realignment_mutations.${{ext}} --ref_genome {REFERENCE}  {REALIGNMENT_OPTION}
 
   # Annotation if the candidate is on the simplerepeat. 
   time mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.realignment_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz {SIMPLE_REPEAT_OPTION}
@@ -60,17 +77,34 @@ if [ _{SAMPLE2} = "_None" ]; then
   mutil filter -i {OUTPUT_PREF}.genomon_mutation.result.${{ext}} -O {OUTPUT_FORMAT} -1 {SAMPLE1} -o {OUTPUT_PREF}.genomon_mutation.result.filt.${{ext}} {FILTER_SINGLE_OPTION}
 
 else
+  INPUT_BAM2={INPUT_CRAM2}
+  
+  if [ "{USE_BAM}" = "T" ]
+  then
+    samtools view \\
+      {SAMTOOLS_VIEW_OPTION} \\
+      -b \\
+      -T {REFERENCE} \\
+      -o {TEMP_BAM2} \\
+      {INPUT_CRAM2}
+
+    samtools index \\
+      {SAMTOOLS_INDEX_OPTION} \\
+      {TEMP_BAM2}
+    INPUT_BAM1={TEMP_BAM2}
+  fi
+
   # Fisher's Exact Test
-  time fisher comparison -o {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} --ref_fa {REFERENCE} -a {SAMPLE1} -b {SAMPLE2} -1 {INPUT_BAM1} -2 {INPUT_BAM2} --samtools_path ${{SAMTOOLS}} {FISHER_PAIR_OPTION} ${{interval_option}} --samtools_params "{FISHER_SAMTOOLS_OPTION}"
+  time fisher comparison -o {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} --ref_fa {REFERENCE} -a {SAMPLE1} -b {SAMPLE2} -1 ${{INPUT_BAM1}} -2 ${{INPUT_BAM2}} --samtools_path ${{SAMTOOLS}} {FISHER_PAIR_OPTION} ${{interval_option}} --samtools_params "{FISHER_SAMTOOLS_OPTION}"
 
   # Local realignment using blat. The candidate mutations are varidated.
-  time mutfilter realignment --target_mutation_file {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -1 {INPUT_BAM1} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.realignment_mutations.${{ext}} --ref_genome {REFERENCE} {REALIGNMENT_OPTION}
+  time mutfilter realignment --target_mutation_file {OUTPUT_PREF}.fisher_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -1 ${{INPUT_BAM1}} -2 ${{INPUT_BAM2}} --output {OUTPUT_PREF}.realignment_mutations.${{ext}} --ref_genome {REFERENCE} {REALIGNMENT_OPTION}
 
   # Annotation if the candidate is near Indel. 
-  time mutfilter indel --target_mutation_file {OUTPUT_PREF}.realignment_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.indel_mutations.${{ext}} --ref_genome {REFERENCE} --samtools_path ${{SAMTOOLS}} {INDEL_OPTION} --samtools_params "{INDEL_SAMTOOLS_OPTION}"
+  time mutfilter indel --target_mutation_file {OUTPUT_PREF}.realignment_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -2 ${{INPUT_BAM2}} --output {OUTPUT_PREF}.indel_mutations.${{ext}} --ref_genome {REFERENCE} --samtools_path ${{SAMTOOLS}} {INDEL_OPTION} --samtools_params "{INDEL_SAMTOOLS_OPTION}"
 
   # Annotation if the candidate is near the breakpoint. 
-  time mutfilter breakpoint --target_mutation_file {OUTPUT_PREF}.indel_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -2 {INPUT_BAM2} --output {OUTPUT_PREF}.breakpoint_mutations.${{ext}} --ref_genome {REFERENCE} {BREAKPOINT_OPTION}
+  time mutfilter breakpoint --target_mutation_file {OUTPUT_PREF}.indel_mutations.${{ext}} -O {OUTPUT_FORMAT} -A {SAMPLE1} -B {SAMPLE2} -2 ${{INPUT_BAM2}} --output {OUTPUT_PREF}.breakpoint_mutations.${{ext}} --ref_genome {REFERENCE} {BREAKPOINT_OPTION}
 
   # Annotation if the candidate is on the simplerepeat. 
   time mutfilter simplerepeat --target_mutation_file {OUTPUT_PREF}.breakpoint_mutations.${{ext}} -O {OUTPUT_FORMAT} --output {OUTPUT_PREF}.simplerepeat_mutations.${{ext}} --simple_repeat_db {ANNOTATION_DB}/simpleRepeat.bed.gz {SIMPLE_REPEAT_OPTION}
@@ -86,6 +120,12 @@ else
   fi
 
   mutil filter -i {OUTPUT_PREF}.genomon_mutation.result.${{ext}} -O {OUTPUT_FORMAT} -o {OUTPUT_PREF}.genomon_mutation.result.filt.${{ext}} {FILTER_PAIR_OPTION}
+
+  if [ "{USE_BAM}" = "T" ]
+  then
+    rm {TEMP_BAM2}.bai
+    rm {TEMP_BAM2}
+  fi
 fi 
 
 bgzip {BGZIP_OPTION} {OUTPUT_PREF}.genomon_mutation.result.${{ext}}
@@ -94,6 +134,11 @@ tabix {TABIX_OPTION} {OUTPUT_PREF}.genomon_mutation.result.${{ext}}.gz
 bgzip {BGZIP_OPTION} {OUTPUT_PREF}.genomon_mutation.result.filt.${{ext}}
 tabix {TABIX_OPTION} {OUTPUT_PREF}.genomon_mutation.result.filt.${{ext}}.gz
 
+if [ "{USE_BAM}" = "T" ]
+then
+  rm {TEMP_BAM1}.bai
+  rm {TEMP_BAM1}
+fi
 rm -f {OUTPUT_PREF}.fisher_mutations.${{ext}}
 rm -f {OUTPUT_PREF}.realignment_mutations.${{ext}}
 rm -f {OUTPUT_PREF}.indel_mutations.${{ext}}
@@ -127,9 +172,17 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         if normal != None:
             input_normal_cram = input_bams[normal]
 
+        use_bam = "F"
+        temp_bam1 = input_bams[tumor]
+        temp_bam2 = input_normal_cram
+        if gcat_conf.getboolean(CONF_SECTION, "use_bam"):
+            use_bam = "T"
+            temp_bam1 = "%s/%s.bam" % (output_dir, tumor)
+            temp_bam2 = "%s/%s.bam" % (output_dir, normal)
+
         arguments = {
-            "INPUT_BAM1": input_bams[tumor],
-            "INPUT_BAM2": input_normal_cram,
+            "INPUT_CRAM1": input_bams[tumor],
+            "INPUT_CRAM2": input_normal_cram,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "FISHER_INTERVAL_LIST": gcat_conf.get(CONF_SECTION, "filter_interval_list"),
             "FISHER_PAIR_OPTION": gcat_conf.get(CONF_SECTION, "fisher_pair_option"),
@@ -149,6 +202,11 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             "FILTER_SINGLE_OPTION": gcat_conf.get(CONF_SECTION, "filter_single_option"),
             "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
             "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
+            "USE_BAM": use_bam,
+            "TEMP_BAM1": temp_bam1,
+            "TEMP_BAM2": temp_bam2,
+            "SAMTOOLS_VIEW_OPTION": gcat_conf.get(CONF_SECTION, "samtools_view_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_view_threads_option"),
+            "SAMTOOLS_INDEX_OPTION": gcat_conf.get(CONF_SECTION, "samtools_index_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_index_threads_option"),
         }
        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]

@@ -20,7 +20,31 @@ set -o nounset
 set -o pipefail
 set -x
 
-GenomonSV parse {input_bam} {output_prefix} --reference {reference} {param}
+INPUT_BAM={input_cram}
+
+if [ "{use_bam}" = "T" ]
+then
+  samtools view \\
+    {samtools_view_option} \\
+    -b \\
+    -T {reference} \\
+    -o {temp_bam} \\
+    {input_cram}
+
+  samtools index \\
+    {samtools_index_option} \\
+    {temp_bam}
+
+  INPUT_BAM={temp_bam}
+fi
+
+GenomonSV parse ${{INPUT_BAM}} {output_prefix} --reference {reference} {param}
+
+if [ "{use_bam}" = "T" ]
+then
+  rm {temp_bam}.bai
+  rm {temp_bam}
+fi
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
@@ -51,11 +75,21 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         os.makedirs(output_dir, exist_ok=True)
         output_files[sample] = "%s/%s.junction.clustered.bedpe.gz.tbi"% (output_dir, sample)
 
+        use_bam = "F"
+        temp_bam = input_bams[sample]
+        if gcat_conf.getboolean(CONF_SECTION, "use_bam"):
+            use_bam = "T"
+            temp_bam = "%s/%s.bam" % (output_dir, sample)
+
         arguments = {
-            "input_bam": input_bams[sample],
+            "input_cram": input_bams[sample],
             "output_prefix": "%s/%s"% (output_dir, sample),
             "param": gcat_conf.get(CONF_SECTION, "params"),
             "reference": gcat_conf.path_get(CONF_SECTION, "reference"),
+            "use_bam": use_bam,
+            "temp_bam": temp_bam,
+            "samtools_view_option": gcat_conf.get(CONF_SECTION, "samtools_view_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_view_threads_option"),
+            "samtools_index_option": gcat_conf.get(CONF_SECTION, "samtools_index_option") + " " + gcat_conf.get(CONF_SECTION, "samtools_index_threads_option"),
         }
         
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
