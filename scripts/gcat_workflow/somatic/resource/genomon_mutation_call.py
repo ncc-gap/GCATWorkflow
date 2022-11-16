@@ -91,7 +91,7 @@ else
     samtools index \\
       {SAMTOOLS_INDEX_OPTION} \\
       {TEMP_BAM2}
-    INPUT_BAM1={TEMP_BAM2}
+    INPUT_BAM2={TEMP_BAM2}
   fi
 
   # Fisher's Exact Test
