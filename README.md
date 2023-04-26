@@ -72,10 +72,3 @@ case, re-run (force all)
 ```
 snakemake --forceall
 ```
-
-case, with dot
-```
-snakemake --forceall --dag | dot -Tpng > dag.png
-```
-
-![](./doc/dag.png)
