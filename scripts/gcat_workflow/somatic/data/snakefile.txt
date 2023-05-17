@@ -133,7 +133,7 @@ rule collect_multiple_metrics:
     input:
         lambda wildcards: config["collect_multiple_metrics_samples"][wildcards.sample],
     output:
-        "summary/{sample}/{sample}.collect_multiple_metrics.gc_bias.pdf"
+        "summary/{sample}/{sample}.collect_multiple_metrics/gc_bias.pdf"
     priority: 80
     params:
         script = "script/{sample}/singularity_collect_multiple_metrics.sh",
