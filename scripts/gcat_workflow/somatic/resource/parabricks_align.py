@@ -66,7 +66,7 @@ done
 rm -f {WORK_DIR}/{SAMPLE_NAME}.bam
 rm -f $REMOVE_BAMS
 
-if [ "{RECAL}" = "T"]; then
+if [ "{RECAL}" = "T" ]; then
   /usr/bin/java \\
     {GATK_RECAL_JAVA_OPTION} \\
     -jar {GATK_JAR} BaseRecalibrator \\
