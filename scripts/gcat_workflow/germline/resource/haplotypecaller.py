@@ -106,8 +106,8 @@ mkdir -p $(dirname {OUTPUT_AUTOSOME_GVCF})
   --out-variants {OUTPUT_AUTOSOME_GVCF} \\
   --interval-file {INTERVAL_AUTOSOME} {HAPLOTYPE_OPTION_AUTOSOME}
 
-bgzip {BGZIP_OPTION} {OUTPUT_AUTOSOME_GVCF}
-tabix {TABIX_OPTION} {OUTPUT_AUTOSOME_GVCF}.gz
+{BGZIP} {BGZIP_OPTION} {OUTPUT_AUTOSOME_GVCF}
+{TABIX} {TABIX_OPTION} {OUTPUT_AUTOSOME_GVCF}.gz
 rm -f {OUTPUT_AUTOSOME_GVCF}.idx
 
 {PBRUN} haplotypecaller \\
@@ -116,8 +116,8 @@ rm -f {OUTPUT_AUTOSOME_GVCF}.idx
   --out-variants {OUTPUT_PAR_GVCF} \\
   --interval-file {INTERVAL_PAR} {HAPLOTYPE_OPTION_PAR}
 
-bgzip {BGZIP_OPTION} {OUTPUT_PAR_GVCF}
-tabix {TABIX_OPTION} {OUTPUT_PAR_GVCF}.gz
+{BGZIP} {BGZIP_OPTION} {OUTPUT_PAR_GVCF}
+{TABIX} {TABIX_OPTION} {OUTPUT_PAR_GVCF}.gz
 rm -f {OUTPUT_PAR_GVCF}.idx
 
 {PBRUN} haplotypecaller \\
@@ -126,8 +126,8 @@ rm -f {OUTPUT_PAR_GVCF}.idx
   --out-variants {OUTPUT_CHRX_FEMALE_GVCF} \\
   --interval-file {INTERVAL_CHRX} {HAPLOTYPE_OPTION_CHRX_FEMALE}
 
-bgzip {BGZIP_OPTION} {OUTPUT_CHRX_FEMALE_GVCF}
-tabix {TABIX_OPTION} {OUTPUT_CHRX_FEMALE_GVCF}.gz
+{BGZIP} {BGZIP_OPTION} {OUTPUT_CHRX_FEMALE_GVCF}
+{TABIX} {TABIX_OPTION} {OUTPUT_CHRX_FEMALE_GVCF}.gz
 rm -f {OUTPUT_CHRX_FEMALE_GVCF}.idx
 
 {PBRUN} haplotypecaller \\
@@ -136,8 +136,8 @@ rm -f {OUTPUT_CHRX_FEMALE_GVCF}.idx
   --out-variants {OUTPUT_CHRX_MALE_GVCF} \\
   --interval-file {INTERVAL_CHRX} {HAPLOTYPE_OPTION_CHRX_MALE}
 
-bgzip {BGZIP_OPTION} {OUTPUT_CHRX_MALE_GVCF}
-tabix {TABIX_OPTION} {OUTPUT_CHRX_MALE_GVCF}.gz
+{BGZIP} {BGZIP_OPTION} {OUTPUT_CHRX_MALE_GVCF}
+{TABIX} {TABIX_OPTION} {OUTPUT_CHRX_MALE_GVCF}.gz
 rm -f {OUTPUT_CHRX_MALE_GVCF}.idx
 
 {PBRUN} haplotypecaller \\
@@ -146,8 +146,8 @@ rm -f {OUTPUT_CHRX_MALE_GVCF}.idx
   --out-variants {OUTPUT_CHRY_MALE_GVCF} \\
   --interval-file {INTERVAL_CHRY} {HAPLOTYPE_OPTION_CHRY_MALE}
 
-bgzip {BGZIP_OPTION} {OUTPUT_CHRY_MALE_GVCF}
-tabix {TABIX_OPTION} {OUTPUT_CHRY_MALE_GVCF}.gz
+{BGZIP} {BGZIP_OPTION} {OUTPUT_CHRY_MALE_GVCF}
+{TABIX} {TABIX_OPTION} {OUTPUT_CHRY_MALE_GVCF}.gz
 rm -f {OUTPUT_CHRY_MALE_GVCF}.idx
 """
 
@@ -281,7 +281,9 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "INTERVAL_PAR": gcat_conf.path_get(CONF_SECTION, "interval_par"),
             "INTERVAL_CHRX": gcat_conf.path_get(CONF_SECTION, "interval_chrx"),
             "INTERVAL_CHRY": gcat_conf.path_get(CONF_SECTION, "interval_chry"),
+            "BGZIP": gcat_conf.path_get(CONF_SECTION, "bgzip"),
             "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
+            "TABIX": gcat_conf.path_get(CONF_SECTION, "tabix"),
             "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
             "HAPLOTYPE_OPTION_AUTOSOME": gcat_conf.get(CONF_SECTION, "haplotype_option_autosome") + haplotype_option,
             "HAPLOTYPE_OPTION_PAR": gcat_conf.get(CONF_SECTION, "haplotype_option_par") + haplotype_option,

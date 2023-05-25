@@ -45,6 +45,7 @@ class ConfigureTest(unittest.TestCase):
         os.makedirs(self.DATA_DIR + "/reference", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/image", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/parabricks", exist_ok = True)
+        os.makedirs(self.DATA_DIR + "/tools", exist_ok = True)
         touch_files = [
             "/samples/A1.fastq",
             "/samples/A2.fastq",
@@ -92,6 +93,8 @@ class ConfigureTest(unittest.TestCase):
             "/image/YYY.simg",
             "/parabricks/pbrun",
             "/reference/simple_repeat.txt.gz",
+            "/tools/bgzip",
+            "/tools/tabix",
         ]
         for p in touch_files:
             open(self.DATA_DIR + p, "w").close()
@@ -222,6 +225,8 @@ gpu_support = {gpu_support}
 pbrun = {sample_dir}/parabricks/pbrun
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
 reference = {sample_dir}/reference/XXX.fa
+bgzip = {sample_dir}/tools/bgzip
+tabix = {sample_dir}/tools/tabix
 
 [gatk_{summary1}_compatible]
 qsub_option = -l s_vmem=32G,mem_req=32G

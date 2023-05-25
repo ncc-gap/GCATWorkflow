@@ -56,8 +56,8 @@ mkdir -p $(dirname {OUTPUT_VCF})
   --tumor-name {SAMPLE} \\
   --out-vcf {OUTPUT_VCF}
 
-bgzip {BGZIP_OPTION} {OUTPUT_VCF}
-tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
+{BGZIP} {BGZIP_OPTION} {OUTPUT_VCF}
+{TABIX} {TABIX_OPTION} {OUTPUT_VCF}.gz
 rm -f {OUTPUT_VCF}.idx
 """
 
@@ -165,10 +165,12 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MUTECT_OPTION": gcat_conf.get(CONF_SECTION, "mutect_option") + " " + gcat_conf.get(CONF_SECTION, "mutect_threads_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),
+            "BGZIP": gcat_conf.path_get(CONF_SECTION, "bgzip"),
             "BGZIP_OPTION": gcat_conf.get(CONF_SECTION, "bgzip_option") + " " + gcat_conf.get(CONF_SECTION, "bgzip_threads_option"),
+            "TABIX": gcat_conf.path_get(CONF_SECTION, "tabix"),
             "TABIX_OPTION": gcat_conf.get(CONF_SECTION, "tabix_option"),
         }
-       
+        
         singularity_bind = [run_conf.project_root, os.path.dirname(gcat_conf.path_get(CONF_SECTION, "reference"))]
         if tumor in sample_conf.bam_import_src:
             singularity_bind += sample_conf.bam_import_src[tumor]

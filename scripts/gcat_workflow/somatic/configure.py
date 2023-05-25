@@ -17,7 +17,7 @@ def main(gcat_conf, run_conf, sample_conf):
         sample_conf.bam_import, 
         rs_post_align.OUTPUT_FORMAT
     )
-
+    
     # link fastq
     linked_fastqs = setup.link_input_fastq(run_conf, sample_conf.fastq, sample_conf.fastq_src)
     
@@ -41,7 +41,7 @@ def main(gcat_conf, run_conf, sample_conf):
     for sample in output_fastqs:
         sample_conf.fastq[sample] = output_fastqs[sample]
         sample_conf.fastq_src[sample] = [[], []]
-
+    
     for sample in linked_fastqs:
         sample_conf.fastq[sample] = linked_fastqs[sample]["fastq"]
         sample_conf.fastq_src[sample] = linked_fastqs[sample]["src"]
@@ -50,7 +50,7 @@ def main(gcat_conf, run_conf, sample_conf):
     align_bams = rs_align.configure(gcat_conf, run_conf, sample_conf)
     post_align_bams = rs_post_align.configure(align_bams, gcat_conf, run_conf, sample_conf)
     output_bams.update(post_align_bams)
-
+    
     # mutation
     import gcat_workflow.somatic.resource.mutectcaller as rs_mutation
     output_mutations = rs_mutation.configure(output_bams, gcat_conf, run_conf, sample_conf)
@@ -58,11 +58,11 @@ def main(gcat_conf, run_conf, sample_conf):
     # genomon-mutation
     import gcat_workflow.somatic.resource.genomon_mutation_call as rs_genomon_mutation
     output_genomon_mutations = rs_genomon_mutation.configure(output_bams, gcat_conf, run_conf, sample_conf)
-
+    
     # wgs summary
     import gcat_workflow.somatic.resource.collectwgsmetrics as rs_wgs_summary
     output_wgs_metrics = rs_wgs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
-
+    
     # multiple summary
     import gcat_workflow.somatic.resource.collectmultiplemetrics as rs_multiple_summary
     output_multiple_metrics = rs_multiple_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
@@ -70,27 +70,27 @@ def main(gcat_conf, run_conf, sample_conf):
     # gridss
     import gcat_workflow.somatic.resource.gridss as rs_gridss
     output_gridss = rs_gridss.configure(output_bams, gcat_conf, run_conf, sample_conf)
-
+    
     # manta 
     import gcat_workflow.somatic.resource.manta as rs_manta
     output_manta = rs_manta.configure(output_bams, gcat_conf, run_conf, sample_conf)
-
+    
     # genomon-sv
     import gcat_workflow.somatic.resource.genomonsv_parse as rs_genomonsv_parse
     output_genomon_parse = rs_genomonsv_parse.configure(output_bams, gcat_conf, run_conf, sample_conf)
-
+    
     import gcat_workflow.somatic.resource.genomonsv_merge as rs_genomonsv_merge
     output_genomon_merge = rs_genomonsv_merge.configure(gcat_conf, run_conf, sample_conf)
-
+    
     import gcat_workflow.somatic.resource.genomonsv_filt as rs_genomonsv_filt
     output_genomon_filt = rs_genomonsv_filt.configure(output_bams, output_genomon_merge, gcat_conf, run_conf, sample_conf)
-
+    
     # ######################
     # dump conf.yaml
     # ######################
     def __to_relpath(fullpath):
         return fullpath.replace(run_conf.project_root + "/", "", 1)
-        
+    
     def __dic_values(dic):
         values = []
         for key in dic:
@@ -100,7 +100,13 @@ def main(gcat_conf, run_conf, sample_conf):
             else:
                 values.append(__to_relpath(dic[key]))
         return values
-
+    
+    def __list_values(li):
+        values = []
+        for path in li:
+            values.append(__to_relpath(path))
+        return values
+    
     y["output_files"].extend(__dic_values(output_mutations))
     y["output_files"].extend(__dic_values(output_genomon_mutations))
     y["output_files"].extend(__dic_values(output_wgs_metrics))
@@ -118,34 +124,33 @@ def main(gcat_conf, run_conf, sample_conf):
         y["mutectcaller_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
         if normal != None:
             y["mutectcaller_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
-
+    
     y["genomon_mutation_call_samples"] = {}
     for (tumor, normal) in sample_conf.genomon_mutation_call:
         y["genomon_mutation_call_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
         if normal != None:
             y["genomon_mutation_call_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
-        
-        
+    
     y["collect_wgs_metrics_samples"] = {}
     for sample in sample_conf.wgs_metrics:
         y["collect_wgs_metrics_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
-
+    
     y["collect_multiple_metrics_samples"] = {}
     for sample in sample_conf.multiple_metrics:
         y["collect_multiple_metrics_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
-        
+    
     y["gridss_samples"] = {}
     for (tumor, normal) in sample_conf.gridss:
         y["gridss_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
         if normal != None:
             y["gridss_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
-        
+    
     y["manta_samples"] = {}
     for (tumor, normal) in sample_conf.manta:
         y["manta_samples"][tumor] = [rs_post_align.OUTPUT_FORMAT.format(sample=tumor)]
         if normal != None:
             y["manta_samples"][tumor].append(rs_post_align.OUTPUT_FORMAT.format(sample=normal))
-        
+    
     y["genomonsv_parse_samples"] = {}
     for sample in output_genomon_parse:
         y["genomonsv_parse_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
@@ -154,16 +159,16 @@ def main(gcat_conf, run_conf, sample_conf):
     for panel in output_genomon_merge:
         y["genomonsv_merge_samples"][panel] = []
         for sample in sample_conf.control_panel[panel]:
-            y["genomonsv_merge_samples"][panel].append(__to_relpath(output_genomon_parse[sample]))
+            y["genomonsv_merge_samples"][panel] += __list_values(output_genomon_parse[sample])
     
     y["genomonsv_filt_samples"] = {}
     for (tumor, normal, panel) in sample_conf.genomon_sv:
-        y["genomonsv_filt_samples"][tumor] = [__to_relpath(output_genomon_parse[tumor])]
+        y["genomonsv_filt_samples"][tumor] = __list_values(output_genomon_parse[tumor])
         if normal != None:
-            y["genomonsv_filt_samples"][tumor].append(__to_relpath(output_genomon_parse[normal]))
+            y["genomonsv_filt_samples"][tumor] += __list_values(output_genomon_parse[normal])
         if panel != None:
-            y["genomonsv_filt_samples"][tumor].append(__to_relpath(output_genomon_merge[panel]))
-        
+            y["genomonsv_filt_samples"][tumor] += [__to_relpath(output_genomon_merge[panel])]
+    
     import yaml
     open(run_conf.project_root + "/config.yml", "w").write(yaml.dump(y))
 

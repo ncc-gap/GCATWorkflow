@@ -132,7 +132,8 @@ rule collect_multiple_metrics:
         "summary/{sample}/{sample}.collect_multiple_metrics.gc_bias.pdf",
         "summary/{sample}/{sample}.collect_multiple_metrics.insert_size_histogram.pdf",
         "summary/{sample}/{sample}.collect_multiple_metrics.quality_by_cycle.pdf",
-        "summary/{sample}/{sample}.collect_multiple_metrics.quality_distribution.pdf"
+        "summary/{sample}/{sample}.collect_multiple_metrics.quality_distribution.pdf",
+        "summary/{sample}/{sample}.collect_multiple_metrics.alignment_summary_metrics"
     priority: 80
     params:
         script = "script/{sample}/singularity_collect_multiple_metrics.sh",

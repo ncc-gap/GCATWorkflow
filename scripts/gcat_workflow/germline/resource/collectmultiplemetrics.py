@@ -55,11 +55,35 @@ set -o nounset
 set -o pipefail
 set -x
 
-mkdir -p $(dirname {OUTPUT_FILE_PREFIX})
+mkdir -p {OUTPUT_DIR}
 {PBRUN} collectmultiplemetrics \\
     --ref {REFERENCE} \\
     --bam {INPUT_CRAM} \\
-    --out-all-metrics {OUTPUT_FILE_PREFIX} {MULTIPLE_METRICS_OPTION}
+    --out-qc-metrics-dir {OUTPUT_DIR} {MULTIPLE_METRICS_OPTION}
+
+mv {OUTPUT_DIR}/base_distribution_by_cycle.pdf {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.base_distribution_by_cycle.pdf
+mv {OUTPUT_DIR}/base_distribution_by_cycle.png {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.base_distribution_by_cycle.txt
+mv {OUTPUT_DIR}/base_distribution_by_cycle.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.base_distribution_by_cycle_metrics
+mv {OUTPUT_DIR}/gcbias.pdf {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.gc_bias.pdf
+mv {OUTPUT_DIR}/gcbias_0.png {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.gc_bias_0.png
+mv {OUTPUT_DIR}/gcbias_detail.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.gc_bias.detail_metrics
+mv {OUTPUT_DIR}/gcbias_summary.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.gc_bias.summary_metrics
+mv {OUTPUT_DIR}/insert_size.pdf {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.insert_size_histogram.pdf
+mv {OUTPUT_DIR}/insert_size.png {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.insert_size_histogram.png
+mv {OUTPUT_DIR}/insert_size.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.insert_size_metrics
+mv {OUTPUT_DIR}/mean_quality_by_cycle.pdf {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.quality_by_cycle.pdf
+mv {OUTPUT_DIR}/mean_quality_by_cycle.png {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.quality_by_cycle.png
+mv {OUTPUT_DIR}/mean_quality_by_cycle.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.quality_by_cycle_metrics
+mv {OUTPUT_DIR}/quality_yield.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.quality_yield_metrics
+mv {OUTPUT_DIR}/qualityscore.pdf {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.quality_distribution.pdf
+mv {OUTPUT_DIR}/qualityscore.png {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.quality_distribution.png
+mv {OUTPUT_DIR}/qualityscore.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.quality_distribution_metrics
+mv {OUTPUT_DIR}/sequencingArtifact.bait_bias_detail_metrics.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.bait_bias_detail_metrics
+mv {OUTPUT_DIR}/sequencingArtifact.bait_bias_summary_metrics.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.bait_bias_summary_metrics
+mv {OUTPUT_DIR}/sequencingArtifact.error_summary_metrics.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.error_summary_metrics
+mv {OUTPUT_DIR}/sequencingArtifact.pre_adapter_detail_metrics.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.pre_adapter_detail_metrics
+mv {OUTPUT_DIR}/sequencingArtifact.pre_adapter_summary_metrics.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.pre_adapter_summary_metrics
+mv {OUTPUT_DIR}/alignment.txt {OUTPUT_DIR}/{SAMPLE}.collect_multiple_metrics.alignment_summary_metrics
 """
 
 STAGE_NAME = "collect_multiple_metrics"
@@ -79,13 +103,14 @@ def _compatible(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = {}
     for sample in sample_conf.multiple_metrics:
         output_prefix = "%s/summary/%s/%s.collect_multiple_metrics" % (run_conf.project_root, sample, sample)
-        #output_files[sample] = output_prefix + ".gc_bias.pdf"
-        output_files[sample] = []
-        output_files[sample].append(output_prefix + ".base_distribution_by_cycle.pdf")
-        output_files[sample].append(output_prefix + ".gc_bias.pdf")
-        output_files[sample].append(output_prefix + ".insert_size_histogram.pdf")
-        output_files[sample].append(output_prefix + ".quality_by_cycle.pdf")
-        output_files[sample].append(output_prefix + ".quality_distribution.pdf")
+        output_files[sample] = [
+            output_prefix + ".base_distribution_by_cycle.pdf",
+            output_prefix + ".gc_bias.pdf",
+            output_prefix + ".insert_size_histogram.pdf",
+            output_prefix + ".quality_by_cycle.pdf",
+            output_prefix + ".quality_distribution.pdf",
+            output_prefix + ".alignment_summary_metrics",
+        ]
         arguments = {
             "INPUT_CRAM": input_bams[sample],
             "OUTPUT_FILE_PREFIX": output_prefix,
@@ -125,14 +150,14 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     output_files = {}
     for sample in sample_conf.multiple_metrics:
         output_prefix = "%s/summary/%s/%s.collect_multiple_metrics" % (run_conf.project_root, sample, sample)
-        #output_files[sample] = output_prefix + ".gc_bias.pdf"
-        output_files[sample] = []
-        output_files[sample].append(output_prefix + ".base_distribution_by_cycle.pdf")
-        output_files[sample].append(output_prefix + ".gc_bias.pdf")
-        output_files[sample].append(output_prefix + ".insert_size_histogram.pdf")
-        output_files[sample].append(output_prefix + ".quality_by_cycle.pdf")
-        output_files[sample].append(output_prefix + ".quality_distribution.pdf")
-
+        output_files[sample] = [
+            output_prefix + ".base_distribution_by_cycle.pdf",
+            output_prefix + ".gc_bias.pdf",
+            output_prefix + ".insert_size_histogram.pdf",
+            output_prefix + ".quality_by_cycle.pdf",
+            output_prefix + ".quality_distribution.pdf",
+            output_prefix + ".alignment_summary_metrics"
+        ]
         input_real_path = ""
         if not os.path.islink(input_bams[sample]):
             input_real_path = input_bams[sample]
@@ -143,7 +168,8 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
 
         arguments = {
             "INPUT_CRAM": input_real_path,
-            "OUTPUT_FILE_PREFIX": output_prefix,
+            "OUTPUT_DIR": "%s/summary/%s" % (run_conf.project_root, sample),
+            "SAMPLE": sample,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
             "MULTIPLE_METRICS_OPTION": gcat_conf.get(CONF_SECTION, "multiple_metrics_option") + " " + gcat_conf.get(CONF_SECTION, "multiple_metrics_threads_option"),
             "PBRUN": gcat_conf.get(CONF_SECTION, "pbrun"),

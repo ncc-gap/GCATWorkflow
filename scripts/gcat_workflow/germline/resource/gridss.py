@@ -21,6 +21,7 @@ set -o pipefail
 set -x
 
 output_dir=$(dirname {OUTPUT_VCF})
+rm -rf ${{output_dir}}
 mkdir -p ${{output_dir}}
 
 output_pref=${{output_dir}}/{SAMPLE}
@@ -41,9 +42,8 @@ tabix {TABIX_OPTION} {OUTPUT_VCF}.gz
 rm -f {OUTPUT_VCF}.idx
 
 rm -f ${{output_pref}}.gridss-assembly.bam
-rm -rf ${{output_pref}}.temp.bam.gridss.working/
-rm -rf ${{output_pref}}.gridss-assembly.bam.gridss.working/
-rm -rf ${{output_pref}}.gridss.vcf.gridss.working/
+rm -f ${{output_dir}}/libsswjni.so
+rm -rf ${{output_dir}}/*.working/
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):

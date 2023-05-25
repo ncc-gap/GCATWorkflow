@@ -49,11 +49,16 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     for sample in samples:
         output_dir = '%s/genomonsv/%s' % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)
-        output_files[sample] = "%s/%s.junction.clustered.bedpe.gz.tbi"% (output_dir, sample)
-
+        output_prefix = "%s/%s" % (output_dir, sample)
+        output_files[sample] = [
+            "%s.improper.clustered.bedpe.gz" % (output_prefix),
+            "%s.improper.clustered.bedpe.gz.tbi" % (output_prefix),
+            "%s.junction.clustered.bedpe.gz" % (output_prefix),
+            "%s.junction.clustered.bedpe.gz.tbi" % (output_prefix),
+        ]
         arguments = {
             "input_bam": input_bams[sample],
-            "output_prefix": "%s/%s"% (output_dir, sample),
+            "output_prefix": output_prefix,
             "param": gcat_conf.get(CONF_SECTION, "params"),
             "reference": gcat_conf.path_get(CONF_SECTION, "reference"),
         }

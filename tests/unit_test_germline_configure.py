@@ -43,6 +43,7 @@ class ConfigureTest(unittest.TestCase):
         os.makedirs(self.DATA_DIR + "/reference", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/image", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/parabricks", exist_ok = True)
+        os.makedirs(self.DATA_DIR + "/tools", exist_ok = True)
         touch_files = [
             "/samples/A1.fastq",
             "/samples/A2.fastq",
@@ -88,6 +89,8 @@ class ConfigureTest(unittest.TestCase):
             "/reference/XXX.bed",
             "/image/YYY.simg",
             "/parabricks/pbrun",
+            "/tools/bgzip",
+            "/tools/tabix",
         ]
         for p in touch_files:
             open(self.DATA_DIR + p, "w").close()
@@ -198,6 +201,8 @@ interval_autosome = {sample_dir}/reference/XXX.bed
 interval_par = {sample_dir}/reference/XXX.bed
 interval_chrx = {sample_dir}/reference/XXX.bed
 interval_chry = {sample_dir}/reference/XXX.bed
+bgzip = {sample_dir}/tools/bgzip
+tabix = {sample_dir}/tools/tabix
 
 [gatk_{summary1}_compatible]
 qsub_option = -l s_vmem=32G,mem_req=32G

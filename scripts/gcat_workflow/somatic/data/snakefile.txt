@@ -133,7 +133,12 @@ rule collect_multiple_metrics:
     input:
         lambda wildcards: config["collect_multiple_metrics_samples"][wildcards.sample],
     output:
-        "summary/{sample}/{sample}.collect_multiple_metrics.gc_bias.pdf"
+        "summary/{sample}/{sample}.collect_multiple_metrics.base_distribution_by_cycle.pdf",
+        "summary/{sample}/{sample}.collect_multiple_metrics.gc_bias.pdf",
+        "summary/{sample}/{sample}.collect_multiple_metrics.insert_size_histogram.pdf",
+        "summary/{sample}/{sample}.collect_multiple_metrics.quality_by_cycle.pdf",
+        "summary/{sample}/{sample}.collect_multiple_metrics.quality_distribution.pdf",
+        "summary/{sample}/{sample}.collect_multiple_metrics.alignment_summary_metrics"
     priority: 80
     params:
         script = "script/{sample}/singularity_collect_multiple_metrics.sh",
@@ -171,6 +176,9 @@ rule genomonsv_parse:
     input:
         lambda wildcards: config["genomonsv_parse_samples"][wildcards.sample],
     output:
+        "genomonsv/{sample}/{sample}.improper.clustered.bedpe.gz",
+        "genomonsv/{sample}/{sample}.improper.clustered.bedpe.gz.tbi",
+        "genomonsv/{sample}/{sample}.junction.clustered.bedpe.gz",
         "genomonsv/{sample}/{sample}.junction.clustered.bedpe.gz.tbi"
     params:
         script = "script/{sample}/singularity_genomonsv_parse.sh",

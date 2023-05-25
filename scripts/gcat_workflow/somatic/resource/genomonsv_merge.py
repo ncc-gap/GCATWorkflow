@@ -38,8 +38,6 @@ def configure(gcat_conf, run_conf, sample_conf):
     
     bedpe_dir = run_conf.project_root + '/genomonsv/non_matched_control_panel'
     control_info_dir = run_conf.project_root + '/genomonsv/control_panel'
-    os.makedirs(bedpe_dir, exist_ok=True)
-    os.makedirs(control_info_dir, exist_ok=True)
 
     output_files = {}
     for (tumor, normal, panel) in sample_conf.genomon_sv:
@@ -47,7 +45,9 @@ def configure(gcat_conf, run_conf, sample_conf):
             continue
         if panel in output_files:
             continue
-            
+
+        os.makedirs(bedpe_dir, exist_ok=True)
+        os.makedirs(control_info_dir, exist_ok=True)
         output_file = "%s/%s.merged.junction.control.bedpe.gz.tbi" % (bedpe_dir, panel)
         output_files[panel] = output_file
         control_conf = "%s/%s.control_info.txt" % (control_info_dir, panel)
