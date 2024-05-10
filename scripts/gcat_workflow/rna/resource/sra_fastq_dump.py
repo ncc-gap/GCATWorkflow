@@ -34,8 +34,8 @@ if [ "{SRA_PATH}" = "" ]; then
     if [ -e {RUN_ID}.sra_1.fastq ]; then mv {RUN_ID}.sra_1.fastq 1_1.fastq; fi
     if [ -e {RUN_ID}.sra_2.fastq ]; then mv {RUN_ID}.sra_2.fastq 1_2.fastq; fi
     if [ -e {RUN_ID}.sra.fastq ]; then mv {RUN_ID}.sra.fastq 1_1.fastq; fi
-    if [ -e {RUN_ID}.1.fastq ]; then mv {RUN_ID}_1.fastq 1_1.fastq; fi
-    if [ -e {RUN_ID}.2.fastq ]; then mv {RUN_ID}_2.fastq 1_2.fastq; fi
+    if [ -e {RUN_ID}_1.fastq ]; then mv {RUN_ID}_1.fastq 1_1.fastq; fi
+    if [ -e {RUN_ID}_2.fastq ]; then mv {RUN_ID}_2.fastq 1_2.fastq; fi
     if [ -e {RUN_ID}.fastq ]; then mv {RUN_ID}.fastq 1_1.fastq; fi
 
 else
