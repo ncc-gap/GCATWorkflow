@@ -8,6 +8,7 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_MTCALL = "mutectcaller_parabricks"
     SECTION_GENOMON_MUTATION = "genomon_mutation_call"
     SECTION_WGS_METRICS = "collect_wgs_metrics"
+    SECTION_HS_METRICS = "collect_hs_metrics"
     SECTION_MULTIPLE_METRICS = "collect_multiple_metrics"
     SECTION_GRIDSS = "gridss"
     SECTION_MANTA = "manta"
@@ -27,6 +28,7 @@ class Sample_conf(abc.Sample_conf_abc):
         self.mutect_call = []
         self.genomon_mutation_call = []
         self.wgs_metrics = []
+        self.hs_metrics = []
         self.multiple_metrics = []
         self.gridss = []
         self.manta = []
@@ -44,6 +46,7 @@ class Sample_conf(abc.Sample_conf_abc):
             self.SECTION_MTCALL, 
             self.SECTION_GENOMON_MUTATION,
             self.SECTION_WGS_METRICS, 
+            self.SECTION_HS_METRICS, 
             self.SECTION_MULTIPLE_METRICS, 
             self.SECTION_GRIDSS, 
             self.SECTION_MANTA, 
@@ -83,6 +86,9 @@ class Sample_conf(abc.Sample_conf_abc):
 
         if self.SECTION_WGS_METRICS in splited:
             self.wgs_metrics += self.parse_data_general(splited[self.SECTION_WGS_METRICS])
+
+        if self.SECTION_HS_METRICS in splited:
+            self.hs_metrics += self.parse_data_general(splited[self.SECTION_HS_METRICS])
 
         if self.SECTION_MULTIPLE_METRICS in splited:
             self.multiple_metrics += self.parse_data_general(splited[self.SECTION_MULTIPLE_METRICS])

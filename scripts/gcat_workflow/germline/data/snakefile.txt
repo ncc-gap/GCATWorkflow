@@ -124,6 +124,18 @@ rule collectwgsmetrics:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
+rule collect_hs_metrics:
+    input:
+        lambda wildcards: config["collect_hs_metrics_samples"][wildcards.sample],
+    output:
+        "summary/{sample}/{sample}.collect_hs_metrics.txt"
+    priority: 80
+    params:
+        script = "script/{sample}/singularity_collect_hs_metrics.sh",
+        yaml = "script/{sample}/conf_collect_hs_metrics.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
 rule collect_multiple_metrics:
     input:
         lambda wildcards: config["collect_multiple_metrics_samples"][wildcards.sample],

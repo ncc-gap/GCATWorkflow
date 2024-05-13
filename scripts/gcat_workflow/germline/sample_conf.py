@@ -7,6 +7,7 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_BAM_TOFASTQ = "bam_tofastq"
     SECTION_HTCALL = "haplotypecaller_parabricks"
     SECTION_WGS_METRICS = "collect_wgs_metrics"
+    SECTION_HS_METRICS = "collect_hs_metrics"
     SECTION_MULTIPLE_METRICS = "collect_multiple_metrics"
     SECTION_GRIDSS = "gridss"
     SECTION_MANTA = "manta"
@@ -23,6 +24,7 @@ class Sample_conf(abc.Sample_conf_abc):
         self.bam_import_src = {}
         self.haplotype_call = []
         self.wgs_metrics = []
+        self.hs_metrics = []
         self.multiple_metrics = []
         self.gridss = []
         self.manta = []
@@ -36,7 +38,7 @@ class Sample_conf(abc.Sample_conf_abc):
     def parse_data(self, _data):
         
         input_sections = [self.SECTION_FASTQ, self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ]
-        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS, self.SECTION_MULTIPLE_METRICS, self.SECTION_GRIDSS, self.SECTION_MANTA, self.SECTION_MELT]
+        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS, self.SECTION_HS_METRICS, self.SECTION_MULTIPLE_METRICS, self.SECTION_GRIDSS, self.SECTION_MANTA, self.SECTION_MELT]
         controlpanel_sections = []
         extend_sections = [self.SECTION_READGROUP]
         splited = self.split_section_data(_data, input_sections, analysis_sections, controlpanel_sections, extend_sections)
@@ -64,6 +66,9 @@ class Sample_conf(abc.Sample_conf_abc):
 
         if self.SECTION_WGS_METRICS in splited:
             self.wgs_metrics += self.parse_data_general(splited[self.SECTION_WGS_METRICS])
+
+        if self.SECTION_HS_METRICS in splited:
+            self.hs_metrics += self.parse_data_general(splited[self.SECTION_HS_METRICS])
 
         if self.SECTION_MULTIPLE_METRICS in splited:
             self.multiple_metrics += self.parse_data_general(splited[self.SECTION_MULTIPLE_METRICS])

@@ -59,6 +59,10 @@ def main(gcat_conf, run_conf, sample_conf):
     import gcat_workflow.germline.resource.collectwgsmetrics as rs_wgs_summary
     output_wgs_metrics = rs_wgs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
 
+    # hs summary
+    import gcat_workflow.somatic.resource.collecthsmetrics as rs_hs_summary
+    output_hs_metrics = rs_hs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
+
     # multiple summary
     import gcat_workflow.germline.resource.collectmultiplemetrics as rs_multiple_summary
     output_multiple_metrics = rs_multiple_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
@@ -93,6 +97,7 @@ def main(gcat_conf, run_conf, sample_conf):
 
     y["output_files"].extend(__dic_values(output_mutations))
     y["output_files"].extend(__dic_values(output_wgs_metrics))
+    y["output_files"].extend(__dic_values(output_hs_metrics))
     y["output_files"].extend(__dic_values(output_multiple_metrics))
     y["output_files"].extend(__dic_values(output_gridss))
     y["output_files"].extend(__dic_values(output_manta))
@@ -114,6 +119,10 @@ def main(gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.multiple_metrics:
         y["collect_multiple_metrics_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
         
+    y["collect_hs_metrics_samples"] = {}
+    for sample in sample_conf.hs_metrics:
+        y["collect_hs_metrics_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
+    
     y["gridss_samples"] = {}
     for sample in sample_conf.gridss:
         y["gridss_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
