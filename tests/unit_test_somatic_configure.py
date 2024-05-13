@@ -250,6 +250,11 @@ pbrun = {sample_dir}/parabricks/pbrun
 qsub_option = -l s_vmem=32G,mem_req=32G
 reference = {sample_dir}/reference/XXX.fa
 
+[collect_hs_metrics]
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+
 [gridss]
 qsub_option = -l s_vmem=4G,mem_req=4G -pe def_slot 8
 image = {sample_dir}/image/YYY.simg

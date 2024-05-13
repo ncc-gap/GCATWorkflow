@@ -379,9 +379,6 @@ A_tumor
 [{summary2}]
 A_tumor
 
-[collect_hs_metrics]
-A_tumor
-
 [manta]
 A_tumor
 
