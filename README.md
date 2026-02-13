@@ -72,3 +72,11 @@ case, re-run (force all)
 ```
 snakemake --forceall
 ```
+
+
+## License
+
+Starting from v3.3.0, this software is free for academic and non-commercial research use only.
+Commercial users must obtain a commercial license. Please contact the author.
+
+See LICENSE for details.
