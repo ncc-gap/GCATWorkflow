@@ -1,6 +1,5 @@
 [![UnitTest](https://github.com/ncc-ccat-gap/GCATWorkflow/actions/workflows/UnitTest.yml/badge.svg)](https://github.com/ncc-ccat-gap/GCATWorkflow/actions/workflows/UnitTest.yml)
 ![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue.svg)
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 G-CAT Workflow
 ===============
