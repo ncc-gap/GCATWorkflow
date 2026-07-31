@@ -250,6 +250,8 @@ reference = {sample_dir}/reference/XXX.fa
 control_file1 = {sample_dir}/reference/ZZZ.vcf.gz
 control_file2 = {sample_dir}/reference/ZZZ.vcf.gz
 genecode_gene_file = {sample_dir}/reference/ZZZ.vcf.gz
+gnomad = {sample_dir}/reference/ZZZ.vcf.gz
+rmsk_bed_file = {sample_dir}/reference/ZZZ.bed
 
 [kallisto]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
@@ -329,6 +331,8 @@ reference = {sample_dir}/reference/XXX.fa
 control_file1 = {sample_dir}/reference/ZZZ.vcf.gz
 control_file2 = {sample_dir}/reference/ZZZ.vcf.gz
 genecode_gene_file = {sample_dir}/reference/ZZZ.vcf.gz
+gnomad = {sample_dir}/reference/ZZZ.vcf.gz
+rmsk_bed_file = {sample_dir}/reference/ZZZ.bed
 
 [kallisto]
 qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
