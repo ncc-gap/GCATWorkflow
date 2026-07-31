@@ -1,5 +1,5 @@
 [![UnitTest](https://github.com/ncc-ccat-gap/GCATWorkflow/actions/workflows/UnitTest.yml/badge.svg)](https://github.com/ncc-ccat-gap/GCATWorkflow/actions/workflows/UnitTest.yml)
-![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue.svg)
+![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)
 
 G-CAT Workflow
 ===============
