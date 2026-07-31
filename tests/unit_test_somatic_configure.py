@@ -11,7 +11,7 @@ import sys
 import shutil
 import unittest
 import subprocess
-import snakemake
+from tests import snakemake_compat as snakemake
 
 def func_path (root, name):
     wdir = root + "/" + name
