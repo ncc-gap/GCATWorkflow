@@ -2,7 +2,7 @@
 
 import gcat_workflow.core.gcat_conf as gc
 import gcat_workflow.core.run_conf as rc
-import pkg_resources
+from importlib.resources import files
 
 def main(args):
 
@@ -24,7 +24,7 @@ def main(args):
     
     ###
     # set gcat_conf and task parameter config data
-    defaut_conf = pkg_resources.resource_filename('gcat_workflow', args.analysis_type + '/data/default.ini')
+    defaut_conf = files('gcat_workflow').joinpath(args.analysis_type + '/data/default.ini')
     gcat_conf = gc.gcat_conf(conf = run_conf.gcat_conf_file, default_conf = defaut_conf, exist_check = not args.ignore_invalid_path)
     gcat_conf.software_version_set()
     

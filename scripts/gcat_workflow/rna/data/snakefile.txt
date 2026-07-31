@@ -196,8 +196,7 @@ rule juncmut:
     input:
         lambda wildcards: config["juncmut_samples"][wildcards.sample],
     output:
-        "juncmut/{sample}/{sample}.juncmut.filt.bam",
-        "juncmut/{sample}/{sample}.juncmut.filt.bam.bai",
+        "juncmut/{sample}/{sample}.juncmut.sjclass.alu.annot.filt.txt",
     priority: 80
     params:
         script = "script/{sample}/singularity_juncmut.sh",

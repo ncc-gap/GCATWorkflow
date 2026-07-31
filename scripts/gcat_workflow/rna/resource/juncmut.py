@@ -21,20 +21,45 @@ set -x
 
 rm -rf {OUTPUT_DIR}/*
 {DECOMPRESS_CMD}
-juncmut get \
--input_file {INPUT_FILE} \
--output_file {OUTPUT_DIR}/{OUTPUT_FILE} \
--output_bam {OUTPUT_DIR}/{OUTPUT_BAM} \
--reference {REFERENCE} \
--rna_bam {INPUT_BAM} \
--control_file {CONTROL_FILE1} {CONTROL_FILE2} \
--genecode_gene_file {GENE_FILE}  \
-{JUNCMUT_PRAM} -gnomad {GNOMAD}
 
-#if [ ! -e {OUTPUT_DIR}/{OUTPUT_BAM} ]; then
-#  samtools view -H -b {INPUT_BAM} > {OUTPUT_DIR}/{OUTPUT_BAM}
-#  samtools index {OUTPUT_DIR}/{OUTPUT_BAM}
-#fi
+juncmut detect \
+  {SJ_OUTTAB} \
+  {BAM} \
+  {OUTPUT_PREFIX}.juncmut.txt \
+  {REFERENCE} \
+  {GENCODE} \
+  --control_file {CONTROL_FILE1} {CONTROL_FILE2} {JUNCMUT_DETECT_PARAM}
+
+juncmut filt_bam \
+  {OUTPUT_PREFIX}.juncmut.txt \
+  {BAM} \
+  {OUTPUT_PREFIX}.juncmut.filt.bam \
+  {GENCODE}
+
+juncmut sjclass \
+  {OUTPUT_PREFIX}.juncmut.txt \
+  {OUTPUT_PREFIX}.juncmut.sjclass.txt \
+  {BAM} \
+  {SJ_OUTTAB} \
+  {REFERENCE} \
+  {GENCODE} {JUNCMUT_SJCLASS_PARAM}
+
+juncmut alu \
+  {OUTPUT_PREFIX}.juncmut.sjclass.txt \
+  {OUTPUT_PREFIX}.juncmut.sjclass.alu.txt \
+  {RMSK_BED} \
+  {REFERENCE} {JUNCMUT_ALU_PARAM}
+
+juncmut annot \
+  {OUTPUT_PREFIX}.juncmut.sjclass.alu.txt \
+  {OUTPUT_PREFIX}.juncmut.sjclass.alu.annot.txt \
+  {REFERENCE} {JUNCMUT_ANNOT_PARAM}
+
+juncmut filt \
+  {OUTPUT_PREFIX}.juncmut.sjclass.alu.annot.txt \
+  {OUTPUT_PREFIX}.juncmut.sjclass.alu.annot.filt.tmp.txt
+
+mv {OUTPUT_PREFIX}.juncmut.sjclass.alu.annot.filt.tmp.txt {OUTPUT_PREFIX}.juncmut.sjclass.alu.annot.filt.txt
 
 {RM_CMD}
 """
@@ -53,27 +78,42 @@ def configure(input_bams, input_sj_tabs, gcat_conf, run_conf, sample_conf):
         "singularity_option": gcat_conf.get(SECTION_NAME, "singularity_option")
     }
     stage_class = Juncmut(params)
-    
+
     output_files = {}
     dbs = [
         (SECTION_NAME, "reference"),
         (SECTION_NAME, "control_file1"),
         (SECTION_NAME, "control_file2"),
         (SECTION_NAME, "genecode_gene_file"),
-        (SECTION_NAME, "gnomad")
+        (SECTION_NAME, "gnomad"),
+    ]
+    optional_dbs = [
+        (SECTION_NAME, "cgc_file"),
+        (SECTION_NAME, "clinvar_file"),
+        (SECTION_NAME, "acmg_file"),
+        (SECTION_NAME, "clinvar_star234_file"),
+        (SECTION_NAME, "pancan_file"),
+        (SECTION_NAME, "dosage_sensitivity_file"),
+        (SECTION_NAME, "cgd_file"),
     ]
     local_dbs = []
     for (section, db_name) in dbs:
         parsed = urllib.parse.urlparse(gcat_conf.get(section, db_name))
         if parsed.scheme == "":
             local_dbs.append(gcat_conf.path_get(section, db_name))
-            
+
+    juncmut_annot_param = ["--gnomad %s" % (gcat_conf.path_get(SECTION_NAME, "gnomad"))]
+    for (section, db_name) in optional_dbs:
+        value = gcat_conf.safe_get(section, db_name, "")
+        if value != "":
+            local_dbs.append(gcat_conf.path_get(section, db_name))
+            juncmut_annot_param += ["--%s %s" % (db_name, gcat_conf.path_get(section, db_name))]
+
     for sample in sample_conf.juncmut:
         output_dir = "%s/juncmut/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)
         output_files[sample] = [
-            "%s/%s.juncmut.filt.bam" % (output_dir, sample),
-            "%s/%s.juncmut.filt.bam.bai" % (output_dir, sample)
+            "%s/%s.juncmut.sjclass.alu.annot.filt.txt" % (output_dir, sample),
         ]
         decomp = ""
         remove = ""
@@ -87,18 +127,19 @@ def configure(input_bams, input_sj_tabs, gcat_conf, run_conf, sample_conf):
             )
             remove = "rm %s" % (sjtab)
         arguments = {
-            "SAMPLE": sample,
-            "INPUT_FILE": sjtab,
-            "INPUT_BAM": input_bams[sample],
+            "SJ_OUTTAB": sjtab,
+            "BAM": input_bams[sample],
             "OUTPUT_DIR": output_dir,
-            "OUTPUT_FILE": "%s.juncmut.txt" % (sample),
-            "OUTPUT_BAM": "%s.juncmut.filt.bam" % (sample),
+            "OUTPUT_PREFIX": "%s/%s" % (output_dir, sample),
+            "JUNCMUT_DETECT_PARAM": gcat_conf.get(SECTION_NAME, "juncmut_detect_param"),
+            "JUNCMUT_SJCLASS_PARAM": gcat_conf.get(SECTION_NAME, "juncmut_sjclass_param"),
+            "JUNCMUT_ALU_PARAM": gcat_conf.get(SECTION_NAME, "juncmut_alu_param"),
+            "JUNCMUT_ANNOT_PARAM": " ".join(juncmut_annot_param),
             "REFERENCE": gcat_conf.path_get(SECTION_NAME, "reference"),
-            "CONTROL_FILE1": gcat_conf.get(SECTION_NAME, "control_file1"),
-            "CONTROL_FILE2": gcat_conf.get(SECTION_NAME, "control_file2"),
-            "GENE_FILE": gcat_conf.get(SECTION_NAME, "genecode_gene_file"),
-            "GNOMAD": gcat_conf.get(SECTION_NAME, "gnomad"),
-            "JUNCMUT_PRAM": gcat_conf.get(SECTION_NAME, "juncmut_pram"),
+            "CONTROL_FILE1": gcat_conf.path_get(SECTION_NAME, "control_file1"),
+            "CONTROL_FILE2": gcat_conf.path_get(SECTION_NAME, "control_file2"),
+            "GENCODE": gcat_conf.path_get(SECTION_NAME, "genecode_gene_file"),
+            "RMSK_BED": gcat_conf.path_get(SECTION_NAME, "rmsk_bed"),
             "DECOMPRESS_CMD": decomp,
             "RM_CMD": remove
         }

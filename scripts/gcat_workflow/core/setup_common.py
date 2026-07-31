@@ -2,7 +2,7 @@
 
 import os
 import shutil
-import pkg_resources
+from importlib.resources import files
 
 def create_directories(gcat_conf, run_conf, input_stages, snakefile_name):
     if not type(input_stages) in [type(()), type([])]:
@@ -21,7 +21,7 @@ def create_directories(gcat_conf, run_conf, input_stages, snakefile_name):
     shutil.copyfile(run_conf.sample_conf_file, run_conf.project_root + '/config/' + sample_conf_name +'_'+ gcat_conf.analysis_timestamp + sample_conf_ext)
     
     # copy snakemake
-    shutil.copyfile(pkg_resources.resource_filename('gcat_workflow', snakefile_name), run_conf.project_root + '/snakefile')
+    shutil.copyfile(files('gcat_workflow').joinpath(snakefile_name), run_conf.project_root + '/snakefile')
     
     # mkdir log
     for stage in input_stages:
