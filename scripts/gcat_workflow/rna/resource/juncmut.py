@@ -139,7 +139,7 @@ def configure(input_bams, input_sj_tabs, gcat_conf, run_conf, sample_conf):
             "CONTROL_FILE1": gcat_conf.path_get(SECTION_NAME, "control_file1"),
             "CONTROL_FILE2": gcat_conf.path_get(SECTION_NAME, "control_file2"),
             "GENCODE": gcat_conf.path_get(SECTION_NAME, "genecode_gene_file"),
-            "RMSK_BED": gcat_conf.path_get(SECTION_NAME, "rmsk_bed"),
+            "RMSK_BED": gcat_conf.path_get(SECTION_NAME, "rmsk_bed_file"),
             "DECOMPRESS_CMD": decomp,
             "RM_CMD": remove
         }
