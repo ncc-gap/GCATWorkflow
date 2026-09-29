@@ -51,6 +51,10 @@ def configure(gcat_conf, run_conf, sample_conf):
     import os
     import gcat_workflow.rna.resource.bamtofastq as rs_bamtofastq
     
+    output_files = {}
+    if len(sample_conf.kallisto) == 0:
+        return output_files
+
     STAGE_NAME = "kallisto"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -62,8 +66,7 @@ def configure(gcat_conf, run_conf, sample_conf):
     }
     stage_class = Kallisto(params)
     bamtofastq_class = rs_bamtofastq.Bam_tofastq(params)
-    
-    output_files = {}
+
     for sample in sample_conf.kallisto:
         output_dir = "%s/kallisto/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)    

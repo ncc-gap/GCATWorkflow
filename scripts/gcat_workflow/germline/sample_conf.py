@@ -12,6 +12,7 @@ class Sample_conf(abc.Sample_conf_abc):
     SECTION_GRIDSS = "gridss"
     SECTION_MANTA = "manta"
     SECTION_MELT = "melt"
+    SECTION_GLIMPSE = "glimpse"
     SECTION_READGROUP = "readgroup"
     
     def __init__(self, sample_conf_file, exist_check = True):
@@ -29,6 +30,7 @@ class Sample_conf(abc.Sample_conf_abc):
         self.gridss = []
         self.manta = []
         self.melt = []
+        self.glimpse = []
         self.readgroup = {}
         self.readgroup_src = {}
         self.exist_check = exist_check
@@ -38,7 +40,7 @@ class Sample_conf(abc.Sample_conf_abc):
     def parse_data(self, _data):
         
         input_sections = [self.SECTION_FASTQ, self.SECTION_BAM_IMPORT, self.SECTION_BAM_TOFASTQ]
-        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS, self.SECTION_HS_METRICS, self.SECTION_MULTIPLE_METRICS, self.SECTION_GRIDSS, self.SECTION_MANTA, self.SECTION_MELT]
+        analysis_sections = [self.SECTION_HTCALL, self.SECTION_WGS_METRICS, self.SECTION_HS_METRICS, self.SECTION_MULTIPLE_METRICS, self.SECTION_GRIDSS, self.SECTION_MANTA, self.SECTION_MELT, self.SECTION_GLIMPSE]
         controlpanel_sections = []
         extend_sections = [self.SECTION_READGROUP]
         splited = self.split_section_data(_data, input_sections, analysis_sections, controlpanel_sections, extend_sections)
@@ -81,7 +83,10 @@ class Sample_conf(abc.Sample_conf_abc):
         
         if self.SECTION_MELT in splited:
             self.melt += self.parse_data_general(splited[self.SECTION_MELT])
-        
+                
+        if self.SECTION_GLIMPSE in splited:
+            self.glimpse += self.parse_data_general(splited[self.SECTION_GLIMPSE])
+
         if len(bwa_samples) > 0:
             if not self.SECTION_READGROUP in splited:
                 err_msg = "[%s] section is not set" % (self.SECTION_READGROUP)

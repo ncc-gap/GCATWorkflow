@@ -44,6 +44,10 @@ rm -rf {OUTPUT_DIR}/workspace/
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
+    output_files = {}
+    if len(sample_conf.manta) == 0:
+        return output_files
+
     STAGE_NAME = "manta"
     CONF_SECTION = STAGE_NAME
     params = {
@@ -55,7 +59,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Manta(params)
     
-    output_files = {}
     for (tumor, normal) in sample_conf.manta:
         output_dir = "%s/manta/%s" % (run_conf.project_root, tumor)
         

@@ -44,6 +44,10 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     import os
     import urllib
     
+    output_files = {}
+    if len(sample_conf.iravnet) == 0:
+        return output_files
+
     STAGE_NAME = "iravnet"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -55,7 +59,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Iravnet(params)
     
-    output_files = {}
     dbs = [
         (SECTION_NAME, "reference"),
         (SECTION_NAME, "clinvar_db"),

@@ -25,6 +25,10 @@ GenomonSV merge {control_info} {merge_output_file} {param}
 
 def configure(gcat_conf, run_conf, sample_conf):
     
+    output_files = {}
+    if len(sample_conf.genomon_sv) == 0:
+        return output_files
+
     STAGE_NAME = "genomonsv_merge"
     CONF_SECTION = STAGE_NAME
     params = {
@@ -39,7 +43,6 @@ def configure(gcat_conf, run_conf, sample_conf):
     bedpe_dir = run_conf.project_root + '/genomonsv/non_matched_control_panel'
     control_info_dir = run_conf.project_root + '/genomonsv/control_panel'
 
-    output_files = {}
     for (tumor, normal, panel) in sample_conf.genomon_sv:
         if panel == None:
             continue

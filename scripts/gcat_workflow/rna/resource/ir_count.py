@@ -31,6 +31,10 @@ rm {OUTPUT_DIR}/{SAMPLE}.ir_simple_count.txt
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     import os
     
+    output_files = {}
+    if len(sample_conf.ir_count) == 0:
+        return output_files
+
     STAGE_NAME = "intron_retention"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -42,7 +46,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = IR_count(params)
     
-    output_files = {}
     for sample in sample_conf.ir_count:
         output_dir = "%s/ir_count/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)  

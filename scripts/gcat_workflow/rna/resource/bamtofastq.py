@@ -60,6 +60,10 @@ touch {pass_file}
 def configure(gcat_conf, run_conf, sample_conf):
     import os
     
+    output_fastqs = {}
+    if len(sample_conf.bam_tofastq) == 0:
+        return output_fastqs
+
     STAGE_NAME = "bam_tofastq"
     CONF_SECTION = "bam_tofastq"
     params = {
@@ -70,7 +74,7 @@ def configure(gcat_conf, run_conf, sample_conf):
         "singularity_option": gcat_conf.get(CONF_SECTION, "singularity_option")
     }
     stage_class = Bam_tofastq(params)
-    output_fastqs = {}
+
     for sample in sample_conf.bam_tofastq:
         if sample_conf.bam_tofastq[sample].endswith(".cram"):
             raise Exception("cram to fastq is not yet supported.")

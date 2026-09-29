@@ -33,6 +33,10 @@ mv {OUTPUT_DIR}/fusion_fusion.result.txt {OUTPUT_DIR}/{SAMPLE}.genomonFusion.res
 def configure(input_counts, input_merges, gcat_conf, run_conf, sample_conf):
     import os
     
+    output_files = {}
+    if len(sample_conf.fusionfusion) == 0:
+        return output_files
+
     STAGE_NAME = "fusionfusion"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -43,7 +47,7 @@ def configure(input_counts, input_merges, gcat_conf, run_conf, sample_conf):
         "singularity_option": gcat_conf.get(SECTION_NAME, "singularity_option")
     }
     stage_class = Fusionfusion(params)
-    output_files = {}
+
     for (sample, panel) in sample_conf.fusionfusion:
         output_dir = "%s/fusionfusion/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)

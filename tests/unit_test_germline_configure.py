@@ -16,7 +16,8 @@ from tests import snakemake_compat as snakemake
 def func_path (root, name):
     wdir = root + "/" + name
     ss_path = root + "/" + name + ".csv"
-    return (wdir, ss_path)
+    conf_path = root + "/" + name + ".cfg"
+    return (wdir, ss_path, conf_path)
 
 BAM_IMP = "bam_import"
 BAM_2FQ = "bam_tofastq"
@@ -24,6 +25,7 @@ ALN = "bwa_alignment_parabricks"
 HT_CALL = "haplotypecaller_parabricks"
 SUMMARY1 = "collect_wgs_metrics"
 SUMMARY2 = "collect_multiple_metrics"
+SUMMARY3 = "collect_hs_metrics"
 
 class ConfigureTest(unittest.TestCase):
     
@@ -44,6 +46,7 @@ class ConfigureTest(unittest.TestCase):
         os.makedirs(self.DATA_DIR + "/image", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/parabricks", exist_ok = True)
         os.makedirs(self.DATA_DIR + "/tools", exist_ok = True)
+        os.makedirs(self.DATA_DIR + "/glimpse", exist_ok = True)
         touch_files = [
             "/samples/A1.fastq",
             "/samples/A2.fastq",
@@ -91,6 +94,28 @@ class ConfigureTest(unittest.TestCase):
             "/parabricks/pbrun",
             "/tools/bgzip",
             "/tools/tabix",
+            "/glimpse/chr1.map.gz",
+            "/glimpse/chr2.map.gz",
+            "/glimpse/chr3.map.gz",
+            "/glimpse/chr4.map.gz",
+            "/glimpse/chr5.map.gz",
+            "/glimpse/chr6.map.gz",
+            "/glimpse/chr7.map.gz",
+            "/glimpse/chr8.map.gz",
+            "/glimpse/chr9.map.gz",
+            "/glimpse/chr10.map.gz",
+            "/glimpse/chr11.map.gz",
+            "/glimpse/chr12.map.gz",
+            "/glimpse/chr13.map.gz",
+            "/glimpse/chr14.map.gz",
+            "/glimpse/chr15.map.gz",
+            "/glimpse/chr16.map.gz",
+            "/glimpse/chr17.map.gz",
+            "/glimpse/chr18.map.gz",
+            "/glimpse/chr19.map.gz",
+            "/glimpse/chr20.map.gz",
+            "/glimpse/chr21.map.gz",
+            "/glimpse/chr22.map.gz",
         ]
         for p in touch_files:
             open(self.DATA_DIR + p, "w").close()
@@ -139,6 +164,9 @@ A_tumor
 [{summary2}]
 A_tumor
 
+[{summary3}]
+A_tumor
+
 [manta]
 A_tumor
 
@@ -148,6 +176,9 @@ A_tumor
 [gridss]
 A_tumor
 
+[glimpse]
+A_tumor
+
 [readgroup]
 A_tumor,{sample_dir}/A.metadata.txt
 pool1,{sample_dir}/B.metadata.txt
@@ -155,7 +186,7 @@ pool2,{sample_dir}/C.metadata.txt
 A_control,{sample_dir}/A.metadata.txt
 A_control2,{sample_dir}/A.metadata.txt
 D_tumor,{sample_dir}/D.metadata.txt
-""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2)
+""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, bamimp = BAM_IMP, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2, summary3 = SUMMARY3)
         
         f = open(self.DATA_DIR + self.SS_NAME, "w")
         f.write(data_sample)
@@ -226,10 +257,12 @@ pbrun = {sample_dir}/parabricks/pbrun
 qsub_option = -l s_vmem=32G,mem_req=32G
 reference = {sample_dir}/reference/XXX.fa
 
-[collect_hs_metrics]
+[{summary3}]
 qsub_option = -l s_vmem=32G,mem_req=32G
 image = {sample_dir}/image/YYY.simg
 reference = {sample_dir}/reference/XXX.fa
+bait_intervals = {sample_dir}/reference/XXX.bed
+target_intervals = {sample_dir}/reference/XXX.bed
 
 [gridss]
 qsub_option = -l s_vmem=4G,mem_req=4G -pe def_slot 8
@@ -245,11 +278,18 @@ reference = {sample_dir}/reference/XXX.fa
 qsub_option = -l s_vmem=32G,mem_req=32G
 image = {sample_dir}/image/YYY.simg
 reference = {sample_dir}/reference/XXX.fa
+
+[glimpse]
+qsub_option = -l s_vmem=4G,mem_req=4G -pe def_slot 8
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+map_dir = {sample_dir}/glimpse
+glimpse_reference_prefix ={sample_dir}
 """
         # Not parabricks
         data_conf = conf_template.format(
             sample_dir = self.DATA_DIR, 
-            bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2,
+            bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2, summary3 = SUMMARY3,
             gpu_support = "False"
         )
         
@@ -260,7 +300,7 @@ reference = {sample_dir}/reference/XXX.fa
         # parabricks
         data_conf2 = conf_template.format(
             sample_dir = self.DATA_DIR, 
-            bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2,
+            bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, summary1 = SUMMARY1, summary2 = SUMMARY2, summary3 = SUMMARY3,
             gpu_support = "True"
         )
         
@@ -289,7 +329,7 @@ reference = {sample_dir}/reference/XXX.fa
         subprocess.check_call(['python', 'gcat_runner', '--version'])
     
     def test2_01_configure_drmaa_nogpu(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, _, _) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germline",
             self.DATA_DIR + self.SS_NAME,
@@ -301,7 +341,7 @@ reference = {sample_dir}/reference/XXX.fa
         self.assertTrue(success)
 
     def test2_02_configure_drmaa_gpu(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, _, _) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germline",
             self.DATA_DIR + self.SS_NAME,
@@ -313,7 +353,7 @@ reference = {sample_dir}/reference/XXX.fa
         self.assertTrue(success)
 
     def test2_03_configure_qsub_nogpu(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, _, _) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germline",
             self.DATA_DIR + self.SS_NAME,
@@ -326,7 +366,7 @@ reference = {sample_dir}/reference/XXX.fa
         self.assertTrue(success)
     
     def test2_04_configure_qsub_gpu(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, _, _) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germline",
             self.DATA_DIR + self.SS_NAME,
@@ -339,7 +379,7 @@ reference = {sample_dir}/reference/XXX.fa
         self.assertTrue(success)
 
     def test2_05_configure_slurm_nogpu(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, _, _) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germline",
             self.DATA_DIR + self.SS_NAME,
@@ -352,7 +392,7 @@ reference = {sample_dir}/reference/XXX.fa
         self.assertTrue(success)
     
     def test2_06_configure_slurm_gpu(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, _, _) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         options = [
             "germline",
             self.DATA_DIR + self.SS_NAME,
@@ -365,7 +405,7 @@ reference = {sample_dir}/reference/XXX.fa
         self.assertTrue(success)
 
     def test2_21_dag(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, ss_path, _) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
 
         data_sample = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
@@ -382,10 +422,10 @@ A_tumor
 [manta]
 A_tumor
 
-[melt]
+[gridss]
 A_tumor
 
-[gridss]
+[glimpse]
 A_tumor
 
 [readgroup]
@@ -411,7 +451,7 @@ A_tumor,{sample_dir}/A.metadata.txt
             subprocess.check_call('dot -Tpng {wdir}/germline.dot > {wdir}/dag_germline.png'.format(wdir=wdir), shell=True)
 
     def test3_01_bwa_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
@@ -419,63 +459,195 @@ A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 A_tumor,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR)
         
+        data_conf = """[gatk_{aln}_compatible]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+gatk_recal = True
+
+[post_{aln}]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR, aln = ALN)
+
         f = open(ss_path, "w")
         f.write(data_sample)
         f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
         options = [
             "germline",
             ss_path,
             wdir,
-            self.DATA_DIR + self.GC_NAME,
+            conf_path,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test3_02_1_bwa_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+    def test3_02_bwa_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
-        data_sample = """[{bam2fq}]
-A_tumor,{sample_dir}/A.markdup.cram
+        data_sample = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
 [readgroup]
 A_tumor,{sample_dir}/A.metadata.txt
-""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ)
+""".format(sample_dir = self.SAMPLE_DIR)
         
+        data_conf = """[{aln}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+reference = {sample_dir}/reference/XXX.fa
+fq2bam_markdup_metrics = True
+fq2bam_recal = True
+
+[post_{aln}]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN, gpu_support = "True")
+
         f = open(ss_path, "w")
         f.write(data_sample)
         f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
         options = [
             "germline",
             ss_path,
             wdir,
-            self.DATA_DIR + self.GC_NAME,
+            conf_path,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
     def test3_03_bwa_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
-        data_sample = """[{bamimp}]
+        data_sample = """[{bam2fq}]
 A_tumor,{sample_dir}/A.markdup.cram
-""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP)
-        
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ)
+
+        data_conf = """[{bam2fq}]
+qsub_option = -l s_vmem=2G,mem_req=2G -l os7
+image = {sample_dir}/image/YYY.simg
+
+[gatk_{aln}_compatible]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+gatk_recal = True
+
+[post_{aln}]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN)
+
         f = open(ss_path, "w")
         f.write(data_sample)
         f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
         options = [
             "germline",
             ss_path,
             wdir,
-            self.DATA_DIR + self.GC_NAME,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+
+    def test3_04_bwa_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bam2fq}]
+A_tumor,{sample_dir}/A.markdup.cram
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ)
+
+        data_conf = """[{bam2fq}]
+qsub_option = -l s_vmem=2G,mem_req=2G -l os7
+image = {sample_dir}/image/YYY.simg
+
+[{aln}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+reference = {sample_dir}/reference/XXX.fa
+fq2bam_markdup_metrics = True
+fq2bam_recal = True
+
+[post_{aln}]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN, gpu_support = "True")
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test3_05_bwa_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP)
+
+        data_conf = ""
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
     def test4_01_htc_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[fastq]
 A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
@@ -485,21 +657,101 @@ A_tumor
 A_tumor,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, ht_call = HT_CALL)
         
+        data_conf = """[gatk_{aln}_compatible]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+gatk_recal = True
+
+[post_{aln}]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+
+[gatk_{ht_call}_compatible]
+qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+interval_autosome = {sample_dir}/reference/XXX.bed
+interval_par = {sample_dir}/reference/XXX.bed
+interval_chrx = {sample_dir}/reference/XXX.bed
+interval_chry = {sample_dir}/reference/XXX.bed
+""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL)
+
         f = open(ss_path, "w")
         f.write(data_sample)
         f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
         options = [
             "germline",
             ss_path,
             wdir,
-            self.DATA_DIR + self.GC_NAME,
+            conf_path,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
     def test4_02_htc_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[fastq]
+A_tumor,{sample_dir}/A1.fastq,{sample_dir}/A2.fastq
+[{ht_call}]
+A_tumor
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR, ht_call = HT_CALL)
+        
+        data_conf = """[{aln}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+reference = {sample_dir}/reference/XXX.fa
+fq2bam_markdup_metrics = True
+fq2bam_recal = True
+
+[post_{aln}]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+
+[{ht_call}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+reference = {sample_dir}/reference/XXX.fa
+interval_autosome = {sample_dir}/reference/XXX.bed
+interval_par = {sample_dir}/reference/XXX.bed
+interval_chrx = {sample_dir}/reference/XXX.bed
+interval_chry = {sample_dir}/reference/XXX.bed
+bgzip = {sample_dir}/tools/bgzip
+tabix = {sample_dir}/tools/tabix
+""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, gpu_support = "True")
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test4_03_htc_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[{bam2fq}]
 A_tumor,{sample_dir}/A.markdup.cram
@@ -509,21 +761,110 @@ A_tumor
 A_tumor,{sample_dir}/A.metadata.txt
 """.format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, ht_call = HT_CALL)
         
+        data_conf = """[{bam2fq}]
+qsub_option = -l s_vmem=2G,mem_req=2G -l os7
+image = {sample_dir}/image/YYY.simg
+
+[gatk_{aln}_compatible]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+gatk_recal = True
+
+[post_{aln}]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+
+[gatk_{ht_call}_compatible]
+qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+interval_autosome = {sample_dir}/reference/XXX.bed
+interval_par = {sample_dir}/reference/XXX.bed
+interval_chrx = {sample_dir}/reference/XXX.bed
+interval_chry = {sample_dir}/reference/XXX.bed
+""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL)
+
         f = open(ss_path, "w")
         f.write(data_sample)
         f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
         options = [
             "germline",
             ss_path,
             wdir,
-            self.DATA_DIR + self.GC_NAME,
+            conf_path,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
-    def test4_03_htc_limited(self):
-        (wdir, ss_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+
+    def test4_04_htc_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bam2fq}]
+A_tumor,{sample_dir}/A.markdup.cram
+[{ht_call}]
+A_tumor
+[readgroup]
+A_tumor,{sample_dir}/A.metadata.txt
+""".format(sample_dir = self.SAMPLE_DIR, bam2fq = BAM_2FQ, ht_call = HT_CALL)
+        
+        data_conf = """[{bam2fq}]
+qsub_option = -l s_vmem=2G,mem_req=2G -l os7
+image = {sample_dir}/image/YYY.simg
+
+[{aln}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+reference = {sample_dir}/reference/XXX.fa
+fq2bam_markdup_metrics = True
+fq2bam_recal = True
+
+[post_{aln}]
+qsub_option = -l s_vmem=10.6G,mem_req=10.6G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+
+[{ht_call}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+reference = {sample_dir}/reference/XXX.fa
+interval_autosome = {sample_dir}/reference/XXX.bed
+interval_par = {sample_dir}/reference/XXX.bed
+interval_chrx = {sample_dir}/reference/XXX.bed
+interval_chry = {sample_dir}/reference/XXX.bed
+bgzip = {sample_dir}/tools/bgzip
+tabix = {sample_dir}/tools/tabix
+""".format(sample_dir = self.DATA_DIR, bam2fq = BAM_2FQ, aln = ALN, ht_call = HT_CALL, gpu_support = "True")
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test4_05_htc_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
         
         data_sample = """[{bamimp}]
 A_tumor,{sample_dir}/A.markdup.cram
@@ -531,19 +872,377 @@ A_tumor,{sample_dir}/A.markdup.cram
 A_tumor
 """.format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP, ht_call = HT_CALL)
         
+        data_conf = """[gatk_{ht_call}_compatible]
+qsub_option = -l s_vmem=5.3G,mem_req=5.3G -l os7
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+interval_autosome = {sample_dir}/reference/XXX.bed
+interval_par = {sample_dir}/reference/XXX.bed
+interval_chrx = {sample_dir}/reference/XXX.bed
+interval_chry = {sample_dir}/reference/XXX.bed
+""".format(sample_dir = self.DATA_DIR, ht_call = HT_CALL)
+
         f = open(ss_path, "w")
         f.write(data_sample)
         f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
         options = [
             "germline",
             ss_path,
             wdir,
-            self.DATA_DIR + self.GC_NAME,
+            conf_path,
         ]
         subprocess.check_call(['python', 'gcat_workflow'] + options)
         success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
         self.assertTrue(success)
 
+
+    def test4_06_htc_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[{ht_call}]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP, ht_call = HT_CALL)
+        
+        data_conf = """[{ht_call}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+reference = {sample_dir}/reference/XXX.fa
+interval_autosome = {sample_dir}/reference/XXX.bed
+interval_par = {sample_dir}/reference/XXX.bed
+interval_chrx = {sample_dir}/reference/XXX.bed
+interval_chry = {sample_dir}/reference/XXX.bed
+bgzip = {sample_dir}/tools/bgzip
+tabix = {sample_dir}/tools/tabix
+""".format(sample_dir = self.DATA_DIR, ht_call = HT_CALL, gpu_support = "True")
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test5_01_metrics_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[{summary1}]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP, summary1 = SUMMARY1)
+        
+        data_conf = """[gatk_{summary1}_compatible]
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR, summary1 = SUMMARY1)
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test5_02_metrics_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[{summary1}]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP, summary1 = SUMMARY1)
+        
+        data_conf = """[{summary1}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=32G,mem_req=32G
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR, summary1 = SUMMARY1, gpu_support = "True")
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test5_03_metrics_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[{summary2}]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP, summary2 = SUMMARY2)
+        
+        data_conf = """[gatk_{summary2}_compatible]
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR, summary2 = SUMMARY2)
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+
+    def test5_04_metrics_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[{summary2}]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP, summary2 = SUMMARY2)
+        
+        data_conf = """[{summary2}]
+gpu_support = {gpu_support}
+pbrun = {sample_dir}/parabricks/pbrun
+qsub_option = -l s_vmem=32G,mem_req=32G
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR, summary2 = SUMMARY2, gpu_support = "True")
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test5_05_metrics_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[{summary3}]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP, summary3 = SUMMARY3)
+        
+        data_conf = """[{summary3}]
+qsub_option = -l s_vmem=32G,mem_req=32G
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+bait_intervals = {sample_dir}/reference/XXX.bed
+target_intervals = {sample_dir}/reference/XXX.bed
+""".format(sample_dir = self.DATA_DIR, summary3 = SUMMARY3)
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test6_01_manta_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[manta]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP)
+        
+        data_conf = """[manta]
+qsub_option = -l s_vmem=2G,mem_req=2G -pe def_slot 8
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR)
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test7_01_gridss_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[gridss]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP)
+        
+        data_conf = """[gridss]
+qsub_option = -l s_vmem=2G,mem_req=2G -pe def_slot 8
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR)
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test8_01_melt_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[melt]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP)
+        
+        data_conf = """[melt]
+qsub_option = -l s_vmem=2G,mem_req=2G -pe def_slot 8
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+""".format(sample_dir = self.DATA_DIR)
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
+
+    def test9_01_glimpse_limited(self):
+        (wdir, ss_path, conf_path) = func_path (self.DATA_DIR, sys._getframe().f_code.co_name)
+        
+        data_sample = """[{bamimp}]
+A_tumor,{sample_dir}/A.markdup.cram
+[glimpse]
+A_tumor
+""".format(sample_dir = self.SAMPLE_DIR, bamimp = BAM_IMP)
+        
+        data_conf = """[glimpse]
+qsub_option = -l s_vmem=4G,mem_req=4G -pe def_slot 8
+image = {sample_dir}/image/YYY.simg
+reference = {sample_dir}/reference/XXX.fa
+map_dir = {sample_dir}/glimpse
+glimpse_reference_prefix ={sample_dir}/
+""".format(sample_dir = self.DATA_DIR)
+
+        f = open(ss_path, "w")
+        f.write(data_sample)
+        f.close()
+
+        f = open(conf_path, "w")
+        f.write(data_conf)
+        f.close()
+
+        options = [
+            "germline",
+            ss_path,
+            wdir,
+            conf_path,
+        ]
+        subprocess.check_call(['python', 'gcat_workflow'] + options)
+        success = snakemake.snakemake(wdir + '/snakefile', workdir = wdir, dryrun = True)
+        self.assertTrue(success)
 
 if __name__ == '__main__':
     unittest.main()

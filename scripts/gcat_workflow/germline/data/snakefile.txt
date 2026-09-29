@@ -194,6 +194,19 @@ rule melt:
     shell:
         "gcat_runner {params.script} {params.yaml}"
 
+rule glimpse:
+    input:
+        lambda wildcards: config["glimpse_samples"][wildcards.sample],
+    output:
+        "glimpse/{sample}/{sample}.allchr.concat.vcf.gz",
+        "glimpse/{sample}/{sample}.allchr.concat.vcf.gz.tbi",
+    priority: 80
+    params:
+        script = "script/{sample}/singularity_glimpse.sh",
+        yaml = "script/{sample}/conf_glimpse.yml"
+    shell:
+        "gcat_runner {params.script} {params.yaml}"
+
 rule join:
     input:
         ["{dataset}".format(dataset=dataset) for dataset in config["output_files"]]

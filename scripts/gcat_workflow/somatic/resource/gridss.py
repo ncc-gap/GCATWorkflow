@@ -55,6 +55,10 @@ rm -rf ${{output_dir}}/*.working/
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
+    output_files = {}
+    if len(sample_conf.gridss) == 0:
+        return output_files
+
     STAGE_NAME = "gridss"
     CONF_SECTION = STAGE_NAME
     params = {
@@ -66,7 +70,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Gridss(params)
     
-    output_files = {}
     for (tumor, normal) in sample_conf.gridss:
         output_dir = "%s/gridss/%s" % (run_conf.project_root, tumor)
         output_vcf = "%s/%s.gridss.vcf" % (output_dir, tumor)

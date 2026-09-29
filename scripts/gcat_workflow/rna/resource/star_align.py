@@ -73,6 +73,10 @@ rm ${{OUTPUT_PREF}}.Aligned.out.bam
 def configure(gcat_conf, run_conf, sample_conf, org_fastq_samples):
     import os
     
+    output_bams = {}
+    if len(sample_conf.fastq) == 0:
+        return output_bams
+
     STAGE_NAME = "star_alignment"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -84,7 +88,6 @@ def configure(gcat_conf, run_conf, sample_conf, org_fastq_samples):
     }
     stage_class = Star_align(params)
     
-    output_bams = {}
     for sample in sample_conf.fastq:
         output_dir = "%s/star/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)

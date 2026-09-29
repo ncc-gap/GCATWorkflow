@@ -25,6 +25,10 @@ GenomonSV parse {input_bam} {output_prefix} --reference {reference} {param}
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     
+    output_files = {}
+    if len(sample_conf.genomon_sv) == 0:
+        return output_files
+
     STAGE_NAME = "genomonsv_parse"
     CONF_SECTION = STAGE_NAME
     params = {
@@ -45,7 +49,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
             samples.extend(sample_conf.control_panel[panel])
     samples = list(set(samples))
 
-    output_files = {}
     for sample in samples:
         output_dir = '%s/genomonsv/%s' % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)

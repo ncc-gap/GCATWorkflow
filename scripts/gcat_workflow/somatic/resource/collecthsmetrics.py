@@ -36,6 +36,10 @@ mkdir -p $(dirname {OUTPUT_FILE})
 STAGE_NAME = "collect_hs_metrics"
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
+    
+    output_files = {}
+    if len(sample_conf.hs_metrics) == 0:
+        return output_files
 
     CONF_SECTION = STAGE_NAME
     params = {
@@ -46,8 +50,7 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
         "singularity_option": gcat_conf.get(CONF_SECTION, "singularity_option")
     }
     stage_class = Hs_metrics(params)
-    
-    output_files = {}
+
     for sample in sample_conf.hs_metrics:
         output_txt = "%s/summary/%s/%s.collect_hs_metrics.txt" % (run_conf.project_root, sample, sample)
         output_files[sample] = output_txt

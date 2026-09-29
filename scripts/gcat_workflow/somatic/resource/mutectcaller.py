@@ -181,6 +181,10 @@ def _parabricks(input_bams, gcat_conf, run_conf, sample_conf):
     return output_files
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
+
+    if len(sample_conf.mutect_call) == 0:
+        return {}
+
     if gcat_conf.safe_get(STAGE_NAME, "gpu_support", "False").lower() == "true":
         return _parabricks(input_bams, gcat_conf, run_conf, sample_conf)
     return _compatible(input_bams, gcat_conf, run_conf, sample_conf)

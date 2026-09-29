@@ -32,6 +32,10 @@ mv {output_prefix}.genomonSV.result.filt.txt.tmp {output_prefix}.genomonSV.resul
 
 def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
     
+    output_files = {}
+    if len(sample_conf.genomon_sv) == 0:
+        return output_files
+
     STAGE_NAME = "genomonsv_filt"
     CONF_SECTION = STAGE_NAME
     params = {
@@ -43,7 +47,6 @@ def configure(input_bams, sv_merged, gcat_conf, run_conf, sample_conf):
     }
     stage_class = GenomonSV_filt(params)
     
-    output_files = {}
     for (tumor, normal, panel) in sample_conf.genomon_sv:
         output_prefix = "{root}/genomonsv/{sample}/{sample}".format(root = run_conf.project_root, sample=tumor)
         output_files[tumor] = output_prefix + ".genomonSV.result.filt.txt"

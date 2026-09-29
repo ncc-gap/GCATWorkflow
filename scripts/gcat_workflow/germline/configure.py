@@ -60,7 +60,7 @@ def main(gcat_conf, run_conf, sample_conf):
     output_wgs_metrics = rs_wgs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
 
     # hs summary
-    import gcat_workflow.somatic.resource.collecthsmetrics as rs_hs_summary
+    import gcat_workflow.germline.resource.collecthsmetrics as rs_hs_summary
     output_hs_metrics = rs_hs_summary.configure(output_bams, gcat_conf, run_conf, sample_conf)
 
     # multiple summary
@@ -78,6 +78,10 @@ def main(gcat_conf, run_conf, sample_conf):
     # melt
     import gcat_workflow.germline.resource.melt as rs_melt
     output_melt = rs_melt.configure(output_bams, gcat_conf, run_conf, sample_conf)
+
+    # glimpse
+    import gcat_workflow.germline.resource.glimpse as rs_glimpse
+    output_glimpse = rs_glimpse.configure(output_bams, gcat_conf, run_conf, sample_conf)
 
     # ######################
     # dump conf.yaml
@@ -102,6 +106,7 @@ def main(gcat_conf, run_conf, sample_conf):
     y["output_files"].extend(__dic_values(output_gridss))
     y["output_files"].extend(__dic_values(output_manta))
     y["output_files"].extend(__dic_values(output_melt))
+    y["output_files"].extend(__dic_values(output_glimpse))
 
     y["post_aln_samples"] = {}
     for sample in y["aln_samples"]:
@@ -135,6 +140,11 @@ def main(gcat_conf, run_conf, sample_conf):
     for sample in sample_conf.melt:
         y["melt_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
         
+    y["glimpse_samples"] = {}
+    for sample in sample_conf.glimpse:
+        y["glimpse_samples"][sample] = rs_post_align.OUTPUT_FORMAT.format(sample=sample)
+        
+
     import yaml
     open(run_conf.project_root + "/config.yml", "w").write(yaml.dump(y))
 

@@ -245,6 +245,10 @@ def _parabricks(gcat_conf, run_conf, sample_conf):
     return output_bams
 
 def configure(gcat_conf, run_conf, sample_conf):
+
+    if len(sample_conf.fastq) == 0:
+        return {}
+
     if gcat_conf.safe_get(STAGE_NAME, "gpu_support", "False").lower() == "true":
         return _parabricks(gcat_conf, run_conf, sample_conf)
     return _compatible(gcat_conf, run_conf, sample_conf)

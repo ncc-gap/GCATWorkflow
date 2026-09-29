@@ -59,6 +59,10 @@ touch {pass}
 
 def configure(gcat_conf, run_conf, sample_conf):
     
+    output_fastqs = {}
+    if len(sample_conf.bam_tofastq) == 0:
+        return output_fastqs
+
     STAGE_NAME = sample_conf.SECTION_BAM_TOFASTQ
     CONF_SECTION = sample_conf.SECTION_BAM_TOFASTQ
     params = {
@@ -70,7 +74,6 @@ def configure(gcat_conf, run_conf, sample_conf):
     }
     stage_class = Bam_tofastq(params)
     
-    output_fastqs = {}
     for sample in sample_conf.bam_tofastq:
         output_dir = "%s/fastq/%s" % (run_conf.project_root, sample)
         f1_name = output_dir + "/1_1.fastq"

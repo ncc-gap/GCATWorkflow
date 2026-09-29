@@ -67,7 +67,11 @@ mv {OUTPUT_PREFIX}.juncmut.sjclass.alu.annot.filt.tmp.txt {OUTPUT_PREFIX}.juncmu
 def configure(input_bams, input_sj_tabs, gcat_conf, run_conf, sample_conf):
     import os
     import urllib
-    
+
+    output_files = {}
+    if len(sample_conf.juncmut) == 0:
+        return output_files
+
     STAGE_NAME = "juncmut"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -79,7 +83,6 @@ def configure(input_bams, input_sj_tabs, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Juncmut(params)
 
-    output_files = {}
     dbs = [
         (SECTION_NAME, "reference"),
         (SECTION_NAME, "control_file1"),

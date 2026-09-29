@@ -42,7 +42,11 @@ java \\
 """
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
-    
+
+    output_files = {}
+    if len(sample_conf.melt) == 0:
+        return output_files
+
     STAGE_NAME = "melt"
     CONF_SECTION = STAGE_NAME
     image = gcat_conf.safe_get(CONF_SECTION, "image", "")
@@ -58,7 +62,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Melt(params)
     
-    output_files = {}
     for sample in sample_conf.melt:
         output_dir = "%s/melt/%s" % (run_conf.project_root, sample)
         output_files[sample] = []

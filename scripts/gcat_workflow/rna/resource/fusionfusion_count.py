@@ -27,6 +27,10 @@ chimera_utils count {OPTION} {INPUT} {OUTPUT}
 def configure(input_files, gcat_conf, run_conf, sample_conf):
     import os
     
+    output_files = {}
+    if len(sample_conf.fusionfusion) == 0:
+        return output_files
+
     STAGE_NAME = "fusionfusion_count"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -47,7 +51,6 @@ def configure(input_files, gcat_conf, run_conf, sample_conf):
             if not i in samples:
                 samples.append(i)
                 
-    output_files = {}
     for sample in samples:
         output_dir = "%s/fusionfusion/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)

@@ -30,6 +30,10 @@ rm -rf {OUTPUT_DIR}/_starF_checkpoints
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     import os
     
+    output_files = {}
+    if len(sample_conf.star_fusion) == 0:
+        return output_files
+
     STAGE_NAME = "star_fusion"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -41,7 +45,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Star_fusion(params)
     
-    output_files = {}
     for sample in sample_conf.star_fusion:
         output_dir = "%s/star_fusion/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)    

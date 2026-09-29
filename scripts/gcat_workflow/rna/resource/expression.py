@@ -30,6 +30,10 @@ gzip -f ${{OUTPUT_PREF}}.txt
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
     import os
     
+    output_files = {}
+    if len(sample_conf.expression) == 0:
+        return output_files
+
     STAGE_NAME = "expression"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -41,7 +45,6 @@ def configure(input_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = Expression(params)
     
-    output_files = {}
     for sample in sample_conf.expression:
         output_dir = "%s/expression/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True) 

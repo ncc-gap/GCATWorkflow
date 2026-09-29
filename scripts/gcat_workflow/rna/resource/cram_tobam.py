@@ -32,6 +32,10 @@ ln -s {INPUT_SJ_TAB} {OUTPUT_SJ_TAB}
 def configure(gcat_conf, run_conf, sample_conf):
     import os
     
+    output_bams = {}
+    if len(sample_conf.cram_import) == 0:
+        return output_bams
+
     STAGE_NAME = "cram_tobam"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -43,7 +47,6 @@ def configure(gcat_conf, run_conf, sample_conf):
     }
     stage_class = Cram_tobam(params)
     
-    output_bams = {}
     for sample in sample_conf.cram_import:
         input_dir = os.path.dirname(sample_conf.cram_import[sample])
         input_chimeric_sam = sample_conf.cram_import[sample].replace(CRAM_POSTFIX, CHIMERIC_SAM_POSTFIX)

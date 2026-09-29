@@ -69,6 +69,10 @@ touch {PASS_FILE}
 def configure(gcat_conf, run_conf, sample_conf):
     import os
     
+    output_fastqs = {}
+    if len(sample_conf.sra_fastq_dump) == 0:
+        return output_fastqs
+
     STAGE_NAME = "sra_fastq_dump"
     CONF_SECTION = "sra_fastq_dump"
     params = {
@@ -79,7 +83,7 @@ def configure(gcat_conf, run_conf, sample_conf):
         "singularity_option": gcat_conf.get(CONF_SECTION, "singularity_option")
     }
     stage_class = SRA_fastq_dump(params)
-    output_fastqs = {}
+
     for sample in sample_conf.sra_fastq_dump:
         output_dir = "%s/fastq/%s" % (run_conf.project_root, sample)
         os.makedirs(output_dir, exist_ok=True)    

@@ -41,6 +41,10 @@ rm -f {INPUT_BAI}
 
 def configure(aligned_bams, gcat_conf, run_conf, sample_conf):
 
+    output_crams = {}
+    if len(aligned_bams) == 0:
+        return output_crams
+
     STAGE_NAME = "post_bwa_alignment_parabricks"
     CONF_SECTION = STAGE_NAME
     params = {
@@ -52,7 +56,6 @@ def configure(aligned_bams, gcat_conf, run_conf, sample_conf):
     }
     stage_class = PostBwa(params)
      
-    output_crams = {}
     for sample in aligned_bams:
         output_dir = "%s/cram/%s" % (run_conf.project_root, sample)
         output_crams[sample] = "%s/%s.markdup.cram" % (output_dir, sample)

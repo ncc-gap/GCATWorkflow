@@ -32,6 +32,10 @@ chimera_utils merge_control {OPTION} {MERGED_LIST} {OUTPUT}
 def configure(gcat_conf, run_conf, sample_conf):
     import os
     
+    output_files = {}
+    if len(sample_conf.fusionfusion) == 0:
+        return output_files
+
     STAGE_NAME = "fusionfusion_merge"
     SECTION_NAME = STAGE_NAME
     params = {
@@ -43,7 +47,6 @@ def configure(gcat_conf, run_conf, sample_conf):
     }
     stage_class = Fusionfusion_merge(params)
     
-    output_files = {}
     for (sample_dummy, panel) in sample_conf.fusionfusion:
         if panel == None:
             continue 

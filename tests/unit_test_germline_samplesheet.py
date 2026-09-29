@@ -111,6 +111,9 @@ A_tumor
 [gridss]
 A_tumor
 
+[glimpse]
+A_tumor
+
 [readgroup]
 A_tumor,{sample_dir}/A.metadata.txt
 pool1,{sample_dir}/B.metadata.txt
@@ -150,6 +153,7 @@ A_control2,{sample_dir}/link_A.metadata.txt
         self.assertEqual(sample_conf.manta, ['A_tumor'])
         self.assertEqual(sample_conf.melt, ['A_tumor'])
         self.assertEqual(sample_conf.gridss, ['A_tumor'])
+        self.assertEqual(sample_conf.glimpse, ['A_tumor'])
         self.assertEqual(sample_conf.wgs_metrics, ['A_tumor'])
         self.assertEqual(sample_conf.multiple_metrics, ['A_tumor'])
         self.assertEqual(sample_conf.readgroup, {
