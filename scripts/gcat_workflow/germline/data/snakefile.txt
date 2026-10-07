@@ -85,6 +85,7 @@ rule post_bwa:
         lambda wildcards: config["post_aln_samples"][wildcards.sample],
     output:
         "cram/{sample}/{sample}.markdup.cram"
+    priority: 60
     params:
         script = "script/{sample}/singularity_post_bwa_alignment_parabricks.sh",
         yaml = "script/{sample}/conf_post_bwa_alignment_parabricks.yml"
