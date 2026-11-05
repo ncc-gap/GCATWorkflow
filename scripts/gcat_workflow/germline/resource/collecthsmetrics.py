@@ -36,7 +36,7 @@ mkdir -p $(dirname {OUTPUT_FILE})
 STAGE_NAME = "collect_hs_metrics"
 
 def configure(input_bams, gcat_conf, run_conf, sample_conf):
-
+    
     output_files = {}
     if len(sample_conf.hs_metrics) == 0:
         return output_files

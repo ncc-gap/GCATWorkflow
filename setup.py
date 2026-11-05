@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from scripts.gcat_workflow import __version__
 
 #import sys
@@ -21,12 +21,12 @@ setup(
         'Intended Audience :: Science/Research',
         'Topic :: Genome Analysis :: RNA-seq',
         'Operating System :: Unix',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.12',
         'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
     
     package_dir = {'': 'scripts'},
-    packages = find_packages("scripts"),
+    packages = find_namespace_packages("scripts"),
     package_data = {'gcat_workflow': ['*/data/*']},
     
     scripts = ['gcat_workflow', 'gcat_runner'],
@@ -38,5 +38,5 @@ setup(
         'drmaa',
     ],
     #test_suite = 'unit_tests.suite'
-    test_suite = 'tests'
+    #test_suite = 'tests'
 )

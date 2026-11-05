@@ -38,7 +38,7 @@ do
     INPUT_FASTQ_2=${{array[2]}}
     RG=${{array[3]}}
 
-    /tools/bwa-0.7.15/bwa mem \\
+    {BWA_PATH} mem \\
       {BWA_OPTION} \\
       -R "$RG" \\
       {REFERENCE} \\
@@ -48,11 +48,11 @@ do
       {GATK_SORT_JAVA_OPTION} \\
       -jar {GATK_JAR} SortSam \\
       {GATK_SORT_OPTION} \\
-      -I=/dev/stdin \\
-      -O={WORK_DIR}/{SAMPLE_NAME}_$NUM.bam \\
-      --SORT_ORDER=coordinate
+      -I /dev/stdin \\
+      -O {WORK_DIR}/{SAMPLE_NAME}_$NUM.bam \\
+      --SORT_ORDER coordinate
       
-    SORTED_BAMS=$SORTED_BAMS" -I={WORK_DIR}/{SAMPLE_NAME}_$NUM.bam"
+    SORTED_BAMS=$SORTED_BAMS" -I {WORK_DIR}/{SAMPLE_NAME}_$NUM.bam"
     REMOVE_BAMS=$REMOVE_BAMS" {WORK_DIR}/{SAMPLE_NAME}_$NUM.bam"
 done
 
@@ -60,8 +60,8 @@ done
   {GATK_MARKDUP_JAVA_OPTION} \\
   -jar {GATK_JAR} MarkDuplicates \\
   $SORTED_BAMS \\
-  -O={OUTPUT_BAM} \\
-  -M={OUTPUT_MARKDUP_METRICS} {GATK_MARKDUP_OPTION}
+  -O {OUTPUT_BAM} \\
+  -M {OUTPUT_MARKDUP_METRICS} {GATK_MARKDUP_OPTION}
 
 rm -f {WORK_DIR}/{SAMPLE_NAME}.bam
 rm -f $REMOVE_BAMS
@@ -70,9 +70,9 @@ if [ "{RECAL}" = "T" ]; then
   /usr/bin/java \\
     {GATK_RECAL_JAVA_OPTION} \\
     -jar {GATK_JAR} BaseRecalibrator \\
-    -I={OUTPUT_BAM} \\
-    -R={REFERENCE} \\
-    -O={OUTPUT_RECAL_FILE} {GATK_RECAL_OPTION}
+    -I {OUTPUT_BAM} \\
+    -R {REFERENCE} \\
+    -O {OUTPUT_RECAL_FILE} {GATK_RECAL_OPTION}
 fi
 """
 
@@ -139,6 +139,7 @@ def _compatible(gcat_conf, run_conf, sample_conf):
             "OUTPUT_RECAL_FILE": "%s/%s%s" % (output_dir, sample, gcat_conf.get(CONF_SECTION, "gatk_out_recal_postfix")),
             "WORK_DIR": output_dir,
             "REFERENCE": gcat_conf.path_get(CONF_SECTION, "reference"),
+            "BWA_PATH": gcat_conf.get(CONF_SECTION, "bwa_path"),
             "BWA_OPTION": gcat_conf.get(CONF_SECTION, "bwa_option") + " " + gcat_conf.get(CONF_SECTION, "bwa_threads_option"),
             "GATK_JAR": gcat_conf.get(CONF_SECTION, "gatk_jar"),
             "GATK_SORT_OPTION": gcat_conf.get(CONF_SECTION, "gatk_sort_option"),
